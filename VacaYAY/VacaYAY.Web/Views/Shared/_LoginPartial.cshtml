@@ -1,17 +1,33 @@
-﻿@using System.Security.Principal
+﻿@using Microsoft.AspNetCore.Identity
+@using VacaYAY.Data.Models;
+@*@using VacaYAY.Web.Areas.Identity.Data*@
+
+@inject SignInManager<Employee> SignInManager
+@inject UserManager<Employee> UserManager
 
 <ul class="navbar-nav">
-@if (User.Identity?.IsAuthenticated == true)
-{
-        <span class="navbar-text text-dark">Hello @User.Identity?.Name!</span>
+    @if (SignInManager.IsSignedIn(User))
+    {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">Sign out</a>
+            <a class="nav-link text-dark" id="create" asp-area="Identity" asp-page="/Account/Register">Create Employee</a>
         </li>
-}
-else
-{
+
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn">Sign in</a>
+            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
         </li>
-}
+        <li class="nav-item">
+            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
 </ul>

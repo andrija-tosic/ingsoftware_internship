@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Data;
 
-public class VacayayDbContext : DbContext
+public class VacayayDbContext : IdentityDbContext<Employee>
 {
     public required DbSet<Employee> Employees { get; set; }
     public required DbSet<Position> Positions { get; set; }
@@ -24,5 +25,7 @@ public class VacayayDbContext : DbContext
         modelBuilder.Entity<LeaveType>()
             .HasIndex(e => e.Name)
             .IsUnique(true);
+
+        modelBuilder.Entity<Employee>().ToTable(nameof(Employee) + "s");
     }
 }

@@ -1,5 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
+using VacaYAY.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,24 @@ builder.Services.AddDbContext<VacayayDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("vacayay-db"));
 });
+
+builder.Services.AddIdentity<Employee, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+})
+    .AddEntityFrameworkStores<VacayayDbContext>();
+
+builder.Services.AddScoped<SignInManager<Employee>, SignInManager<Employee>>();
+builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.AddRazorPages();
 
@@ -37,6 +59,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 app.MapRazorPages();
 
 app.Run();

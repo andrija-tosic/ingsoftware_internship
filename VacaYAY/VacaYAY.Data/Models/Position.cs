@@ -2,7 +2,7 @@
 
 namespace VacaYAY.Data.Models;
 
-public class Position
+public class Position // : IdentityRole<int>
 {
     [Key]
     public int Id { get; set; }
