@@ -72,8 +72,11 @@ namespace VacaYAY.Web.Areas.Employees.Pages
 
             try
             {
-                await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
-                await _unitOfWork.SaveChangesAsync();
+                IdentityResult res = await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
+                if (res.Succeeded)
+                {
+                    await _unitOfWork.SaveChangesAsync();
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
