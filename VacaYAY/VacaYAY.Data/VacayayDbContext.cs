@@ -27,5 +27,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
             .IsUnique(true);
 
         modelBuilder.Entity<Employee>().ToTable(nameof(Employee) + "s");
+
+        modelBuilder.Entity<Employee>().HasQueryFilter(e => e.DeleteDate == null);
     }
 }

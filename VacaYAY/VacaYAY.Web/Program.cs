@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using VacaYAY.Business.Services;
+using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -33,11 +33,9 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options =>
 builder.Services.AddScoped<SignInManager<Employee>, SignInManager<Employee>>();
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-builder.Services.AddScoped<IPositionService, PositionService>();
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddRazorPages();
-
 
 var app = builder.Build();
 

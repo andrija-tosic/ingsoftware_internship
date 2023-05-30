@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business.Services;
+using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -20,13 +20,12 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
         private readonly SignInManager<Employee> _signInManager;
         private readonly UserManager<Employee> _userManager;
         private readonly IUserStore<Employee> _userStore;
-        private readonly IUserEmailStore<Employee> _emailStore;
+        //private readonly IUserEmailStore<Employee> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        //private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUnitOfWork _unitOfWork;
 
         //private readonly IEmailSender _emailSender;
-        private readonly IPositionService _positionService;
-        private readonly IEmployeeService _employeeService;
 
         public List<Position> Positions { get; set; }
 
@@ -36,19 +35,17 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             SignInManager<Employee> signInManager,
             ILogger<RegisterModel> logger,
             //,IEmailSender emailSender
-            RoleManager<IdentityRole> roleManager,
-            IPositionService positionService,
-            IEmployeeService employeeService
+            //RoleManager<IdentityRole> roleManager,
+            IUnitOfWork unitOfWork
             )
         {
             _userManager = userManager;
             _userStore = userStore;
-            _emailStore = GetEmailStore();
+            //_emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
-            _roleManager = roleManager;
-            _positionService = positionService;
-            _employeeService = employeeService;
+            //_roleManager = roleManager;
+            _unitOfWork = unitOfWork;
 
             //_emailSender = emailSender;
         }
@@ -131,6 +128,10 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             [Required]
             [Display(Name = "Employment start date")]
             public required DateTime EmploymentStartDate { get; set; }
+            [Required]
+            [Display(Name = "Employment end date")]
+            public required DateTime EmploymentEndDate { get; set; }
+
         }
 
 
@@ -139,7 +140,7 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            Positions = await _positionService.GetPositions();
+            Positions = await _unitOfWork.PositionService.GetPositions();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -149,10 +150,11 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 Employee user = await CreateUser();
-                IdentityResult result = await _employeeService.Create(user, Input.Password);
+                IdentityResult result = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
+                    await _unitOfWork.SaveChangesAsync();
                     _logger.LogInformation("User created a new account with password.");
 
                     //var userId = await _userManager.GetUserIdAsync(user);
@@ -194,11 +196,12 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
                 Address = Input.Address,
                 DaysOffNumber = Input.DaysOffNumber,
                 EmploymentStartDate = Input.EmploymentStartDate,
+                EmploymentEndDate = Input.EmploymentEndDate,
                 FirstName = Input.FirstName,
                 LastName = Input.LastName,
                 IdNumber = Input.IdNumber,
                 InsertDate = DateTime.Now,
-                Position = await _positionService.GetById(Input.PositionId),
+                Position = await _unitOfWork.PositionService.GetById(Input.PositionId),
                 VacationRequests = new List<VacationRequest>()
             };
         }
