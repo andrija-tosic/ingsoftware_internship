@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
-using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.Employees.Pages
@@ -15,11 +14,29 @@ namespace VacaYAY.Web.Areas.Employees.Pages
             _unitOfWork = unitOfWork;
         }
 
-        public IList<Employee> Employees { get;set; } = default!;
+        public class SearchInput
+        {
+            public required string FirstName { get; set; }
+            public required string LastName { get; set; }
+            public DateTime? EmploymentStartDate { get; set; }
+            public DateTime? EmploymentEndDate { get; set; }
+        }
+
+        [BindProperty(SupportsGet = true)]
+        public SearchInput Input { get; set; } = default!;
+
+        public IList<Employee> Employees { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
-            Employees = await _unitOfWork.EmployeeService.GetAll();
+            Employees = await _unitOfWork.EmployeeService.SearchAsync(Input.FirstName, Input.LastName, Input.EmploymentStartDate, Input.EmploymentEndDate);
+        }
+        public async Task<IActionResult> OnPostAsync()
+        {
+            Employees = await _unitOfWork.EmployeeService.SearchAsync(Input.FirstName, Input.LastName, Input.EmploymentStartDate, Input.EmploymentEndDate);
+
+            return Page();
         }
     }
+
 }

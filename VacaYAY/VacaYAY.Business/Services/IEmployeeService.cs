@@ -9,5 +9,6 @@ public interface IEmployeeService
     public Task<IdentityResult> CreateAsync(Employee employee, string password);
     public Task<IdentityResult> UpdateAsync(Employee employee);
     public Task<IdentityResult> SoftDeleteAsync(Employee employee);
-    Task<IList<Employee>> GetAll();
+    Task<IList<Employee>> GetAllAsync();
+    public Task<List<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd);
 }

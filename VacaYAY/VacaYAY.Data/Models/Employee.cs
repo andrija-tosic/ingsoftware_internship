@@ -25,4 +25,3 @@ public class Employee : IdentityUser
     public DateTime? DeleteDate { get; set; }
     public required List<VacationRequest> VacationRequests { get; set; }
 }
-

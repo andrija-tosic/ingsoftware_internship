@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
+using FluentValidation;
+using VacaYAY.Business.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -35,6 +35,8 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -57,7 +59,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 
 app.MapRazorPages();
 
