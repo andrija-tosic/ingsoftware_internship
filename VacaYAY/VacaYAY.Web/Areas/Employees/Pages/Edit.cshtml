@@ -1,0 +1,81 @@
+﻿@page
+@using VacaYAY.Data.Models;
+@model VacaYAY.Web.Areas.Employees.Pages.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="EmployeeDTO.Id" />
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.FirstName" class="control-label">First name</label>
+                <input asp-for="EmployeeDTO.FirstName" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.LastName" class="control-label">Last name</label>
+                <input asp-for="EmployeeDTO.LastName" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.Address" class="control-label">Address</label>
+                <input asp-for="EmployeeDTO.Address" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.Email" class="control-label">Email</label>
+                <input asp-for="EmployeeDTO.Email" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.Password" class="control-label">Password</label>
+                <input asp-for="EmployeeDTO.Password" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.IdNumber" class="control-label">ID number</label>
+                <input asp-for="EmployeeDTO.IdNumber" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.IdNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.DaysOffNumber" class="control-label">Number of days off</label>
+                <input asp-for="EmployeeDTO.DaysOffNumber" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.DaysOffNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                Position:
+                @Html.DropDownListFor(m => m.EmployeeDTO.PositionId, new SelectList(@Model.Positions, nameof(Position.Id), nameof(Position.Caption)))
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.EmploymentStartDate" class="control-label">Employment start date</label>
+                <input asp-for="EmployeeDTO.EmploymentStartDate" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.EmploymentStartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeDTO.EmploymentEndDate" class="control-label">Employment end date</label>
+                <input asp-for="EmployeeDTO.EmploymentEndDate" class="form-control" />
+                <span asp-validation-for="EmployeeDTO.EmploymentEndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

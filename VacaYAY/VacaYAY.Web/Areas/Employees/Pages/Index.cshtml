@@ -1,0 +1,126 @@
+﻿@page
+@model VacaYAY.Web.Areas.Employees.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+
+<h3>Search</h3>
+<div class="col-md-4">
+    <form method="post">
+        <div class="form-floating mb-3">
+            First name: <input type="text" asp-for="Input.FirstName" name="firstName" />
+        </div>
+        <div class="form-floating mb-3">
+            Last name: <input type="text" asp-for="Input.LastName" name="lastName" />
+        </div>
+        <div class="form-floating mb-3">
+            Employment start date: <input type="date" asp-for="Input.EmploymentStartDate" name="employmentStartDate" />
+        </div>
+        <div class="form-floating mb-3">
+            Employment end date: <input type="date" asp-for="Input.EmploymentEndDate" name="employmentEndDate" />
+        </div>
+        <button id="searchSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].FirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].LastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Email)
+            </th>
+            @*            <th>
+            @Html.DisplayNameFor(model => model.Employees[0].Password)
+            </th>
+            *@
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].IdNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].DaysOffNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].EmploymentStartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].EmploymentEndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Position)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].InsertDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].DeleteDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Employees)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Address)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                @*            <td>
+            @Html.DisplayFor(modelItem => item.Password)
+            </td>
+            *@
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DaysOffNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmploymentStartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmploymentEndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Position.Caption)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InsertDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeleteDate)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

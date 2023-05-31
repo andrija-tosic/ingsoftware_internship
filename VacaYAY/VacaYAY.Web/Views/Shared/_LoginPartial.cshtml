@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using VacaYAY.Data.Models;
-@*@using VacaYAY.Web.Areas.Identity.Data*@
 
 @inject SignInManager<Employee> SignInManager
 @inject UserManager<Employee> UserManager
@@ -9,7 +8,7 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" id="create" asp-area="Identity" asp-page="/Account/Register">Create Employee</a>
+            <a class="nav-link text-dark" id="create" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
         </li>
 
         <li class="nav-item">
@@ -23,10 +22,10 @@
     }
     else
     {
-        <li class="nav-item">
+@*        <li class="nav-item">
             <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
         </li>
-        <li class="nav-item">
+*@        <li class="nav-item">
             <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
         </li>
     }

@@ -1,0 +1,85 @@
+﻿@page
+@model VacaYAY.Web.Areas.Employees.Pages.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Employee.FirstName" class="control-label"></label>
+                <input asp-for="Employee.FirstName" class="form-control" />
+                <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.LastName" class="control-label"></label>
+                <input asp-for="Employee.LastName" class="form-control" />
+                <span asp-validation-for="Employee.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.Address" class="control-label"></label>
+                <input asp-for="Employee.Address" class="form-control" />
+                <span asp-validation-for="Employee.Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.Email" class="control-label"></label>
+                <input asp-for="Employee.Email" class="form-control" />
+                <span asp-validation-for="Employee.Email" class="text-danger"></span>
+            </div>
+@*            <div class="form-group">
+                <label asp-for="Employee.Password" class="control-label"></label>
+                <input asp-for="Employee.Password" class="form-control" />
+                <span asp-validation-for="Employee.Password" class="text-danger"></span>
+            </div>
+*@            <div class="form-group">
+                <label asp-for="Employee.IdNumber" class="control-label"></label>
+                <input asp-for="Employee.IdNumber" class="form-control" />
+                <span asp-validation-for="Employee.IdNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.DaysOffNumber" class="control-label"></label>
+                <input asp-for="Employee.DaysOffNumber" class="form-control" />
+                <span asp-validation-for="Employee.DaysOffNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.EmploymentStartDate" class="control-label"></label>
+                <input asp-for="Employee.EmploymentStartDate" class="form-control" />
+                <span asp-validation-for="Employee.EmploymentStartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.EmploymentEndDate" class="control-label"></label>
+                <input asp-for="Employee.EmploymentEndDate" class="form-control" />
+                <span asp-validation-for="Employee.EmploymentEndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.InsertDate" class="control-label"></label>
+                <input asp-for="Employee.InsertDate" class="form-control" />
+                <span asp-validation-for="Employee.InsertDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.DeleteDate" class="control-label"></label>
+                <input asp-for="Employee.DeleteDate" class="form-control" />
+                <span asp-validation-for="Employee.DeleteDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
