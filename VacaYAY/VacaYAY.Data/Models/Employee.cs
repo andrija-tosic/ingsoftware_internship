@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VacaYAY.Data.Models;
 
+[Index(nameof(IdNumber), IsUnique = true)]
+[Index(nameof(FirstName), nameof(LastName), nameof(EmploymentStartDate), nameof(EmploymentEndDate))]
 public class Employee : IdentityUser
 {
     [Required, MaxLength(50)]

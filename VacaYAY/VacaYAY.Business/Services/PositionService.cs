@@ -12,12 +12,12 @@ public class PositionService : IPositionService
     {
         _context = context;
     }
-    public async Task<List<Position>> GetPositions()
+    public async Task<List<Position>> GetAllAsync()
     {
         return await _context.Positions.ToListAsync();
     }
 
-    public async Task<Position?> GetById(int id)
+    public async Task<Position?> GetByIdAsync(int id)
     {
         return await _context.Positions.FindAsync(id);
     }

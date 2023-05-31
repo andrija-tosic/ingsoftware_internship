@@ -26,7 +26,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
-            Positions = await _unitOfWork.PositionService.GetPositions();
+            Positions = await _unitOfWork.PositionService.GetAllAsync();
 
             if (id == null)
             {
@@ -68,7 +68,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
             employeeFromDb.Email = EmployeeDTO.Email;
             employeeFromDb.IdNumber = EmployeeDTO.IdNumber;
             employeeFromDb.InsertDate = EmployeeDTO.InsertDate;
-            employeeFromDb.Position = (await _unitOfWork.PositionService.GetById(EmployeeDTO.PositionId))!;
+            employeeFromDb.Position = (await _unitOfWork.PositionService.GetByIdAsync(EmployeeDTO.PositionId))!;
 
             try
             {

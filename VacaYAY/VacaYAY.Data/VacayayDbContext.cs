@@ -18,16 +18,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Employee>()
-            .HasIndex(e => e.IdNumber)
-            .IsUnique(true);
-
-        modelBuilder.Entity<LeaveType>()
-            .HasIndex(e => e.Name)
-            .IsUnique(true);
-
         modelBuilder.Entity<Employee>().ToTable(nameof(Employee) + "s");
-
         modelBuilder.Entity<Employee>().HasQueryFilter(e => e.DeleteDate == null);
     }
 }

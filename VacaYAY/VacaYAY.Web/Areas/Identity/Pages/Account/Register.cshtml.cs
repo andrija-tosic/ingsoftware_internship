@@ -139,7 +139,7 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            Positions = await _unitOfWork.PositionService.GetPositions();
+            Positions = await _unitOfWork.PositionService.GetAllAsync();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -200,7 +200,7 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
                 LastName = Input.LastName,
                 IdNumber = Input.IdNumber,
                 InsertDate = DateTime.Now,
-                Position = await _unitOfWork.PositionService.GetById(Input.PositionId),
+                Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
                 VacationRequests = new List<VacationRequest>()
             };
         }
