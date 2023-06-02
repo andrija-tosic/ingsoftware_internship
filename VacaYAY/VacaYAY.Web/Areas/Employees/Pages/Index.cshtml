@@ -16,18 +16,33 @@
 <div class="col-md-4">
     <form method="post">
         <div class="form-floating mb-3">
-            First name: <input type="text" asp-for="Input.FirstName" name="firstName" />
+            <input type="text" class="form-control" asp-for="Input.FirstName" name="firstName" />
+            <label asp-for="Input.FirstName">First name</label>
         </div>
         <div class="form-floating mb-3">
-            Last name: <input type="text" asp-for="Input.LastName" name="lastName" />
+            <input type="text" class="form-control" asp-for="Input.LastName" name="lastName" />
+            <label asp-for="Input.LastName">Last name</label>
         </div>
         <div class="form-floating mb-3">
-            Employment start date: <input type="date" asp-for="Input.EmploymentStartDate" name="employmentStartDate" />
+            <input type="date" class="form-control" asp-for="Input.EmploymentStartDate" name="employmentStartDate" />
+            <label asp-for="Input.EmploymentStartDate">Employment start date</label>
         </div>
         <div class="form-floating mb-3">
-            Employment end date: <input type="date" asp-for="Input.EmploymentEndDate" name="employmentEndDate" />
+            <input type="date" class="form-control" asp-for="Input.EmploymentEndDate" name="employmentEndDate" />
+            <label asp-for="Input.EmploymentEndDate">Employment end date</label>
         </div>
-        <button id="searchSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+        <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+    </form>
+</div>
+
+<div class="col-md-4">
+    <form method="post">
+        <h4>Load existing employees from the old system</h4>
+
+        <label asp-for="Input.NumberOfFakeEmployeesToGenerate">Number of fake employees</label>
+        <input type="number" min="1" class="form-control" asp-for="Input.NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
+
+        <button id="generateSubmit" asp-page-handler="GenerateFakeEmployees" type="submit" class="w-100 btn btn-lg btn-primary">Load</button>
     </form>
 </div>
 
@@ -46,10 +61,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Employees[0].Email)
             </th>
-            @*            <th>
-            @Html.DisplayNameFor(model => model.Employees[0].Password)
-            </th>
-            *@
             <th>
                 @Html.DisplayNameFor(model => model.Employees[0].IdNumber)
             </th>
@@ -90,10 +101,6 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
-                @*            <td>
-            @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            *@
                 <td>
                     @Html.DisplayFor(modelItem => item.IdNumber)
                 </td>
@@ -116,9 +123,9 @@
                     @Html.DisplayFor(modelItem => item.DeleteDate)
                 </td>
                 <td>
-                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                    <a class="btn btn-primary" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                    <a class="btn btn-secondary" asp-page="./Details" asp-route-id="@item.Id">Details</a>
+                    <a class="btn btn-danger" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
         }

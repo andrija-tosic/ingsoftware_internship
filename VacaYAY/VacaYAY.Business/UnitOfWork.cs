@@ -9,8 +9,8 @@ namespace VacaYAY.Business;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly VacayayDbContext _context;
-    private IEmployeeService _employeeService;
-    private IPositionService _positionService;
+    private readonly IEmployeeService _employeeService;
+    private readonly IPositionService _positionService;
     private readonly IUserStore<Employee> _userStore;
     private readonly UserManager<Employee> _userManager;
     private readonly IValidator<Employee> _employeeValidator;

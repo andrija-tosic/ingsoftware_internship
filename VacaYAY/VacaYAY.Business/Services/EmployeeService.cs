@@ -2,6 +2,9 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using VacaYAY.Business.Fakes;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -28,7 +31,7 @@ public class EmployeeService : IEmployeeService
         }
         _emailStore = (IUserEmailStore<Employee>)_userStore;
     }
-    public async Task<IList<Employee>> GetAllAsync()
+    public async Task<IEnumerable<Employee>> GetAllAsync()
     {
         return await _context.Employees.Include(e => e.Position).ToListAsync();
     }
@@ -52,7 +55,9 @@ public class EmployeeService : IEmployeeService
             return IdentityResult.Failed(new IdentityError());
         }
 
-        if (employee.Position.Caption == Positions.HR)
+        bool isAlreadyAdmin = await _userManager.IsInRoleAsync(employee, nameof(UserRoles.Administrator));
+
+        if (employee.Position.Caption == Positions.HR && !isAlreadyAdmin)
         {
             await _userManager.AddToRoleAsync(employee, nameof(UserRoles.Administrator));
         }
@@ -72,7 +77,7 @@ public class EmployeeService : IEmployeeService
         {
             return IdentityResult.Failed(new IdentityError());
         }
-        
+
         if (employee.Position.Caption == Positions.HR)
         {
             await _userManager.AddToRoleAsync(employee, nameof(UserRoles.Administrator));
@@ -92,17 +97,20 @@ public class EmployeeService : IEmployeeService
         return result;
     }
 
-    public async Task<List<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd)
+    public async Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd)
     {
         var results = _context.Employees.AsQueryable();
 
+
         if (!string.IsNullOrEmpty(firstName))
         {
+            firstName = firstName.Trim();
             results = results.Where(e => e.FirstName.ToLower().StartsWith(firstName));
         }
 
         if (!string.IsNullOrEmpty(lastName))
         {
+            lastName = lastName.Trim();
             results = results.Where(e => e.LastName.ToLower().StartsWith(lastName));
         }
 
@@ -115,7 +123,53 @@ public class EmployeeService : IEmployeeService
         {
             results = results.Where(e => e.EmploymentEndDate <= employmentEnd);
         }
-        
+
         return await results.ToListAsync();
+    }
+
+    public IList<Employee> GetRandoms(int count)
+    {
+        return BogusFaker.GenerateFakeEmployees(count);
+    }
+
+    public async Task<IdentityResult> CreateFakes(int count)
+    {
+        using HttpClient client = new HttpClient();
+
+        client.BaseAddress = new Uri("http://localhost:5110");
+
+        HttpResponseMessage response = await client.GetAsync($"/Employees/{count}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"Request failed with status code: {response.StatusCode}");
+        }
+
+        string responseS = await response.Content.ReadAsStringAsync();
+
+        Stream? responseBody = await response.Content.ReadAsStreamAsync();
+
+        if (responseBody is null)
+        {
+            return IdentityResult.Failed(new IdentityError());
+        }
+
+        IList<Employee>? employees = (IList<Employee>?)JsonConvert.DeserializeObject(responseS, typeof(IList<Employee>));
+
+        if (employees.IsNullOrEmpty())
+        {
+            return IdentityResult.Failed(new IdentityError());
+        }
+
+        IdentityResult result = new IdentityResult();
+
+        _context.Positions.AddRange(employees!.Select(e => e.Position));
+
+        foreach (var employee in employees!)
+        {
+            result = await CreateAsync(employee, "password");
+        }
+
+        return result;
     }
 }
