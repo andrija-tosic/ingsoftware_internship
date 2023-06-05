@@ -149,16 +149,14 @@ public class EmployeeService : IEmployeeService
             Console.WriteLine($"Request failed with status code: {response.StatusCode}");
         }
 
-        string responseS = await response.Content.ReadAsStringAsync();
+        string responseString = await response.Content.ReadAsStringAsync();
 
-        Stream? responseBody = await response.Content.ReadAsStreamAsync();
-
-        if (responseBody is null)
+        if (responseString.IsNullOrEmpty())
         {
             return IdentityResult.Failed(new IdentityError());
         }
 
-        IList<Employee>? employees = (IList<Employee>?)JsonConvert.DeserializeObject(responseS, typeof(IList<Employee>));
+        IList<Employee>? employees = (IList<Employee>?)JsonConvert.DeserializeObject(responseString, typeof(IList<Employee>));
 
         if (employees.IsNullOrEmpty())
         {

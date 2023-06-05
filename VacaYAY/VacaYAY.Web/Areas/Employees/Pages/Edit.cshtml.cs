@@ -46,7 +46,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+                if (!ModelState.IsValid)
             {
                 return Page();
             }
