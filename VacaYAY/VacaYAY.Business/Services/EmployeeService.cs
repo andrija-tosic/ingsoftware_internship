@@ -38,7 +38,10 @@ public class EmployeeService : IEmployeeService
 
     public async Task<Employee?> GetByIdAsync(string id)
     {
-        return await _userStore.FindByIdAsync(id, CancellationToken.None);
+        return await _context.Employees
+            .Where(e => e.Id == id)
+            .Include(e => e.Position)
+            .SingleAsync();
     }
 
     public async Task<IdentityResult> CreateAsync(Employee employee, string password)
@@ -101,7 +104,6 @@ public class EmployeeService : IEmployeeService
     {
         var results = _context.Employees.AsQueryable();
 
-
         if (!string.IsNullOrEmpty(firstName))
         {
             firstName = firstName.Trim();
@@ -123,6 +125,8 @@ public class EmployeeService : IEmployeeService
         {
             results = results.Where(e => e.EmploymentEndDate <= employmentEnd);
         }
+
+        results = results.Include(e => e.Position);
 
         return await results.ToListAsync();
     }
