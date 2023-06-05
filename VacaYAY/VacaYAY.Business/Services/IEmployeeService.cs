@@ -11,6 +11,6 @@ public interface IEmployeeService
     Task<IdentityResult> SoftDeleteAsync(Employee employee);
     Task<IEnumerable<Employee>> GetAllAsync();
     Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd);
-    IList<Employee> GetRandoms(int count);
     Task<IdentityResult> CreateFakes(int count);
+    IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions);
 }

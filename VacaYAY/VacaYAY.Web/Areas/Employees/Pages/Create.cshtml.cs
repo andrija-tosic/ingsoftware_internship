@@ -21,7 +21,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
         
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public IActionResult OnPostAsync()
         {
           if (!ModelState.IsValid ||  Employee == null)
             {

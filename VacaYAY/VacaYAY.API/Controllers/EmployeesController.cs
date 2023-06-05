@@ -18,8 +18,9 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet("{count}")]
-    public IEnumerable<Employee> GetRandoms(int count)
+    public async Task<IEnumerable<Employee>> GetFakesAsync(int count)
     {
-        return _unitOfWork.EmployeeService.GetRandoms(count);
+        IList<Position> positions = (await _unitOfWork.PositionService.GetAllAsync()).ToList();
+        return _unitOfWork.EmployeeService.GenerateFakes(count, positions);
     }
 }

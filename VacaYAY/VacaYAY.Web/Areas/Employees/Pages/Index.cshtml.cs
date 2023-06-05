@@ -49,5 +49,4 @@ namespace VacaYAY.Web.Areas.Employees.Pages
             return Page();
         }
     }
-
 }

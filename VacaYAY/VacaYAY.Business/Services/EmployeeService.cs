@@ -2,8 +2,8 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using VacaYAY.Business.Fakes;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
@@ -16,15 +16,17 @@ public class EmployeeService : IEmployeeService
     private readonly IUserStore<Employee> _userStore;
     private readonly UserManager<Employee> _userManager;
     private readonly IValidator<Employee> _employeeValidator;
+    private readonly IHttpService _httpService;
     private readonly IUserEmailStore<Employee> _emailStore;
 
     public EmployeeService(VacayayDbContext context, IUserStore<Employee> userStore, UserManager<Employee> userManager,
-        IValidator<Employee> employeeValidator)
+        IValidator<Employee> employeeValidator, IHttpService httpService)
     {
         _context = context;
         _userStore = userStore;
         _userManager = userManager;
         _employeeValidator = employeeValidator;
+        _httpService = httpService;
         if (!_userManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
@@ -49,11 +51,6 @@ public class EmployeeService : IEmployeeService
         ValidationResult validationResult = await _employeeValidator.ValidateAsync(employee);
 
         if (!validationResult.IsValid)
-        {
-            return IdentityResult.Failed(new IdentityError());
-        }
-
-        if (employee.EmploymentStartDate >= employee.EmploymentEndDate)
         {
             return IdentityResult.Failed(new IdentityError());
         }
@@ -131,32 +128,11 @@ public class EmployeeService : IEmployeeService
         return await results.ToListAsync();
     }
 
-    public IList<Employee> GetRandoms(int count)
-    {
-        return BogusFaker.GenerateFakeEmployees(count);
-    }
+
 
     public async Task<IdentityResult> CreateFakes(int count)
     {
-        using HttpClient client = new HttpClient();
-
-        client.BaseAddress = new Uri("http://localhost:5110");
-
-        HttpResponseMessage response = await client.GetAsync($"/Employees/{count}");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            Console.WriteLine($"Request failed with status code: {response.StatusCode}");
-        }
-
-        string responseString = await response.Content.ReadAsStringAsync();
-
-        if (responseString.IsNullOrEmpty())
-        {
-            return IdentityResult.Failed(new IdentityError());
-        }
-
-        IList<Employee>? employees = (IList<Employee>?)JsonConvert.DeserializeObject(responseString, typeof(IList<Employee>));
+        IList<Employee>? employees = await _httpService.GetFakeEmployees(count);
 
         if (employees.IsNullOrEmpty())
         {
@@ -165,13 +141,17 @@ public class EmployeeService : IEmployeeService
 
         IdentityResult result = new IdentityResult();
 
-        _context.Positions.AddRange(employees!.Select(e => e.Position));
-
         foreach (var employee in employees!)
         {
+            _context.Entry(employee.Position).State = EntityState.Unchanged; // To avoid adding an already existing Position.
             result = await CreateAsync(employee, "password");
         }
 
         return result;
+    }
+
+    public IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions)
+    {
+        return EmployeeFaker.GenerateFakes(count, positions);
     }
 }
