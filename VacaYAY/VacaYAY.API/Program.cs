@@ -35,6 +35,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
 
 builder.Services.AddSingleton<IHttpService, HttpService>();
+builder.Services.AddSingleton<IJsonParserService, JsonParserService>();
 
 builder.Services.AddHttpClient(nameof(IHttpService), httpClient =>
 {

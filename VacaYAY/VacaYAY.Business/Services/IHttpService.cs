@@ -1,8 +1,6 @@
-﻿using VacaYAY.Data.Models;
-
-namespace VacaYAY.Business.Services;
+﻿namespace VacaYAY.Business.Services;
 
 public interface IHttpService
 {
-    public Task<IList<Employee>?> GetFakeEmployees(int count);
+    public Task<T?> Get<T>(string requestUri);
 }

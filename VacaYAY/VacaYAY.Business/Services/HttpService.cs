@@ -1,35 +1,41 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Services;
 
 public class HttpService : IHttpService
 {
     private readonly HttpClient _httpClient;
-    public HttpService(IHttpClientFactory httpClientFactory)
+    private readonly ILogger<IHttpService> _logger;
+    private readonly IJsonParserService _jsonParser;
+
+    public HttpService(ILogger<IHttpService> logger, IHttpClientFactory httpClientFactory, IJsonParserService jsonParser)
     {
+        _logger = logger;
+        _jsonParser = jsonParser;
         _httpClient = httpClientFactory.CreateClient(nameof(IHttpService));
     }
 
-    public async Task<IList<Employee>?> GetFakeEmployees(int count)
+    public async Task<T?> Get<T>(string requestUri)
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"/Employees/{count}");
+        HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
 
         if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine($"Request failed with status code: {response.StatusCode}");
+            _logger.LogError(requestUri, response.StatusCode, response.ReasonPhrase);
+            return default;
         }
 
-        string responseString = await response.Content.ReadAsStringAsync();
+        string responseJson = await response.Content.ReadAsStringAsync();
 
-        if (responseString.IsNullOrEmpty())
+        if (responseJson.IsNullOrEmpty())
         {
             throw new JsonException(response.StatusCode.ToString());
         }
 
-        IList<Employee>? employees = (IList<Employee>?)JsonConvert.DeserializeObject(responseString, typeof(IList<Employee>));
+        T? items = _jsonParser.Deserialize<T>(responseJson);
 
-        return employees;
+        return items;
     }
 }

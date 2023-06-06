@@ -128,11 +128,9 @@ public class EmployeeService : IEmployeeService
         return await results.ToListAsync();
     }
 
-
-
     public async Task<IdentityResult> CreateFakes(int count)
     {
-        IList<Employee>? employees = await _httpService.GetFakeEmployees(count);
+        IList<Employee>? employees = await _httpService.Get<IList<Employee>>($"/Employees/{count}");
 
         if (employees.IsNullOrEmpty())
         {
@@ -143,7 +141,12 @@ public class EmployeeService : IEmployeeService
 
         foreach (var employee in employees!)
         {
-            _context.Entry(employee.Position).State = EntityState.Unchanged; // To avoid adding an already existing Position.
+            Position? position = await _context.Positions.FindAsync(employee.Position.Id); // To avoid adding an already existing Position.
+            if (position is null)
+            {
+                return IdentityResult.Failed(new IdentityError());
+            }
+            employee.Position = position;
             result = await CreateAsync(employee, "password");
         }
 
