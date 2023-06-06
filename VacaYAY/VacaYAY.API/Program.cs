@@ -1,18 +1,14 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
+using VacaYAY.Business.Validators;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
-using FluentValidation;
-using VacaYAY.Business.Validators;
-using VacaYAY.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllersWithViews(options =>
-{
-});
 
 builder.Services.AddDbContext<VacayayDbContext>(options =>
 {
@@ -46,30 +42,24 @@ builder.Services.AddHttpClient(nameof(IHttpService), httpClient =>
     httpClient.BaseAddress = new Uri("http://localhost:5110");
 });
 
-
-builder.Services.AddRazorPages();
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapRazorPages();
+app.MapControllers();
 
 app.Run();

@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.Employees.Pages
 {
+    [Authorize(Roles = nameof(UserRoles.Administrator))]
     public class DeleteModel : PageModel
     {
         private readonly IUnitOfWork _unitOfWork;

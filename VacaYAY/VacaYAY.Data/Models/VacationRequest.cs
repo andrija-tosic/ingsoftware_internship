@@ -14,4 +14,8 @@ public class VacationRequest
     [ForeignKey(nameof(VacationRequestReview))]
     public int VacationReviewRefId { get; set; }
     public VacationRequestReview? VacationReview { get; set; }
+    [Required]
+    public required DateTime StartDate { get; set; }
+    [Required]
+    public required DateTime EndDate { get; set; }
 }

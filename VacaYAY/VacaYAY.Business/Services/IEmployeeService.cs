@@ -5,10 +5,12 @@ namespace VacaYAY.Business.Services;
 
 public interface IEmployeeService
 {
-    public Task<Employee?> GetByIdAsync(string id);
-    public Task<IdentityResult> CreateAsync(Employee employee, string password);
-    public Task<IdentityResult> UpdateAsync(Employee employee);
-    public Task<IdentityResult> SoftDeleteAsync(Employee employee);
-    Task<IList<Employee>> GetAllAsync();
-    public Task<List<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd);
+    Task<Employee?> GetByIdAsync(string id);
+    Task<IdentityResult> CreateAsync(Employee employee, string password);
+    Task<IdentityResult> UpdateAsync(Employee employee);
+    Task<IdentityResult> SoftDeleteAsync(Employee employee);
+    Task<IEnumerable<Employee>> GetAllAsync();
+    Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd);
+    Task<IdentityResult> CreateFakes(int count);
+    IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions);
 }

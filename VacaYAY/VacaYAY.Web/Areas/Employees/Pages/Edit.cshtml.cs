@@ -22,7 +22,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
 
         [BindProperty]
         public EmployeeDTO EmployeeDTO { get; set; } = default!;
-        public List<Position> Positions { get; set; } = default!;
+        public IEnumerable<Position> Positions { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -46,7 +46,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+                if (!ModelState.IsValid)
             {
                 return Page();
             }
