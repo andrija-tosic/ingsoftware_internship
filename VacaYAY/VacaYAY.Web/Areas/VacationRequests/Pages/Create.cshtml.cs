@@ -18,7 +18,7 @@ namespace VacaYAY.Web.Areas.VacationRequests
         {
             LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
 
-            return Page();
+            return RedirectToPage("./Index");
         }
 
         [BindProperty]
@@ -32,7 +32,7 @@ namespace VacaYAY.Web.Areas.VacationRequests
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-            var leaveType = await _unitOfWork.VacationService.GetLeaveTypeById(LeaveTypeId);
+            LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeById(LeaveTypeId);
 
             if (leaveType is null)
             {

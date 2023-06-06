@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business;
-using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.VacationRequests
@@ -21,8 +20,6 @@ namespace VacaYAY.Web.Areas.VacationRequests
 
         public IList<LeaveType> LeaveTypes { get; set; } = default!;
 
-        [BindProperty]
-        public int LeaveTypeId { get; set; } = default;
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id is null)
@@ -38,25 +35,20 @@ namespace VacaYAY.Web.Areas.VacationRequests
                 return NotFound();
             }
 
-            LeaveTypeId = vacationRequest.LeaveType.Id;
             VacationRequest = vacationRequest;
-            
+
+            VacationRequest.VacationReview ??= new VacationRequestReview()
+            {
+                Approved = false,
+                Comment = string.Empty,
+                Reviewer = default!,
+                VacationRequest = default!
+            };
+
             return Page();
         }
-
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostUpsertVacationRequestReviewAsync()
         {
-            var leaveType = await _unitOfWork.VacationService.GetLeaveTypeById(LeaveTypeId);
-
-            if (leaveType is null)
-            {
-                return NotFound();
-            }
-
-            VacationRequest.LeaveType = leaveType;
-            
             Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
             if (loggedInEmployee is null)
@@ -64,10 +56,17 @@ namespace VacaYAY.Web.Areas.VacationRequests
                 return NotFound();
             }
 
-            VacationRequest.Employee = loggedInEmployee;
+            VacationRequest.VacationReview!.VacationRequestRefId = VacationRequest.Id;
+            VacationRequest.VacationReview!.Reviewer = loggedInEmployee;
 
-            _unitOfWork.VacationService.UpdateVacationRequest(VacationRequest);
-
+            if (VacationRequest.VacationReview.Id == 0)
+            {
+                _unitOfWork.VacationService.CreateVacationRequestReview(VacationRequest.VacationReview!);
+            }
+            else
+            {
+                _unitOfWork.VacationService.UpdateVacationRequestReview(VacationRequest.VacationReview!);
+            }
             try
             {
                 await _unitOfWork.SaveChangesAsync();
@@ -76,6 +75,19 @@ namespace VacaYAY.Web.Areas.VacationRequests
             {
             }
 
+            return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnPostDeleteVacationRequestReviewAsync()
+        {
+            await _unitOfWork.VacationService.DeleteVacationRequestReviewAsync(VacationRequest.VacationReview!.Id);
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+            }
             return RedirectToPage("./Index");
         }
     }

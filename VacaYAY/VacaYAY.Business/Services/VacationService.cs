@@ -89,4 +89,26 @@ public class VacationService : IVacationService
     {
         return await _context.LeaveTypes.FindAsync(id);
     }
+
+    public void CreateVacationRequestReview(VacationRequestReview vacationRequestReview)
+    {
+        _context.VacationRequestsReviews.Add(vacationRequestReview);
+    }
+
+    public void UpdateVacationRequestReview(VacationRequestReview vacationRequestReview)
+    {
+        _context.VacationRequestsReviews.Update(vacationRequestReview);
+    }
+
+    public async Task DeleteVacationRequestReviewAsync(int id)
+    {
+        VacationRequestReview? review = await _context.VacationRequestsReviews.FindAsync(id);
+
+        if (review is null)
+        {
+            return;
+        }
+
+        _context.VacationRequestsReviews.Remove(review);
+    }
 }

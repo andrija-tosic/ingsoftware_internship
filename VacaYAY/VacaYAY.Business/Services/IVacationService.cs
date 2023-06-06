@@ -11,4 +11,7 @@ public interface IVacationService
     Task<IList<VacationRequest>> GetAllVacationRequestsAsync(string employeeId, bool isAdmin);
     Task<IList<LeaveType>> GetLeaveTypes();
     Task<LeaveType?> GetLeaveTypeById(int id);
+    void CreateVacationRequestReview(VacationRequestReview vacationRequestReview);
+    void UpdateVacationRequestReview(VacationRequestReview vacationRequestReview);
+    Task DeleteVacationRequestReviewAsync(int id);
 }

@@ -8,17 +8,17 @@
 
 <h1>Edit</h1>
 
-<h4>VacationRequest</h4>
+<h4>Vacation request</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post">
             <div class="form-group">
                 Leave type
-                @Html.DropDownListFor(m => m.LeaveTypeId, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)),
+                @Html.DropDownListFor(m => m.VacationRequest.LeaveType.Id, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)),
                 new {@class="form-control dropdown-toggle"})
             </div>
-            
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="VacationRequest.Id" />
             <div class="form-group">
@@ -43,10 +43,46 @@
     </div>
 </div>
 
+
+<h4>Vacation request review</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="VacationRequest.Id" />
+            <input type="hidden" asp-for="VacationRequest.VacationReview!.Id" />
+            <div class="form-group">
+                <label asp-for="VacationRequest.VacationReview!.Approved" class="control-label"></label>
+                @Html.CheckBoxFor(m => m.VacationRequest.VacationReview!.Approved)
+            </div>
+            <div class="form-group">
+                <label asp-for="VacationRequest.VacationReview!.Comment" class="control-label"></label>
+                <input asp-for="VacationRequest.VacationReview!.Comment" class="form-control" />
+                <span asp-validation-for="VacationRequest.VacationReview!.Comment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button id="vacationRequestReviewSubmit" asp-page-handler="UpsertVacationRequestReview" type="submit" class="w-100 btn btn-lg btn-primary">
+                    @(Model.VacationRequest.VacationReview!.Id != 0 ? "Edit" : "Create")
+                </button>
+            </div>
+            @if (@Model.VacationRequest.VacationReview!.Id != 0)
+            {
+                <div class="form-group">
+                    <button id="vacationRequestReviewDelete" asp-page-handler="DeleteVacationRequestReview" type="submit" class="w-100 btn btn-lg btn-danger">Delete</button>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+
 <div>
     <a asp-page="./Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }
