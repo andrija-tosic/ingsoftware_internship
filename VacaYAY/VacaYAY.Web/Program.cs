@@ -36,8 +36,8 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
-builder.Services.AddScoped<IValidator<VacationRequest>, VacationRequestValidator>();
+//builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
+//builder.Services.AddScoped<IValidator<VacationRequest>, VacationRequestValidator>();
 
 builder.Services.AddSingleton<IHttpService, HttpService>();
 builder.Services.AddSingleton<IJsonParserService, JsonParserService>();

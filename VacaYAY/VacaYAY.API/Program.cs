@@ -1,10 +1,8 @@
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using VacaYAY.Business;
 using VacaYAY.Business.Services;
-using VacaYAY.Business.Validators;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -32,8 +30,8 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
-builder.Services.AddScoped<IValidator<VacationRequest>, VacationRequestValidator>();
+//builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
+//builder.Services.AddScoped<IValidator<VacationRequest>, VacationRequestValidator>();
 
 builder.Services.AddSingleton<IHttpService, HttpService>();
 builder.Services.AddSingleton<IJsonParserService, JsonParserService>();

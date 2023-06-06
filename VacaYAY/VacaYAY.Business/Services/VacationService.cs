@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -9,11 +11,13 @@ public class VacationService : IVacationService
 {
     private readonly VacayayDbContext _context;
     private readonly IValidator<VacationRequest> _vacationRequestValidator;
+    private readonly ILogger<IVacationService> _logger;
 
-    public VacationService(VacayayDbContext context, IValidator<VacationRequest> vacationRequestValidator)
+    public VacationService(VacayayDbContext context, IValidator<VacationRequest> vacationRequestValidator, ILogger<IVacationService> logger)
     {
         _context = context;
         _vacationRequestValidator = vacationRequestValidator;
+        _logger = logger;
     }
 
     public async Task<VacationRequest?> GetVacationRequestByIdAsync(int id)
@@ -26,24 +30,34 @@ public class VacationService : IVacationService
             .SingleAsync();
     }
 
-    public void CreateVacationRequest(VacationRequest vacationRequest)
+    public async Task CreateVacationRequest(VacationRequest vacationRequest)
     {
-        var validationResult = _vacationRequestValidator.Validate(vacationRequest);
+        var validationResult = await _vacationRequestValidator.ValidateAsync(vacationRequest);
 
         if (!validationResult.IsValid)
         {
-            throw new ValidationException(validationResult.Errors.ToString());
+            foreach (ValidationFailure error in validationResult.Errors)
+            {
+                _logger.LogError(error.ErrorMessage);
+            }
+
+            return;
         }
 
         _context.VacationRequests.Add(vacationRequest);
     }
-    public void UpdateVacationRequest(VacationRequest vacationRequest)
+    public async Task UpdateVacationRequest(VacationRequest vacationRequest)
     {
-        var validationResult = _vacationRequestValidator.Validate(vacationRequest);
+        var validationResult = await _vacationRequestValidator.ValidateAsync(vacationRequest);
 
         if (!validationResult.IsValid)
         {
-            throw new ValidationException(validationResult.Errors.ToString());
+            foreach (ValidationFailure error in validationResult.Errors)
+            {
+                _logger.LogError(error.ErrorMessage);
+            }
+
+            return;
         }
 
         _context.VacationRequests.Update(vacationRequest);

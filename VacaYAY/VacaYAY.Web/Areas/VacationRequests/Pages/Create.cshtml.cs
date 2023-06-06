@@ -18,7 +18,7 @@ namespace VacaYAY.Web.Areas.VacationRequests
         {
             LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
 
-            return RedirectToPage("./Index");
+            return Page();
         }
 
         [BindProperty]
@@ -49,7 +49,7 @@ namespace VacaYAY.Web.Areas.VacationRequests
             }
 
             VacationRequest.Employee = loggedInEmployee;
-            _unitOfWork.VacationService.CreateVacationRequest(VacationRequest);
+            await _unitOfWork.VacationService.CreateVacationRequest(VacationRequest);
 
             await _unitOfWork.SaveChangesAsync();
 
