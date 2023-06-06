@@ -20,5 +20,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
 
         modelBuilder.Entity<Employee>().ToTable(nameof(Employee) + "s");
         modelBuilder.Entity<Employee>().HasQueryFilter(e => e.DeleteDate == null);
+
+        modelBuilder.Entity<VacationRequestReview>().HasOne(v => v.Reviewer).WithMany().OnDelete(DeleteBehavior.NoAction);
     }
 }

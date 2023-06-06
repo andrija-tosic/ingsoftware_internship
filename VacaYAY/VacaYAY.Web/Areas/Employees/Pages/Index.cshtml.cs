@@ -41,7 +41,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
 
         public async Task<IActionResult> OnPostGenerateFakeEmployeesAsync()
         { 
-            await _unitOfWork.EmployeeService.CreateFakes(Input.NumberOfFakeEmployeesToGenerate);
+            await _unitOfWork.EmployeeService.CreateFakesAsync(Input.NumberOfFakeEmployeesToGenerate);
             await _unitOfWork.SaveChangesAsync();
 
             Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input.FirstName, Input.LastName, Input.EmploymentStartDate, Input.EmploymentEndDate);

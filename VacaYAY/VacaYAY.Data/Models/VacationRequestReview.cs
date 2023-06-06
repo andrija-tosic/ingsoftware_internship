@@ -15,8 +15,7 @@ public class VacationRequestReview
     [Required]
     public required VacationRequest VacationRequest { get; set; }
     [Required]
-    public required LeaveType LeaveType { get; set; }
-    [Required]
     public required bool Approved { get; set; }
-
+    [Required]
+    public required Employee Reviewer { get; set; }
 }

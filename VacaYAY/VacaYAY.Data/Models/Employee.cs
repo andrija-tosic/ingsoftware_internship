@@ -39,4 +39,5 @@ public class Employee : IdentityUser
     [DisplayName("Date of deletion")]
     public DateTime? DeleteDate { get; set; }
     public required List<VacationRequest> VacationRequests { get; set; }
+    public required List<VacationRequestReview> VacationRequestReviews { get; set; }
 }

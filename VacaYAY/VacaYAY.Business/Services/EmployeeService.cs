@@ -2,8 +2,8 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using VacaYAY.Business.Fakes;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
@@ -38,6 +38,11 @@ public class EmployeeService : IEmployeeService
         return await _context.Employees.Include(e => e.Position).ToListAsync();
     }
 
+    public async Task<Employee?> GetLoggedInAsync(ClaimsPrincipal claims)
+    {
+        return await _userManager.GetUserAsync(claims);
+    }
+
     public async Task<Employee?> GetByIdAsync(string id)
     {
         return await _context.Employees
@@ -48,7 +53,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<IdentityResult> CreateAsync(Employee employee, string password)
     {
-        ValidationResult validationResult = await _employeeValidator.ValidateAsync(employee);
+        ValidationResult validationResult = _employeeValidator.Validate(employee);
 
         if (!validationResult.IsValid)
         {
@@ -71,7 +76,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<IdentityResult> UpdateAsync(Employee employee)
     {
-        ValidationResult validationResult = await _employeeValidator.ValidateAsync(employee);
+        ValidationResult validationResult = _employeeValidator.Validate(employee);
 
         if (!validationResult.IsValid)
         {
@@ -99,7 +104,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd)
     {
-        var results = _context.Employees.AsQueryable();
+        IQueryable<Employee> results = _context.Employees.AsQueryable();
 
         if (!string.IsNullOrEmpty(firstName))
         {
@@ -128,7 +133,7 @@ public class EmployeeService : IEmployeeService
         return await results.ToListAsync();
     }
 
-    public async Task<IdentityResult> CreateFakes(int count)
+    public async Task<IdentityResult> CreateFakesAsync(int count)
     {
         IList<Employee>? employees = await _httpService.Get<IList<Employee>>($"/Employees/{count}");
 
@@ -156,5 +161,10 @@ public class EmployeeService : IEmployeeService
     public IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions)
     {
         return EmployeeFaker.GenerateFakes(count, positions);
+    }
+
+    public async Task<bool> IsInRoleAsync(Employee employee, string role)
+    {
+        return await _userManager.IsInRoleAsync(employee, role);
     }
 }

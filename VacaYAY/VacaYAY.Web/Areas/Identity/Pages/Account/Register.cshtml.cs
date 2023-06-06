@@ -163,7 +163,8 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
                 IdNumber = Input.IdNumber,
                 InsertDate = DateTime.Now,
                 Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
-                VacationRequests = new List<VacationRequest>()
+                VacationRequests = new List<VacationRequest>(),
+                VacationRequestReviews = new List<VacationRequestReview>()
             };
         }
 

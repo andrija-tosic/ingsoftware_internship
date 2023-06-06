@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VacaYAY.Data;
 
@@ -11,9 +12,11 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(VacayayDbContext))]
-    partial class VacayayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230606111450_MoveLeaveTypeFromVacationRequestReviewToVacationRequest")]
+    partial class MoveLeaveTypeFromVacationRequestReviewToVacationRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,21 +364,10 @@ namespace VacaYAY.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<string>("EmployeeId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ReviewerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("VacationRequestRefId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("ReviewerId");
 
                     b.HasIndex("VacationRequestRefId")
                         .IsUnique();
@@ -466,31 +458,17 @@ namespace VacaYAY.Data.Migrations
 
             modelBuilder.Entity("VacaYAY.Data.Models.VacationRequestReview", b =>
                 {
-                    b.HasOne("VacaYAY.Data.Models.Employee", null)
-                        .WithMany("VacationRequestReviews")
-                        .HasForeignKey("EmployeeId");
-
-                    b.HasOne("VacaYAY.Data.Models.Employee", "Reviewer")
-                        .WithMany()
-                        .HasForeignKey("ReviewerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("VacaYAY.Data.Models.VacationRequest", "VacationRequest")
                         .WithOne("VacationReview")
                         .HasForeignKey("VacaYAY.Data.Models.VacationRequestReview", "VacationRequestRefId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Reviewer");
-
                     b.Navigation("VacationRequest");
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Models.Employee", b =>
                 {
-                    b.Navigation("VacationRequestReviews");
-
                     b.Navigation("VacationRequests");
                 });
 

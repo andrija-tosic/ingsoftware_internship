@@ -1,0 +1,52 @@
+﻿@page
+@using VacaYAY.Data.Models;
+@model VacaYAY.Web.Areas.VacationRequests.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>VacationRequest</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div class="form-group">
+                Leave type
+                @Html.DropDownListFor(m => m.LeaveTypeId, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)),
+                new {@class="form-control dropdown-toggle"})
+            </div>
+            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="VacationRequest.Id" />
+            <div class="form-group">
+                <label asp-for="VacationRequest.Comment" class="control-label"></label>
+                <input asp-for="VacationRequest.Comment" class="form-control" />
+                <span asp-validation-for="VacationRequest.Comment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VacationRequest.StartDate" class="control-label"></label>
+                <input asp-for="VacationRequest.StartDate" class="form-control" />
+                <span asp-validation-for="VacationRequest.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VacationRequest.EndDate" class="control-label"></label>
+                <input asp-for="VacationRequest.EndDate" class="form-control" />
+                <span asp-validation-for="VacationRequest.EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
