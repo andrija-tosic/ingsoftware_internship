@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using VacaYAY.Business.Fakes;
 using VacaYAY.Data;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Services;
@@ -102,30 +103,30 @@ public class EmployeeService : IEmployeeService
         return result;
     }
 
-    public async Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd)
+    public async Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters)
     {
         IQueryable<Employee> results = _context.Employees.AsQueryable();
 
-        if (!string.IsNullOrEmpty(firstName))
+        if (!string.IsNullOrEmpty(searchFilters.FirstName))
         {
-            firstName = firstName.Trim();
-            results = results.Where(e => e.FirstName.ToLower().StartsWith(firstName));
+            searchFilters.FirstName = searchFilters.FirstName.Trim();
+            results = results.Where(e => e.FirstName.ToLower().StartsWith(searchFilters.FirstName));
         }
 
-        if (!string.IsNullOrEmpty(lastName))
+        if (!string.IsNullOrEmpty(searchFilters.LastName))
         {
-            lastName = lastName.Trim();
-            results = results.Where(e => e.LastName.ToLower().StartsWith(lastName));
+            searchFilters.LastName = searchFilters.LastName.Trim();
+            results = results.Where(e => e.LastName.ToLower().StartsWith(searchFilters.LastName));
         }
 
-        if (employmentStart is not null)
+        if (searchFilters.EmploymentStartDate is not null)
         {
-            results = results.Where(e => e.EmploymentStartDate >= employmentStart);
+            results = results.Where(e => e.EmploymentStartDate >= searchFilters.EmploymentStartDate);
         }
 
-        if (employmentEnd is not null)
+        if (searchFilters.EmploymentEndDate is not null)
         {
-            results = results.Where(e => e.EmploymentEndDate <= employmentEnd);
+            results = results.Where(e => e.EmploymentEndDate <= searchFilters.EmploymentEndDate);
         }
 
         results = results.Include(e => e.Position);

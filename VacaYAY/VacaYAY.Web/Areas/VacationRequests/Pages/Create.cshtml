@@ -21,12 +21,12 @@
 
             <div class="form-group">
                 <label asp-for="VacationRequest.StartDate" class="control-label"></label>
-                <input asp-for="VacationRequest.StartDate" class="form-control" />
+                <input type="date" asp-for="VacationRequest.StartDate" class="form-control" />
                 <span asp-validation-for="VacationRequest.StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="VacationRequest.EndDate" class="control-label"></label>
-                <input asp-for="VacationRequest.EndDate" class="form-control" />
+                <input type="date" asp-for="VacationRequest.EndDate" class="form-control" />
                 <span asp-validation-for="VacationRequest.EndDate" class="text-danger"></span>
             </div>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>

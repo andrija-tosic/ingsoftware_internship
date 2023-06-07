@@ -8,10 +8,9 @@
 
 <h1>Edit</h1>
 
-<h4>Vacation request</h4>
-<hr />
-<div class="row">
+<div class="row justify-content-between">
     <div class="col-md-4">
+        <h4>Vacation request</h4>
         <form method="post">
             <div class="form-group">
                 Leave type
@@ -41,13 +40,8 @@
             </div>
         </form>
     </div>
-</div>
-
-
-<h4>Vacation request review</h4>
-<hr />
-<div class="row">
     <div class="col-md-4">
+        <h4>Vacation request review</h4>
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="VacationRequest.Id" />
@@ -74,6 +68,8 @@
             }
         </form>
     </div>
+
+
 </div>
 
 

@@ -6,46 +6,43 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Employees</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+<div class="row justify-content-between">
+    <div class="col-md-4">
+        <h3>Search</h3>
+        <form method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" asp-for="Input.FirstName" name="firstName" />
+                <label asp-for="Input.FirstName">First name</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" asp-for="Input.LastName" name="lastName" />
+                <label asp-for="Input.LastName">Last name</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="date" class="form-control" asp-for="Input.EmploymentStartDate" name="employmentStartDate" />
+                <label asp-for="Input.EmploymentStartDate">Employment start date</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="date" class="form-control" asp-for="Input.EmploymentEndDate" name="employmentEndDate" />
+                <label asp-for="Input.EmploymentEndDate">Employment end date</label>
+            </div>
+            <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+        </form>
+    </div>
 
-<h3>Search</h3>
-<div class="col-md-4">
-    <form method="post">
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control" asp-for="Input.FirstName" name="firstName" />
-            <label asp-for="Input.FirstName">First name</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control" asp-for="Input.LastName" name="lastName" />
-            <label asp-for="Input.LastName">Last name</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="date" class="form-control" asp-for="Input.EmploymentStartDate" name="employmentStartDate" />
-            <label asp-for="Input.EmploymentStartDate">Employment start date</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="date" class="form-control" asp-for="Input.EmploymentEndDate" name="employmentEndDate" />
-            <label asp-for="Input.EmploymentEndDate">Employment end date</label>
-        </div>
-        <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
-    </form>
-</div>
-
-<div class="col-md-4">
-    <form method="post">
+    <div class="col-md-4">
         <h4>Load existing employees from the old system</h4>
+        <form method="post">
 
-        <label asp-for="Input.NumberOfFakeEmployeesToGenerate">Number of fake employees</label>
-        <input type="number" min="1" class="form-control" asp-for="Input.NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
+            <label asp-for="Input.NumberOfFakeEmployeesToGenerate">Number of fake employees</label>
+            <input type="number" min="1" class="form-control" asp-for="Input.NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
 
-        <button id="generateSubmit" asp-page-handler="GenerateFakeEmployees" type="submit" class="w-100 btn btn-lg btn-primary">Load</button>
-    </form>
+            <button id="generateSubmit" asp-page-handler="GenerateFakeEmployees" type="submit" class="w-100 btn btn-lg btn-primary">Load</button>
+        </form>
+    </div>
 </div>
-
 <table class="table">
     <thead>
         <tr>

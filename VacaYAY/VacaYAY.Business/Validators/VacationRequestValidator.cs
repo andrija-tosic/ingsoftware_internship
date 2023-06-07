@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Validators;
@@ -20,7 +21,8 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
 
         RuleFor(v => v).MustAsync(async (newRequest, cancellation) =>
         {
-            IList<VacationRequest> otherRequests = await _unitOfWork.VacationService.GetAllVacationRequestsAsync(newRequest.Employee.Id, false);
+            IList<VacationRequest> otherRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(newRequest.Employee.Id, false,
+                new VacationRequestSearchFilters());
 
             return otherRequests.All(req =>
             {

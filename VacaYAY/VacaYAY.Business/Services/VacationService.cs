@@ -2,7 +2,9 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using VacaYAY.Data;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Services;
@@ -36,7 +38,7 @@ public class VacationService : IVacationService
 
         if (!validationResult.IsValid)
         {
-            foreach (ValidationFailure error in validationResult.Errors)
+            foreach (FluentValidation.Results.ValidationFailure error in validationResult.Errors)
             {
                 _logger.LogError(error.ErrorMessage);
             }
@@ -52,7 +54,7 @@ public class VacationService : IVacationService
 
         if (!validationResult.IsValid)
         {
-            foreach (ValidationFailure error in validationResult.Errors)
+            foreach (FluentValidation.Results.ValidationFailure error in validationResult.Errors)
             {
                 _logger.LogError(error.ErrorMessage);
             }
@@ -78,7 +80,7 @@ public class VacationService : IVacationService
         _context.VacationRequests.Remove(vacationRequest);
     }
 
-    public async Task<IList<VacationRequest>> GetAllVacationRequestsAsync(string employeeId, bool isAdmin)
+    public async Task<IList<VacationRequest>> SearchVacationRequestsAsync(string employeeId, bool isAdmin, VacationRequestSearchFilters searchFilters)
     {
         IQueryable<VacationRequest> vacationRequests = _context.VacationRequests
             .Include(v => v.LeaveType)
@@ -86,9 +88,39 @@ public class VacationService : IVacationService
             .Include(v => v.Employee)
             .AsQueryable();
 
-        if (!isAdmin) // Return only this employee's vacation requests if they don't have admin privileges.
+        if (!isAdmin)
         {
+            // Return only this employee's vacation requests if they don't have admin privileges.
+            // Otherwise, if admin, return all.
+
             vacationRequests = vacationRequests.Where(v => v.Employee.Id == employeeId);
+        }
+
+        if (!searchFilters.EmployeeFirstName.IsNullOrEmpty())
+        {
+            searchFilters.EmployeeFirstName = searchFilters.EmployeeFirstName!.Trim();
+            vacationRequests = vacationRequests.Where(v => v.Employee.FirstName.StartsWith(searchFilters.EmployeeFirstName));
+        }
+
+        if (!searchFilters.EmployeeLastName.IsNullOrEmpty())
+        {
+            searchFilters.EmployeeLastName = searchFilters.EmployeeLastName!.Trim();
+            vacationRequests = vacationRequests.Where(v => v.Employee.FirstName.StartsWith(searchFilters.EmployeeLastName));
+        }
+
+        if (searchFilters.LeaveTypeId is not null)
+        {
+            vacationRequests = vacationRequests.Where(v => v.LeaveType.Id == searchFilters.LeaveTypeId);
+        }
+
+        if (searchFilters.StartDate is not null)
+        {
+            vacationRequests = vacationRequests.Where(v => v.StartDate <= searchFilters.StartDate);
+        }
+
+        if (searchFilters.EndDate is not null)
+        {
+            vacationRequests = vacationRequests.Where(v => v.EndDate >= searchFilters.EndDate);
         }
 
         return await vacationRequests.ToListAsync();

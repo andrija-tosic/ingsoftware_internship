@@ -1,15 +1,41 @@
 ﻿@page
+@using VacaYAY.Data.Models;
 @model VacaYAY.Web.Areas.VacationRequests.IndexModel
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Vacation requests</h1>
 
 <p>
-    <a asp-page="Create">Create New</a>
+    <a asp-page="Create" class="btn btn-outline-primary">Create New</a>
 </p>
+<h3>Search</h3>
+<form method="post">
+    <div class="form-floating mb-3">
+        Leave type
+        @Html.DropDownListFor(m => m.Input.LeaveTypeId, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)), "Any",
+        new {@class="form-control dropdown-toggle"})
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" asp-for="Input.EmployeeFirstName" name="firstName" />
+        <label asp-for="Input.EmployeeFirstName">First name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" asp-for="Input.EmployeeLastName" name="lastName" />
+        <label asp-for="Input.EmployeeLastName">Last name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="date" class="form-control" asp-for="Input.StartDate  " name="employmentStartDate" />
+        <label asp-for="Input.StartDate">Vacation start date</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="date" class="form-control" asp-for="Input.EndDate" name="employmentEndDate" />
+        <label asp-for="Input.EndDate">Vacation end date</label>
+    </div>
+    <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+</form>
 <table class="table">
     <thead>
         <tr>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Services;
@@ -12,7 +13,7 @@ public interface IEmployeeService
     Task<IdentityResult> UpdateAsync(Employee employee);
     Task<IdentityResult> SoftDeleteAsync(Employee employee);
     Task<IEnumerable<Employee>> GetAllAsync();
-    Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd);
+    Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters);
     Task<IdentityResult> CreateFakesAsync(int count);
     IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions);
     Task<bool> IsInRoleAsync(Employee employee, string role);
