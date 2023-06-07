@@ -38,10 +38,9 @@ public class IndexModel : PageModel
         return Page();
     }
 
-    public async Task<ActionResult> OnPostAsync()
+    public async Task<ActionResult> OnPostSearchAsync()
     {
         LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
-
 
         Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 

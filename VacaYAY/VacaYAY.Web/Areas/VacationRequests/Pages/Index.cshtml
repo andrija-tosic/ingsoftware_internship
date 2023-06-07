@@ -19,19 +19,19 @@
         new {@class="form-control dropdown-toggle"})
     </div>
     <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeFirstName" name="firstName" />
+        <input type="text" class="form-control" asp-for="Input.EmployeeFirstName"/>
         <label asp-for="Input.EmployeeFirstName">First name</label>
     </div>
     <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeLastName" name="lastName" />
+        <input type="text" class="form-control" asp-for="Input.EmployeeLastName"/>
         <label asp-for="Input.EmployeeLastName">Last name</label>
     </div>
     <div class="form-floating mb-3">
-        <input type="date" class="form-control" asp-for="Input.StartDate  " name="employmentStartDate" />
+        <input type="date" class="form-control" asp-for="Input.StartDate" />
         <label asp-for="Input.StartDate">Vacation start date</label>
     </div>
     <div class="form-floating mb-3">
-        <input type="date" class="form-control" asp-for="Input.EndDate" name="employmentEndDate" />
+        <input type="date" class="form-control" asp-for="Input.EndDate" />
         <label asp-for="Input.EndDate">Vacation end date</label>
     </div>
     <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>

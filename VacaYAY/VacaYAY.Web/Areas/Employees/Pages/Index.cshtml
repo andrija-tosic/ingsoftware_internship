@@ -13,19 +13,19 @@
         <h3>Search</h3>
         <form method="post">
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" asp-for="Input.FirstName" name="firstName" />
+                <input type="text" class="form-control" asp-for="Input.FirstName"/>
                 <label asp-for="Input.FirstName">First name</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" asp-for="Input.LastName" name="lastName" />
+                <input type="text" class="form-control" asp-for="Input.LastName"/>
                 <label asp-for="Input.LastName">Last name</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="date" class="form-control" asp-for="Input.EmploymentStartDate" name="employmentStartDate" />
+                <input type="date" class="form-control" asp-for="Input.EmploymentStartDate"/>
                 <label asp-for="Input.EmploymentStartDate">Employment start date</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="date" class="form-control" asp-for="Input.EmploymentEndDate" name="employmentEndDate" />
+                <input type="date" class="form-control" asp-for="Input.EmploymentEndDate"/>
                 <label asp-for="Input.EmploymentEndDate">Employment end date</label>
             </div>
             <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
