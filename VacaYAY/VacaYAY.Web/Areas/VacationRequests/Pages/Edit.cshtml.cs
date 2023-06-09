@@ -2,42 +2,128 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
-namespace VacaYAY.Web.Areas.VacationRequests
-{
-    public class EditModel : PageModel
-    {
-        private readonly IUnitOfWork _unitOfWork;
+namespace VacaYAY.Web.Areas.VacationRequests;
 
-        public EditModel(IUnitOfWork unitOfWork)
+public class EditModel : PageModel
+{
+    private readonly IUnitOfWork _unitOfWork;
+
+    public EditModel(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
+
+    [BindProperty]
+    public VacationRequestDTO VacationRequestDTO { get; set; } = default!;
+
+    public IList<LeaveType> LeaveTypes { get; set; } = default!;
+    public bool IsSameEmployeeAsLoggedInOne = false;
+
+    public async Task<IActionResult> OnGetAsync(int? id)
+    {
+        if (id is null)
         {
-            _unitOfWork = unitOfWork;
+            return NotFound();
         }
 
-        [BindProperty]
-        public VacationRequest VacationRequest { get; set; } = default!;
+        var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
-        public IList<LeaveType> LeaveTypes { get; set; } = default!;
-
-        public async Task<IActionResult> OnGetAsync(int? id)
+        if (loggedInEmployee is null)
         {
-            if (id is null)
+            return Unauthorized();
+        }
+
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+
+        var vacationRequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
+        if (vacationRequest is null)
+        {
+            return NotFound();
+        }
+
+        TempData["vacationRequestId"] = vacationRequest.Id;
+
+        IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequest.Employee.Id;
+
+        VacationRequestDTO = new()
+        {
+            Id = vacationRequest.Id,
+            Comment = vacationRequest.Comment,
+            VacationReview = vacationRequest.VacationReview is not null
+            ? vacationRequest.VacationReview
+            : new VacationReview()
             {
-                return NotFound();
+                Approved = false,
+                Comment = string.Empty,
+                Reviewer = default!,
+                VacationRequestRefId = vacationRequest.Id,
+                VacationRequest = vacationRequest
+            },
+            StartDate = vacationRequest.StartDate,
+            EndDate = vacationRequest.EndDate,
+            Employee = vacationRequest.Employee,
+            LeaveType = vacationRequest.LeaveType
+        };
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostSaveAsync()
+    {
+        VacationRequest? vacationRequestFromDb = await _unitOfWork.VacationService.GetVacationRequestByIdAsync(VacationRequestDTO.Id);
+
+        if (vacationRequestFromDb is null)
+        {
+            return NotFound();
+        }
+
+        VacationRequestDTO.Employee = vacationRequestFromDb.Employee;
+
+        int previousDays = (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
+        int newDays = (VacationRequestDTO.EndDate - VacationRequestDTO.StartDate).Days;
+
+        vacationRequestFromDb.VacationReview = VacationRequestDTO.VacationReview;
+
+        var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+
+        if (loggedInEmployee is null)
+        {
+            return Unauthorized();
+        }
+
+        IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequestFromDb.Employee.Id;
+        
+        if (IsSameEmployeeAsLoggedInOne)
+        {
+            vacationRequestFromDb.Comment = VacationRequestDTO.Comment;
+            vacationRequestFromDb.StartDate = VacationRequestDTO.StartDate;
+            vacationRequestFromDb.EndDate = VacationRequestDTO.EndDate;
+        }
+
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+
+        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeById(VacationRequestDTO.LeaveType.Id);
+
+        if (leaveType is null)
+        {
+            return NotFound();
+        }
+
+        vacationRequestFromDb.LeaveType = leaveType;
+
+        var requestValidationResult = await _unitOfWork.VacationService.UpdateVacationRequest(vacationRequestFromDb);
+
+        if (!requestValidationResult.IsValid)
+        {
+            foreach (var error in requestValidationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
 
-            LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
-
-            var vacationRequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
-            if (vacationRequest == null)
-            {
-                return NotFound();
-            }
-
-            VacationRequest = vacationRequest;
-
-            VacationRequest.VacationReview ??= new VacationRequestReview()
+            VacationRequestDTO.VacationReview ??= new VacationReview()
             {
                 Approved = false,
                 Comment = string.Empty,
@@ -47,48 +133,114 @@ namespace VacaYAY.Web.Areas.VacationRequests
 
             return Page();
         }
-        public async Task<IActionResult> OnPostUpsertVacationRequestReviewAsync()
-        {
-            Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
-            if (loggedInEmployee is null)
+        vacationRequestFromDb.Employee.DaysOffNumber += previousDays - newDays;
+        var employeeValidationResult = await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+
+        if (!employeeValidationResult.IsValid)
+        {
+            foreach (var error in requestValidationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+
+            VacationRequestDTO.VacationReview ??= new VacationReview()
+            {
+                Approved = false,
+                Comment = string.Empty,
+                Reviewer = default!,
+                VacationRequest = default!
+            };
+
+            return Page();
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToPage("./Index");
+    }
+
+    public async Task<IActionResult> OnPostUpsertVacationRequestReviewAsync(VacationRequestDTO requestDTO)
+    {
+        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+
+        if (loggedInEmployee is null)
+        {
+            return NotFound();
+        }
+
+        VacationReview vacationReviewModel = VacationRequestDTO.VacationReview;
+
+        vacationReviewModel.Reviewer = loggedInEmployee;
+
+        if (vacationReviewModel.Id == 0)
+        {
+            int vacationRequestId = (int)TempData["vacationRequestId"]!;
+
+            var vacationRequestFromDb = await _unitOfWork.VacationService.GetVacationRequestByIdAsync(vacationRequestId);
+
+            if (vacationRequestFromDb is null)
             {
                 return NotFound();
             }
 
-            VacationRequest.VacationReview!.VacationRequestRefId = VacationRequest.Id;
-            VacationRequest.VacationReview!.Reviewer = loggedInEmployee;
+            vacationReviewModel.VacationRequest = vacationRequestFromDb;
+            vacationReviewModel.VacationRequestRefId = vacationRequestFromDb.Id;
 
-            if (VacationRequest.VacationReview.Id == 0)
+            if (vacationReviewModel.Approved)
             {
-                _unitOfWork.VacationService.CreateVacationRequestReview(VacationRequest.VacationReview!);
-            }
-            else
-            {
-                _unitOfWork.VacationService.UpdateVacationRequestReview(VacationRequest.VacationReview!);
-            }
-            try
-            {
-                await _unitOfWork.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
+                loggedInEmployee.DaysOffNumber -= (VacationRequestDTO.EndDate - VacationRequestDTO.StartDate).Days;
+
+                await _unitOfWork.EmployeeService.UpdateAsync(loggedInEmployee);
             }
 
-            return RedirectToPage("./Index");
+            _unitOfWork.VacationService.CreateVacationReview(vacationReviewModel);
         }
-
-        public async Task<IActionResult> OnPostDeleteVacationRequestReviewAsync()
+        else
         {
-            await _unitOfWork.VacationService.DeleteVacationRequestReviewAsync(VacationRequest.VacationReview!.Id);
-            try
+            VacationReview? vacationReviewFromDb = await _unitOfWork.VacationService.GetVacationReviewByIdAsync(vacationReviewModel.Id);
+
+            if (vacationReviewFromDb is null)
             {
-                await _unitOfWork.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
+
+            bool reviewBecameApproved = !vacationReviewFromDb.Approved && vacationReviewModel.Approved;
+            bool reviewBecameRejected = vacationReviewFromDb.Approved && !vacationReviewModel.Approved;
+
+            if (reviewBecameApproved)
             {
+                loggedInEmployee.DaysOffNumber -= (VacationRequestDTO.EndDate - VacationRequestDTO.StartDate).Days;
+                await _unitOfWork.EmployeeService.UpdateAsync(loggedInEmployee);
             }
-            return RedirectToPage("./Index");
+            else if (reviewBecameRejected)
+            {
+                loggedInEmployee.DaysOffNumber += (VacationRequestDTO.EndDate - VacationRequestDTO.StartDate).Days;
+                await _unitOfWork.EmployeeService.UpdateAsync(loggedInEmployee);
+            }
+
+            vacationReviewFromDb.Reviewer = loggedInEmployee;
+            vacationReviewFromDb.Approved = vacationReviewModel.Approved;
+            vacationReviewFromDb.Comment = vacationReviewModel.Comment;
+
+            _unitOfWork.VacationService.UpdateVacationReview(vacationReviewFromDb);
         }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToPage("./Index");
+    }
+
+    public async Task<IActionResult> OnPostDeleteVacationRequestReviewAsync()
+    {
+        await _unitOfWork.VacationService.DeleteVacationReviewAsync(VacationRequestDTO.VacationReview.Id);
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+        }
+        return RedirectToPage("./Index");
     }
 }

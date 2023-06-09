@@ -12,37 +12,37 @@ namespace VacaYAY.Data.Migrations
         {
             migrationBuilder.AddColumn<string>(
                 name: "EmployeeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 type: "nvarchar(450)",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ReviewerId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 type: "nvarchar(450)",
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VacationRequestsReviews_EmployeeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VacationRequestsReviews_ReviewerId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "ReviewerId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_VacationRequestsReviews_Employees_EmployeeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "EmployeeId",
                 principalTable: "Employees",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_VacationRequestsReviews_Employees_ReviewerId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "ReviewerId",
                 principalTable: "Employees",
                 principalColumn: "Id");
@@ -53,27 +53,27 @@ namespace VacaYAY.Data.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_VacationRequestsReviews_Employees_EmployeeId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_VacationRequestsReviews_Employees_ReviewerId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropIndex(
                 name: "IX_VacationRequestsReviews_EmployeeId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropIndex(
                 name: "IX_VacationRequestsReviews_ReviewerId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropColumn(
                 name: "EmployeeId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropColumn(
                 name: "ReviewerId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
         }
     }
 }

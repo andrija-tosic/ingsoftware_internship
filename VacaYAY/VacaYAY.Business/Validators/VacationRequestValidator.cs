@@ -11,10 +11,26 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
     public VacationRequestValidator(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
+
+        RuleFor(v => v.StartDate).NotEmpty().GreaterThanOrEqualTo(DateTime.Now.AddDays(1));
+
         RuleFor(v => v.EndDate)
             .NotEmpty()
             .GreaterThan(v => v.StartDate)
-            .NotEmpty();
+            .NotEmpty()
+            .WithMessage("Vacation end date must be after the start date.");
+
+        RuleFor(v => v).MustAsync(async (v, cancellation) =>
+        {
+            int newRequestDays = (v.EndDate - v.StartDate).Days;
+
+            IList<VacationRequest> employeesVacationRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(v.Employee.Id, false, new VacationRequestSearchFilters { });
+
+            var requestsWithPendingReview = employeesVacationRequests.Where(r => r.VacationReview is null);
+            int usedDays = newRequestDays + requestsWithPendingReview.Sum(r => (r.EndDate - r.StartDate).Days);
+
+            return v.Employee.DaysOffNumber - usedDays > 0;
+        }).WithMessage((v) => $"Employee {v.Employee.FirstName} {v.Employee.LastName} has only {v.Employee.DaysOffNumber} days off left.");
 
         RuleFor(v => v.Comment).NotEmpty();
         RuleFor(v => v.Employee).NotNull();
@@ -37,6 +53,6 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
                     return true;
                 }
             });
-        });
+        }).WithMessage("Vacation dates overlap with an existing vacation request.");
     }
 }

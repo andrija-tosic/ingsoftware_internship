@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business;
-using VacaYAY.Data.Models;
+using VacaYAY.API.Fakes;
+using VacaYAY.API.Models;
 
 namespace VacaYAY.API.Controllers;
 
@@ -9,18 +9,25 @@ namespace VacaYAY.API.Controllers;
 public class EmployeesController : ControllerBase
 {
     private readonly ILogger<EmployeesController> _logger;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public EmployeesController(ILogger<EmployeesController> logger, IUnitOfWork unitOfWork)
+    public EmployeesController(ILogger<EmployeesController> logger)
     {
         _logger = logger;
-        _unitOfWork = unitOfWork;
+    }
+    public IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions)
+    {
+        return EmployeeFaker.GenerateFakes(count, positions);
     }
 
     [HttpGet("{count}")]
-    public async Task<IEnumerable<Employee>> GetFakesAsync(int count)
+    public IEnumerable<Employee> GetFakesAsync(int count)
     {
-        IList<Position> positions = (await _unitOfWork.PositionService.GetAllAsync()).ToList();
-        return _unitOfWork.EmployeeService.GenerateFakes(count, positions);
+        IList<Position> positions = new List<Position>() {
+        new Position{ Id = 1, Caption = "HR", Description="Description", Employees = new List<Employee>() },
+        new Position{ Id = 2, Caption="Senior iOS Developer", Description = "Description", Employees = new List<Employee>()},
+        new Position{ Id = 3, Caption="Human Applications Representative", Description="Description", Employees = new List<Employee>()},
+        new Position{ Id = 4, Caption="Product Accounts Director", Description="Description", Employees=new List<Employee>()}
+        };
+        return GenerateFakes(count, positions);
     }
 }

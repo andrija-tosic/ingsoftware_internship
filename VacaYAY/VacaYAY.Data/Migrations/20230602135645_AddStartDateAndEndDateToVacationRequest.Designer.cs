@@ -372,7 +372,7 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("VacationRequestRefId")
                         .IsUnique();
 
-                    b.ToTable("VacationRequestsReviews");
+                    b.ToTable("VacationReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

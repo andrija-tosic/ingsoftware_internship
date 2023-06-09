@@ -14,16 +14,16 @@
 <h3>Search</h3>
 <form method="post">
     <div class="form-floating mb-3">
-        Leave type
         @Html.DropDownListFor(m => m.Input.LeaveTypeId, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)), "Any",
         new {@class="form-control dropdown-toggle"})
+        <label for="LeaveTypeId">Leave type</label>
     </div>
     <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeFirstName"/>
+        <input type="text" class="form-control" asp-for="Input.EmployeeFirstName" />
         <label asp-for="Input.EmployeeFirstName">First name</label>
     </div>
     <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeLastName"/>
+        <input type="text" class="form-control" asp-for="Input.EmployeeLastName" />
         <label asp-for="Input.EmployeeLastName">Last name</label>
     </div>
     <div class="form-floating mb-3">
@@ -54,6 +54,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.VacationRequests[0].Comment)
             </th>
+            <th>
+                Approved
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -70,13 +73,24 @@
                     (@Html.DisplayFor(modelItem => item.Employee.Email))
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
+                    @Convert.ToDateTime(item.StartDate).ToString("dd/MMMM/yyyy")
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
+                    @Convert.ToDateTime(item.EndDate).ToString("dd/MMMM/yyyy")
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Comment)
+                </td>
+                <td>
+                    @if (item.VacationReview is not null)
+                    {
+                        @(item.VacationReview.Approved ? "Yes" : "No")
+                    }
+                    else
+                    {
+                        @("Not yet reviewed")
+
+                    }
                 </td>
                 <td>
                     <a class="btn btn-outline-primary" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>

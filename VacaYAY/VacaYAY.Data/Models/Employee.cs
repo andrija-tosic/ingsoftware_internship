@@ -30,14 +30,18 @@ public class Employee : IdentityUser
     public required Position Position { get; set; }
     [Required]
     [DisplayName("Employment start date")]
+    [DataType(DataType.Date)]
     public required DateTime EmploymentStartDate { get; set; }
     [DisplayName("Employment end date")]
+    [DataType(DataType.Date)]
     public DateTime? EmploymentEndDate { get; set; }
     [Required]
     [DisplayName("Date of insertion")]
+    [DataType(DataType.Date)]
     public required DateTime InsertDate { get; set; }
     [DisplayName("Date of deletion")]
+    [DataType(DataType.Date)]
     public DateTime? DeleteDate { get; set; }
     public required List<VacationRequest> VacationRequests { get; set; }
-    public required List<VacationRequestReview> VacationRequestReviews { get; set; }
+    public required List<VacationReview> VacationReviews { get; set; }
 }

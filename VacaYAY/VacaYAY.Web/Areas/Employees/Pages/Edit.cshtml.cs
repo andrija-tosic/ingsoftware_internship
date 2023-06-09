@@ -28,22 +28,20 @@ namespace VacaYAY.Web.Areas.Employees.Pages
         {
             Positions = await _unitOfWork.PositionService.GetAllAsync();
 
-            if (id == null)
+            if (id is null)
             {
                 return NotFound();
             }
 
-            var employee = await _unitOfWork.EmployeeService.GetByIdAsync(id);
-            if (employee == null)
+            var employeeFromDb = await _unitOfWork.EmployeeService.GetByIdAsync(id);
+            if (employeeFromDb is null)
             {
                 return NotFound();
             }
-            EmployeeDTO = employee;
+            EmployeeDTO = employeeFromDb;
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
@@ -72,8 +70,8 @@ namespace VacaYAY.Web.Areas.Employees.Pages
 
             try
             {
-                IdentityResult res = await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
-                if (res.Succeeded)
+                var validationResult = await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
+                if (validationResult.IsValid)
                 {
                     await _unitOfWork.SaveChangesAsync();
                 }

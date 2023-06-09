@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -8,30 +9,30 @@ namespace VacaYAY.Web.Areas.VacationRequests
 {
     public class DeleteModel : PageModel
     {
-        private readonly VacayayDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteModel(VacayayDbContext context)
+        public DeleteModel(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         [BindProperty]
-      public VacationRequest VacationRequest { get; set; } = default!;
+        public VacationRequest VacationRequest { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null || _context.VacationRequests == null)
+            if (id is null)
             {
                 return NotFound();
             }
 
-            var vacationrequest = await _context.VacationRequests.FirstOrDefaultAsync(m => m.Id == id);
+            var vacationrequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
 
-            if (vacationrequest == null)
+            if (vacationrequest is null)
             {
                 return NotFound();
             }
-            else 
+            else
             {
                 VacationRequest = vacationrequest;
             }
@@ -40,18 +41,25 @@ namespace VacaYAY.Web.Areas.VacationRequests
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
-            if (id == null || _context.VacationRequests == null)
+            if (id is null)
             {
                 return NotFound();
             }
-            var vacationrequest = await _context.VacationRequests.FindAsync(id);
+            var vacationrequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
 
-            if (vacationrequest != null)
+            if (vacationrequest is null)
             {
-                VacationRequest = vacationrequest;
-                _context.VacationRequests.Remove(VacationRequest);
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
+
+            VacationRequest = vacationrequest;
+            await _unitOfWork.VacationService.DeleteVacationRequestAsync(VacationRequest.Id);
+
+            int days = (VacationRequest.EndDate - VacationRequest.StartDate).Days;
+            VacationRequest.Employee.DaysOffNumber += days;
+            await _unitOfWork.EmployeeService.UpdateAsync(VacationRequest.Employee);
+
+            await _unitOfWork.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

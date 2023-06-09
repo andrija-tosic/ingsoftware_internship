@@ -45,11 +45,11 @@
         </dd>
     </dl>
 </div>
-@if (Model.VacationRequest.VacationReview is not null)
-{
+<div>
+    <h4>Vacation request review</h4>
+    @if (Model.VacationRequest.VacationReview is not null)
+    {
 
-    <div>
-        <h4>Vacation request review</h4>
         <hr />
         <dl class="row">
             <dt class="col-sm-2">
@@ -65,8 +65,12 @@
                 @Html.DisplayFor(model => model.VacationRequest.VacationReview!.Comment)
             </dd>
         </dl>
-    </div>
-}
+    }
+    else
+    {
+        <h5>Not reviewed yet</h5>
+    }
+</div>
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.VacationRequest?.Id">Edit</a> |
     <a asp-page="./Index">Back to List</a>

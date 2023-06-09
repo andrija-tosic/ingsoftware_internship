@@ -12,15 +12,15 @@ namespace VacaYAY.Data.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_VacationRequestsReviews_LeaveTypes_LeaveTypeId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropIndex(
                 name: "IX_VacationRequestsReviews_LeaveTypeId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.DropColumn(
                 name: "LeaveTypeId",
-                table: "VacationRequestsReviews");
+                table: "VacationReviews");
 
             migrationBuilder.AddColumn<int>(
                 name: "LeaveTypeId",
@@ -60,19 +60,19 @@ namespace VacaYAY.Data.Migrations
 
             migrationBuilder.AddColumn<int>(
                 name: "LeaveTypeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.CreateIndex(
                 name: "IX_VacationRequestsReviews_LeaveTypeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "LeaveTypeId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_VacationRequestsReviews_LeaveTypes_LeaveTypeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "LeaveTypeId",
                 principalTable: "LeaveTypes",
                 principalColumn: "Id",

@@ -7,6 +7,7 @@ public class EmployeeValidator : AbstractValidator<Employee>
 {
     public EmployeeValidator()
     {
+        RuleFor(e => e.Email).EmailAddress();
         RuleFor(e => e.FirstName).NotEmpty().MinimumLength(3);
         RuleFor(e => e.LastName).NotEmpty().MinimumLength(3);
         RuleFor(e => e.Address).NotEmpty().MinimumLength(3);

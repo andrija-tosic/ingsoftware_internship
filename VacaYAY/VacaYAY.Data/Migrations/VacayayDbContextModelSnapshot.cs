@@ -333,9 +333,6 @@ namespace VacaYAY.Data.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VacationReviewRefId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
@@ -345,7 +342,7 @@ namespace VacaYAY.Data.Migrations
                     b.ToTable("VacationRequests");
                 });
 
-            modelBuilder.Entity("VacaYAY.Data.Models.VacationRequestReview", b =>
+            modelBuilder.Entity("VacaYAY.Data.Models.VacationReview", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -380,7 +377,7 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("VacationRequestRefId")
                         .IsUnique();
 
-                    b.ToTable("VacationRequestsReviews");
+                    b.ToTable("VacationReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -464,10 +461,10 @@ namespace VacaYAY.Data.Migrations
                     b.Navigation("LeaveType");
                 });
 
-            modelBuilder.Entity("VacaYAY.Data.Models.VacationRequestReview", b =>
+            modelBuilder.Entity("VacaYAY.Data.Models.VacationReview", b =>
                 {
                     b.HasOne("VacaYAY.Data.Models.Employee", null)
-                        .WithMany("VacationRequestReviews")
+                        .WithMany("VacationReviews")
                         .HasForeignKey("EmployeeId");
 
                     b.HasOne("VacaYAY.Data.Models.Employee", "Reviewer")
@@ -478,7 +475,7 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasOne("VacaYAY.Data.Models.VacationRequest", "VacationRequest")
                         .WithOne("VacationReview")
-                        .HasForeignKey("VacaYAY.Data.Models.VacationRequestReview", "VacationRequestRefId")
+                        .HasForeignKey("VacaYAY.Data.Models.VacationReview", "VacationRequestRefId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -489,9 +486,9 @@ namespace VacaYAY.Data.Migrations
 
             modelBuilder.Entity("VacaYAY.Data.Models.Employee", b =>
                 {
-                    b.Navigation("VacationRequestReviews");
-
                     b.Navigation("VacationRequests");
+
+                    b.Navigation("VacationReviews");
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Models.LeaveType", b =>

@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
+using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
 namespace VacaYAY.Business.Services;
 
@@ -27,42 +28,51 @@ public class VacationService : IVacationService
         return await _context.VacationRequests
             .Where(v => v.Id == id)
             .Include(v => v.LeaveType)
-            .Include(v => v.Employee)
+            .Include(v => v.Employee).ThenInclude(e => e.Position)
             .Include(v => v.VacationReview)
             .SingleAsync();
     }
 
-    public async Task CreateVacationRequest(VacationRequest vacationRequest)
+    public async Task<ValidationResult> CreateVacationRequest(VacationRequest vacationRequest)
     {
         var validationResult = await _vacationRequestValidator.ValidateAsync(vacationRequest);
 
         if (!validationResult.IsValid)
         {
-            foreach (FluentValidation.Results.ValidationFailure error in validationResult.Errors)
+            foreach (ValidationFailure error in validationResult.Errors)
             {
                 _logger.LogError(error.ErrorMessage);
             }
 
-            return;
+            return validationResult;
         }
 
         _context.VacationRequests.Add(vacationRequest);
+        return validationResult;
     }
-    public async Task UpdateVacationRequest(VacationRequest vacationRequest)
+    public async Task<ValidationResult> UpdateVacationRequest(VacationRequest vacationRequest)
     {
         var validationResult = await _vacationRequestValidator.ValidateAsync(vacationRequest);
 
         if (!validationResult.IsValid)
         {
-            foreach (FluentValidation.Results.ValidationFailure error in validationResult.Errors)
+            foreach (ValidationFailure error in validationResult.Errors)
             {
                 _logger.LogError(error.ErrorMessage);
             }
 
-            return;
+            return validationResult;
+        }
+
+        VacationRequest? previousRequest = await _context.VacationRequests.FindAsync(vacationRequest.Id);
+
+        if (previousRequest is null)
+        {
+            return new ValidationResult(new[] { new ValidationFailure(nameof(previousRequest), "not found") });
         }
 
         _context.VacationRequests.Update(vacationRequest);
+        return validationResult;
     }
 
     public async Task DeleteVacationRequestAsync(int id)
@@ -136,25 +146,32 @@ public class VacationService : IVacationService
         return await _context.LeaveTypes.FindAsync(id);
     }
 
-    public void CreateVacationRequestReview(VacationRequestReview vacationRequestReview)
+    public void CreateVacationReview(VacationReview vacationRequestReview)
     {
-        _context.VacationRequestsReviews.Add(vacationRequestReview);
+        _context.VacationReviews.Add(vacationRequestReview);
     }
 
-    public void UpdateVacationRequestReview(VacationRequestReview vacationRequestReview)
+    public void UpdateVacationReview(VacationReview vacationRequestReview)
     {
-        _context.VacationRequestsReviews.Update(vacationRequestReview);
+        _context.VacationReviews.Update(vacationRequestReview);
     }
 
-    public async Task DeleteVacationRequestReviewAsync(int id)
+    public async Task DeleteVacationReviewAsync(int id)
     {
-        VacationRequestReview? review = await _context.VacationRequestsReviews.FindAsync(id);
+        VacationReview? review = await _context.VacationReviews.FindAsync(id);
 
         if (review is null)
         {
             return;
         }
 
-        _context.VacationRequestsReviews.Remove(review);
+        _context.VacationReviews.Remove(review);
+    }
+
+    public async Task<VacationReview?> GetVacationReviewByIdAsync(int id)
+    {
+        return await _context.VacationReviews.Where(v => v.Id == id)
+            .Include(v => v.VacationRequest)
+            .SingleAsync();
     }
 }

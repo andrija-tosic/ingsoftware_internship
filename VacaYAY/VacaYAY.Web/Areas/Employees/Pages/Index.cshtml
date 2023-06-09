@@ -105,21 +105,21 @@
                     @Html.DisplayFor(modelItem => item.DaysOffNumber)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EmploymentStartDate)
+                    @Convert.ToDateTime(item.EmploymentStartDate).ToString("dd/MMMM/yyyy")
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EmploymentEndDate)
+                    @Convert.ToDateTime(item.EmploymentEndDate).ToString("dd/MMMM/yyyy")
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Position.Caption)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.InsertDate)
+                    @Convert.ToDateTime(item.InsertDate).ToString("dd/MMMM/yyyy")
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeleteDate)
+@*                <td>
+                    @Convert.ToDateTime(item.DeleteDate).ToString("dd/MMMM/yyyy")
                 </td>
-                <td>
+*@                <td>
                     <a class="btn btn-outline-primary" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
                     <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@item.Id">Details</a>
                     <a class="btn btn-outline-danger" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>

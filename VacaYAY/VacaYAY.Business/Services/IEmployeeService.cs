@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
@@ -9,12 +10,11 @@ public interface IEmployeeService
 {
     Task<Employee?> GetByIdAsync(string id);
     Task<Employee?> GetLoggedInAsync(ClaimsPrincipal claims);
-    Task<IdentityResult> CreateAsync(Employee employee, string password);
-    Task<IdentityResult> UpdateAsync(Employee employee);
+    Task<ValidationResult> CreateAsync(Employee employee, string password);
+    Task<ValidationResult> UpdateAsync(Employee employee);
     Task<IdentityResult> SoftDeleteAsync(Employee employee);
     Task<IEnumerable<Employee>> GetAllAsync();
     Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters);
-    Task<IdentityResult> CreateFakesAsync(int count);
-    IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions);
+    Task<ValidationResult> CreateFakesAsync(int count);
     Task<bool> IsInRoleAsync(Employee employee, string role);
 }

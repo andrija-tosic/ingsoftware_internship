@@ -12,8 +12,8 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(VacayayDbContext))]
-    [Migration("20230529100656_InitialWithCustomIdentityUser")]
-    partial class InitialWithCustomIdentityUser
+    [Migration("20230609073935_RenameVacationRequestReviewToVacationReview")]
+    partial class RenameVacationRequestReviewToVacationReview
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -263,6 +263,8 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasIndex("PositionId");
 
+                    b.HasIndex("FirstName", "LastName", "EmploymentStartDate", "EmploymentEndDate");
+
                     b.ToTable("Employees", (string)null);
                 });
 
@@ -325,6 +327,15 @@ namespace VacaYAY.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LeaveTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("VacationReviewRefId")
                         .HasColumnType("int");
 
@@ -332,10 +343,14 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasIndex("EmployeeId");
 
+                    b.HasIndex("LeaveTypeId");
+
+                    b.HasIndex("VacationReviewRefId");
+
                     b.ToTable("VacationRequests");
                 });
 
-            modelBuilder.Entity("VacaYAY.Data.Models.VacationRequestReview", b =>
+            modelBuilder.Entity("VacaYAY.Data.Models.VacationReview", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -351,15 +366,21 @@ namespace VacaYAY.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<int>("LeaveTypeId")
-                        .HasColumnType("int");
+                    b.Property<string>("EmployeeId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ReviewerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("VacationRequestRefId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeaveTypeId");
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ReviewerId");
 
                     b.HasIndex("VacationRequestRefId")
                         .IsUnique();
@@ -437,24 +458,44 @@ namespace VacaYAY.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("VacaYAY.Data.Models.VacationRequestReview", b =>
-                {
                     b.HasOne("VacaYAY.Data.Models.LeaveType", "LeaveType")
-                        .WithMany()
+                        .WithMany("VacationRequests")
                         .HasForeignKey("LeaveTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VacaYAY.Data.Models.VacationRequest", "VacationRequest")
-                        .WithOne("VacationReview")
-                        .HasForeignKey("VacaYAY.Data.Models.VacationRequestReview", "VacationRequestRefId")
+                    b.HasOne("VacaYAY.Data.Models.VacationReview", "VacationReview")
+                        .WithMany()
+                        .HasForeignKey("VacationReviewRefId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Employee");
+
                     b.Navigation("LeaveType");
+
+                    b.Navigation("VacationReview");
+                });
+
+            modelBuilder.Entity("VacaYAY.Data.Models.VacationReview", b =>
+                {
+                    b.HasOne("VacaYAY.Data.Models.Employee", null)
+                        .WithMany("VacationReviews")
+                        .HasForeignKey("EmployeeId");
+
+                    b.HasOne("VacaYAY.Data.Models.Employee", "Reviewer")
+                        .WithMany()
+                        .HasForeignKey("ReviewerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("VacaYAY.Data.Models.VacationRequest", "VacationRequest")
+                        .WithOne()
+                        .HasForeignKey("VacaYAY.Data.Models.VacationReview", "VacationRequestRefId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Reviewer");
 
                     b.Navigation("VacationRequest");
                 });
@@ -462,16 +503,18 @@ namespace VacaYAY.Data.Migrations
             modelBuilder.Entity("VacaYAY.Data.Models.Employee", b =>
                 {
                     b.Navigation("VacationRequests");
+
+                    b.Navigation("VacationReviews");
+                });
+
+            modelBuilder.Entity("VacaYAY.Data.Models.LeaveType", b =>
+                {
+                    b.Navigation("VacationRequests");
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Models.Position", b =>
                 {
                     b.Navigation("Employees");
-                });
-
-            modelBuilder.Entity("VacaYAY.Data.Models.VacationRequest", b =>
-                {
-                    b.Navigation("VacationReview");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,7 +1,7 @@
 ﻿using Bogus;
-using VacaYAY.Data.Models;
+using VacaYAY.API.Models;
 
-namespace VacaYAY.Business.Fakes;
+namespace VacaYAY.API.Fakes;
 public class EmployeeFaker
 {
     public static IList<Employee> GenerateFakes(int count, IList<Position> positions)

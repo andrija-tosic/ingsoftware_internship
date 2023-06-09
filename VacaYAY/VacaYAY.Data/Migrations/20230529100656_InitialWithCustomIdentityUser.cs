@@ -221,7 +221,7 @@ namespace VacaYAY.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "VacationRequestsReviews",
+                name: "VacationReviews",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -311,12 +311,12 @@ namespace VacaYAY.Data.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_VacationRequestsReviews_LeaveTypeId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "LeaveTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VacationRequestsReviews_VacationRequestRefId",
-                table: "VacationRequestsReviews",
+                table: "VacationReviews",
                 column: "VacationRequestRefId",
                 unique: true);
         }
@@ -340,7 +340,7 @@ namespace VacaYAY.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "VacationRequestsReviews");
+                name: "VacationReviews");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
