@@ -123,7 +123,7 @@ public class VacationService : IVacationService
 
         IQueryable<VacationRequest> employees = vacationRequests.Where(v => false);
 
-        if (!searchFilters.EmployeeFullName.IsNullOrEmpty())
+        if (!string.IsNullOrWhiteSpace(searchFilters.EmployeeFullName))
         {
             foreach (string token in searchFilters.EmployeeFullName!.Trim().Split(" "))
             {

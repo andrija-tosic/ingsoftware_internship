@@ -20,7 +20,10 @@ public class IndexModel : PageModel
 
     [BindProperty(SupportsGet = true)]
     public EmployeeSearchFilters Input { get; set; } = default!;
-    
+
+    [BindProperty(SupportsGet = true)]
+    public int NumberOfFakeEmployeesToGenerate { get; set; }
+
     public IList<Employee> Employees { get; set; } = default!;
 
     public async Task OnGetAsync()
@@ -36,7 +39,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostGenerateFakeEmployeesAsync()
     { 
-        await _unitOfWork.EmployeeService.CreateFakesAsync(Input.NumberOfFakeEmployeesToGenerate);
+        await _unitOfWork.EmployeeService.CreateFakesAsync(NumberOfFakeEmployeesToGenerate);
         await _unitOfWork.SaveChangesAsync();
 
         Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);

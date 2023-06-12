@@ -116,40 +116,45 @@ public class EmployeeService : IEmployeeService
 
     public async Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters)
     {
-        IQueryable<Employee> results = _context.Employees.AsQueryable();
+        IQueryable<Employee> employees = _context.Employees
+            .Include(e => e.Position)
+            .AsQueryable();
 
-        if (!string.IsNullOrEmpty(searchFilters.FirstName))
-        {
-            searchFilters.FirstName = searchFilters.FirstName.Trim();
-            results = results.Where(e => e.FirstName.ToLower().StartsWith(searchFilters.FirstName));
-        }
+        IQueryable<Employee> nameResults = employees.Where(e => false);
 
-        if (!string.IsNullOrEmpty(searchFilters.LastName))
+        if (!string.IsNullOrWhiteSpace(searchFilters.EmployeeFullName))
         {
-            searchFilters.LastName = searchFilters.LastName.Trim();
-            results = results.Where(e => e.LastName.ToLower().StartsWith(searchFilters.LastName));
+            foreach (string token in searchFilters.EmployeeFullName!.Trim().Split(" "))
+            {
+                nameResults = nameResults.Union(employees.Where(v => v.FirstName.Contains(token) || v.LastName.Contains(token)));
+            }
         }
 
         if (searchFilters.EmploymentStartDate is not null)
         {
-            results = results.Where(e => e.EmploymentStartDate >= searchFilters.EmploymentStartDate);
+            employees = employees.Where(e => e.EmploymentStartDate >= searchFilters.EmploymentStartDate);
         }
 
         if (searchFilters.EmploymentEndDate is not null)
         {
-            results = results.Where(e => e.EmploymentEndDate <= searchFilters.EmploymentEndDate);
+            employees = employees.Where(e => e.EmploymentEndDate <= searchFilters.EmploymentEndDate);
         }
 
-        results = results.Include(e => e.Position);
-
-        return await results.ToListAsync();
+        if (nameResults.Any())
+        {
+            return await employees.Intersect(nameResults).ToListAsync();
+        }
+        else
+        {
+            return await employees.ToListAsync();
+        }
     }
 
     public async Task<ValidationResult> CreateFakesAsync(int count)
     {
         IList<Employee>? employees = await _httpService.Get<IList<Employee>>($"/Employees/{count}");
 
-        if (employees.IsNullOrEmpty())
+        if (employees is null || employees.Count == 0)
         {
             return new ValidationResult(new[] { new FluentValidation.Results.ValidationFailure(nameof(employees), "is null") });
         }

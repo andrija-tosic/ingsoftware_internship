@@ -13,12 +13,8 @@
         <h3>Search</h3>
         <form method="post">
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" asp-for="Input.FirstName"/>
-                <label asp-for="Input.FirstName">First name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control" asp-for="Input.LastName"/>
-                <label asp-for="Input.LastName">Last name</label>
+                <input type="text" class="form-control" asp-for="Input.EmployeeFullName"/>
+                <label asp-for="Input.EmployeeFullName">Full name</label>
             </div>
             <div class="form-floating mb-3">
                 <input type="date" class="form-control" asp-for="Input.EmploymentStartDate"/>
@@ -35,8 +31,8 @@
     <div class="col-md-4">
         <h4>Load existing employees from the old system</h4>
         <form method="post">
-            <label asp-for="Input.NumberOfFakeEmployeesToGenerate">Number of fake employees</label>
-            <input type="number" min="1" class="form-control mb-3" asp-for="Input.NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
+            <label asp-for="NumberOfFakeEmployeesToGenerate">Number of fake employees</label>
+            <input type="number" min="1" class="form-control mb-3" asp-for="NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
 
             <button id="generateSubmit" asp-page-handler="GenerateFakeEmployees" type="submit" class="btn btn-primary">Load</button>
         </form>
