@@ -67,11 +67,11 @@ public class EmployeeService : IEmployeeService
             return validationResult;
         }
 
-        bool isAlreadyAdmin = await _userManager.IsInRoleAsync(employee, nameof(UserRoles.Administrator));
+        bool isAlreadyAdmin = await _userManager.IsInRoleAsync(employee, InitialData.AdminRoleName);
 
-        if (employee.Position.Caption == Positions.HR && !isAlreadyAdmin)
+        if (employee.Position.Id == InitialData.AdminPosition.Id && !isAlreadyAdmin)
         {
-            await _userManager.AddToRoleAsync(employee, nameof(UserRoles.Administrator));
+            await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
         }
 
         await _userStore.SetUserNameAsync(employee, employee.Email, CancellationToken.None);
@@ -81,7 +81,7 @@ public class EmployeeService : IEmployeeService
         validationResult.Errors.AddRange(
             result.Errors
             .Select(e => new FluentValidation.Results.ValidationFailure(e.Code, e.Description))
-            );
+        );
 
         return validationResult;
     }
@@ -95,9 +95,9 @@ public class EmployeeService : IEmployeeService
             return validationResult;
         }
 
-        if (employee.Position.Caption == Positions.HR)
+        if (employee.Position.Id == InitialData.AdminPosition.Id)
         {
-            await _userManager.AddToRoleAsync(employee, nameof(UserRoles.Administrator));
+            await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
         }
 
         IdentityResult result = await _userManager.UpdateAsync(employee);

@@ -2,7 +2,7 @@
 using VacaYAY.API.Models;
 
 namespace VacaYAY.API.Fakes;
-public class EmployeeFaker
+public static class EmployeeFaker
 {
     public static IList<Employee> GenerateFakes(int count, IList<Position> positions)
     {

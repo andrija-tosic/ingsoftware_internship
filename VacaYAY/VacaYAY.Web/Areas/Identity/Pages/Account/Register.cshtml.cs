@@ -14,18 +14,14 @@ using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.Identity.Pages.Account;
 
-[Authorize(Roles = nameof(UserRoles.Administrator))]
+[Authorize(Roles = InitialData.AdminRoleName)]
 public class RegisterModel : PageModel
 {
     private readonly SignInManager<Employee> _signInManager;
     private readonly UserManager<Employee> _userManager;
     private readonly IUserStore<Employee> _userStore;
-    //private readonly IUserEmailStore<Employee> _emailStore;
     private readonly ILogger<RegisterModel> _logger;
-    //private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IUnitOfWork _unitOfWork;
-
-    //private readonly IEmailSender _emailSender;
 
     public IEnumerable<Position> Positions { get; set; }
 
@@ -34,20 +30,14 @@ public class RegisterModel : PageModel
         IUserStore<Employee> userStore,
         SignInManager<Employee> signInManager,
         ILogger<RegisterModel> logger,
-        //,IEmailSender emailSender
-        //RoleManager<IdentityRole> roleManager,
         IUnitOfWork unitOfWork
         )
     {
         _userManager = userManager;
         _userStore = userStore;
-        //_emailStore = GetEmailStore();
         _signInManager = signInManager;
         _logger = logger;
-        //_roleManager = roleManager;
         _unitOfWork = unitOfWork;
-
-        //_emailSender = emailSender;
     }
 
     [BindProperty]

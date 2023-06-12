@@ -43,7 +43,6 @@ builder.Services.AddHttpClient(nameof(IHttpService), httpClient =>
     httpClient.BaseAddress = new Uri("http://localhost:5110");
 });
 
-
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

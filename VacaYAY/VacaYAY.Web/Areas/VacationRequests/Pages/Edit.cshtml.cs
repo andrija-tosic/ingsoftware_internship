@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business;
+using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
@@ -21,6 +22,7 @@ public class EditModel : PageModel
 
     public IList<LeaveType> LeaveTypes { get; set; } = default!;
     public bool IsSameEmployeeAsLoggedInOne = false;
+    public bool IsLoggedInEmployeeAdmin = false;
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
@@ -47,6 +49,7 @@ public class EditModel : PageModel
         TempData["vacationRequestId"] = vacationRequest.Id;
 
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequest.Employee.Id;
+        IsLoggedInEmployeeAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
 
         VacationRequestDTO = new()
         {
@@ -102,6 +105,8 @@ public class EditModel : PageModel
             vacationRequestFromDb.StartDate = VacationRequestDTO.StartDate;
             vacationRequestFromDb.EndDate = VacationRequestDTO.EndDate;
         }
+
+        IsLoggedInEmployeeAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
 
         LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
 
@@ -159,8 +164,7 @@ public class EditModel : PageModel
 
         return RedirectToPage("./Index");
     }
-
-    public async Task<IActionResult> OnPostUpsertVacationRequestReviewAsync(VacationRequestDTO requestDTO)
+    public async Task<IActionResult> OnPostUpsertVacationRequestReviewAsync()
     {
         Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
@@ -198,7 +202,7 @@ public class EditModel : PageModel
         }
         else
         {
-            VacationReview? vacationReviewFromDb = await _unitOfWork.VacationService.GetVacationReviewByIdAsync(vacationReviewModel.Id);
+                VacationReview? vacationReviewFromDb = await _unitOfWork.VacationService.GetVacationReviewByIdAsync(vacationReviewModel.Id);
 
             if (vacationReviewFromDb is null)
             {

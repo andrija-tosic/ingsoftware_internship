@@ -8,26 +8,51 @@ namespace VacaYAY.API.Controllers;
 [Route("[controller]")]
 public class EmployeesController : ControllerBase
 {
-    private readonly ILogger<EmployeesController> _logger;
-
-    public EmployeesController(ILogger<EmployeesController> logger)
+    public EmployeesController()
     {
-        _logger = logger;
-    }
-    public IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions)
-    {
-        return EmployeeFaker.GenerateFakes(count, positions);
     }
 
     [HttpGet("{count}")]
     public IEnumerable<Employee> GetFakesAsync(int count)
     {
-        IList<Position> positions = new List<Position>() {
-        new Position{ Id = 1, Caption = "HR", Description="Description", Employees = new List<Employee>() },
-        new Position{ Id = 2, Caption="Senior iOS Developer", Description = "Description", Employees = new List<Employee>()},
-        new Position{ Id = 3, Caption="Human Applications Representative", Description="Description", Employees = new List<Employee>()},
-        new Position{ Id = 4, Caption="Product Accounts Director", Description="Description", Employees=new List<Employee>()}
+        var positions = new Position[]
+        {
+            new Position
+            {
+                Id = 1,
+                Caption = "HR",
+                Description = "Human Resources",
+                Employees = new List<Employee>()
+            },
+            new Position {
+                    Id = 2,
+                    Caption = "iOS Developer",
+                    Description = "Apple user",
+                    Employees = new List<Employee>()
+            },
+            new Position
+            {
+                Id = 3,
+                Caption = "Android Developer",
+                Description = "Android user",
+                Employees = new List<Employee>()
+            },
+            new Position
+            {
+                Id = 4,
+                Caption = "MVC Intern",
+                Description = "Lizard",
+                Employees = new List<Employee>()
+            },
+            new Position
+            {
+                Id = 5,
+                Caption = "Java Intern",
+                Description = "Also lizard",
+                Employees = new List<Employee>()
+            }
         };
-        return GenerateFakes(count, positions);
+
+        return EmployeeFaker.GenerateFakes(count, positions);
     }
 }

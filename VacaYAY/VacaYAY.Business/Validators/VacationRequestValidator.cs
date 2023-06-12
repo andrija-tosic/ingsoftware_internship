@@ -12,7 +12,7 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
     {
         _unitOfWork = unitOfWork;
 
-        RuleFor(v => v.StartDate).NotEmpty().GreaterThanOrEqualTo(DateTime.Now.AddDays(1));
+        RuleFor(v => v.StartDate).NotEmpty().GreaterThanOrEqualTo(DateTime.Now.Date.AddDays(1));
 
         RuleFor(v => v.EndDate)
             .NotEmpty()

@@ -32,7 +32,7 @@ public class IndexModel : PageModel
             return Unauthorized();
         }
 
-        bool isAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, nameof(UserRoles.Administrator));
+        bool isAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
         VacationRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(loggedInEmployee.Id, isAdmin, Input);
 
         return Page();
@@ -49,7 +49,7 @@ public class IndexModel : PageModel
             return Unauthorized();
         }
 
-        bool isAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, nameof(UserRoles.Administrator));
+        bool isAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
         VacationRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(loggedInEmployee.Id, isAdmin, Input);
         
         return Page();
