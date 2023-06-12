@@ -63,7 +63,6 @@ public class RegisterModel : PageModel
         public required string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public required string Password { get; set; }
@@ -132,6 +131,7 @@ public class RegisterModel : PageModel
                     return LocalRedirect(returnUrl);
                 }
             }
+            ModelState.Clear();
             foreach (var error in validationResult.Errors)
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);

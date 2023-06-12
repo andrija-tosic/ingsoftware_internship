@@ -152,12 +152,57 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "923316b1-55f2-4839-96c5-679841e02aff",
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                             RoleId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
                         },
                         new
                         {
                             UserId = "11111111-1111-1111-1111-111111111111",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "22222222-2222-2222-2222-222222222222",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "33333333-3333-3333-3333-333333333333",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "44444444-4444-4444-4444-444444444444",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "55555555-5555-5555-5555-555555555555",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "66666666-6666-6666-6666-666666666666",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "77777777-7777-7777-7777-777777777777",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "88888888-8888-8888-8888-888888888888",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "99999999-9999-9999-9999-999999999999",
+                            RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                        },
+                        new
+                        {
+                            UserId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
                             RoleId = "dddddddd-dddd-dddd-dddd-dddddddddddd"
                         });
                 });
@@ -293,22 +338,22 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "923316b1-55f2-4839-96c5-679841e02aff",
+                            Id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                             AccessFailedCount = 0,
-                            Address = "Address",
+                            Address = "Vodo Elektro 13",
                             DaysOffNumber = 20,
                             Email = "admin@outlook.com",
                             EmailConfirmed = true,
-                            EmploymentEndDate = new DateTime(2024, 6, 9, 0, 0, 0, 0, DateTimeKind.Local),
-                            EmploymentStartDate = new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "Administrator",
                             IdNumber = "12345",
-                            InsertDate = new DateTime(2023, 6, 10, 18, 7, 7, 570, DateTimeKind.Local).AddTicks(3950),
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 47, 44, DateTimeKind.Local).AddTicks(5176),
                             LastName = "Outlook",
                             LockoutEnabled = true,
                             NormalizedEmail = "admin@outlook.com",
                             NormalizedUserName = "admin@outlook.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOfXLvYbjsZzmjan4egorJo39cNegXd6/GLYcVgMVSEWDi6gZXgqIfx+bs1qOkG5kA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMlBYZzgG0Yz9w4UFKd9h3aUXxoJ9DfGp0KCEXzAZlEF1dGfQiKd5iECzmDWFETyFw==",
                             PhoneNumberConfirmed = false,
                             PositionId = 1,
                             SecurityStamp = "",
@@ -319,25 +364,241 @@ namespace VacaYAY.Data.Migrations
                         {
                             Id = "11111111-1111-1111-1111-111111111111",
                             AccessFailedCount = 0,
-                            Address = "Address",
+                            Address = "Svetog Patrijarlimpija 12",
                             DaysOffNumber = 20,
                             Email = "andrija@gmail.com",
                             EmailConfirmed = true,
-                            EmploymentEndDate = new DateTime(2024, 6, 9, 0, 0, 0, 0, DateTimeKind.Local),
-                            EmploymentStartDate = new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "Andrija",
                             IdNumber = "10000",
-                            InsertDate = new DateTime(2023, 6, 10, 18, 7, 7, 646, DateTimeKind.Local).AddTicks(2605),
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 47, 161, DateTimeKind.Local).AddTicks(3667),
                             LastName = "Tošić",
                             LockoutEnabled = true,
                             NormalizedEmail = "andrija@gmail.com",
                             NormalizedUserName = "andrija@gmail.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHDpunlJsypwUaV2CQnD749OGkZ36sYLLJpLvXCfKM+bhRiHwuydY7syegptzravlg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECKg1DkTYN20sh/jwGE7wwnhrJ6bv2TUeUNuQauPtfT6pKNNtw0+6RT+VpKZ+FBVDA==",
                             PhoneNumberConfirmed = false,
                             PositionId = 4,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
                             UserName = "andrija@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "22222222-2222-2222-2222-222222222222",
+                            AccessFailedCount = 0,
+                            Address = "Dino Mustafić 8",
+                            DaysOffNumber = 20,
+                            Email = "papak.potočar@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Papak",
+                            IdNumber = "10001",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 47, 272, DateTimeKind.Local).AddTicks(7358),
+                            LastName = "Potočar",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "papak.potočar@gmail.com",
+                            NormalizedUserName = "papak.potočar@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM/PFOQpSR3LaX90mhMhKUZrCmPETnAxdJnzW66KfyOObx7df4trDyMkq9F3cPONLQ==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 5,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "papak.potočar@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "33333333-3333-3333-3333-333333333333",
+                            AccessFailedCount = 0,
+                            Address = "S.T.R. Gugleta",
+                            DaysOffNumber = 20,
+                            Email = "katrafilov.f@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Katrafilov",
+                            IdNumber = "10002",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 47, 497, DateTimeKind.Local).AddTicks(3271),
+                            LastName = "F",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "katrafilov.f@gmail.com",
+                            NormalizedUserName = "katrafilov.f@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBxOYlLI4Yt2YOoXHCaJ5pifPDOXtx73980sRYPSFYnpAQZrmWP3xjB6PUMW9JcwLQ==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 3,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "katrafilov.f@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "44444444-4444-4444-4444-444444444444",
+                            AccessFailedCount = 0,
+                            Address = "Željka Radeljića Škoda Roomster",
+                            DaysOffNumber = 20,
+                            Email = "jagan.drankovic@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Jagan",
+                            IdNumber = "10003",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 47, 740, DateTimeKind.Local).AddTicks(4635),
+                            LastName = "Dranković",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "jagan.drankovic@gmail.com",
+                            NormalizedUserName = "jagan.drankovic@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJ5/KiOG7lA0czk9gL5/zFRefP1ofid+CmVrSKuBjwQK6Aq8iEyF2xLZf0PWk0FUuA==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 2,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "jagan.drankovic@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "55555555-5555-5555-5555-555555555555",
+                            AccessFailedCount = 0,
+                            Address = "Derek Kentford Ave",
+                            DaysOffNumber = 20,
+                            Email = "menza.projic@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Menza",
+                            IdNumber = "10004",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 47, 945, DateTimeKind.Local).AddTicks(9236),
+                            LastName = "Projić",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "menza.projic@gmail.com",
+                            NormalizedUserName = "menza.projic@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAELUVPANdzbdzrqQHjlVy2ciOXVgwpK70Iz8eNtlwADUIb9pt9Df+63Wxf/veWNSnGw==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 5,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "menza.projic@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "66666666-6666-6666-6666-666666666666",
+                            AccessFailedCount = 0,
+                            Address = "Dylan McKenzie St.",
+                            DaysOffNumber = 20,
+                            Email = "goran.los.andjeles@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Goran",
+                            IdNumber = "10005",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 48, 180, DateTimeKind.Local).AddTicks(974),
+                            LastName = "Los Anđeles",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "goran.los.andjeles@gmail.com",
+                            NormalizedUserName = "goran.los.andjeles@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKItUcrnoDDDZKUUMzsWZkqBTig3j0CDQMNhrvZ/VUPKgCv9cXwA7s9NJEkKoRh8Uw==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 4,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "goran.los.andjeles@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "77777777-7777-7777-7777-777777777777",
+                            AccessFailedCount = 0,
+                            Address = "Sokače \"Sv. Trifutin\"",
+                            DaysOffNumber = 20,
+                            Email = "milka.ladovinka@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Milka",
+                            IdNumber = "10006",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 48, 408, DateTimeKind.Local).AddTicks(7451),
+                            LastName = "Ladovinka",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "milka.ladovinka@gmail.com",
+                            NormalizedUserName = "milka.ladovinka@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM5blQVUae1DbLKDkNaAP67eVqzRAcUu4IOW3J78VxLx1o/OxfUN7irnrTekTywMkg==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 2,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "milka.ladovinka@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "88888888-8888-8888-8888-888888888888",
+                            AccessFailedCount = 0,
+                            Address = "Ispod mosta, Zenica",
+                            DaysOffNumber = 20,
+                            Email = "mustafa.hrustic@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Mustafa",
+                            IdNumber = "10007",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 48, 612, DateTimeKind.Local).AddTicks(9747),
+                            LastName = "Hrustić",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "mustafa.hrustic@gmail.com",
+                            NormalizedUserName = "mustafa.hrustic@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK04Heey7LCuzg8WR8vT7JourNerFO4DmW/3rZbltRNqBScmncw+Eq0rdd5126HBNQ==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 3,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "mustafa.hrustic@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "99999999-9999-9999-9999-999999999999",
+                            AccessFailedCount = 0,
+                            Address = "Bogoljuba Bradostanojevića",
+                            DaysOffNumber = 20,
+                            Email = "boban.gasev@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Boban",
+                            IdNumber = "10008",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 48, 795, DateTimeKind.Local).AddTicks(8985),
+                            LastName = "Gasev",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "boban.gasev@gmail.com",
+                            NormalizedUserName = "boban.gasev@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKhygagmokkNhZNPEjPUW5TagcR0HZEFP6RRtX58EMOojt01Q0cZFALoQ+F1qwZsjg==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 4,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "boban.gasev@gmail.com"
+                        },
+                        new
+                        {
+                            Id = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+                            AccessFailedCount = 0,
+                            Address = "Patrijarha Veropojlija",
+                            DaysOffNumber = 20,
+                            Email = "erl.znojsulja@gmail.com",
+                            EmailConfirmed = true,
+                            EmploymentEndDate = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Local),
+                            EmploymentStartDate = new DateTime(2023, 6, 12, 0, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "Erl",
+                            IdNumber = "10009",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 0, 48, 999, DateTimeKind.Local).AddTicks(5663),
+                            LastName = "Znojšulja",
+                            LockoutEnabled = true,
+                            NormalizedEmail = "erl.znojsulja@gmail.com",
+                            NormalizedUserName = "erl.znojsulja@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKQCpUDJxl+sN6qiTGW8l7JgYfzvjVrS+IFIwv8zNuu2ROxGQlJAVSOKn3tGkxd10A==",
+                            PhoneNumberConfirmed = false,
+                            PositionId = 4,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "erl.znojsulja@gmail.com"
                         });
                 });
 
@@ -359,6 +620,28 @@ namespace VacaYAY.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("LeaveTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Days off"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Sick leave"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Paid leave"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Unpaid leave"
+                        });
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Models.Position", b =>

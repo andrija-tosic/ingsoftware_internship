@@ -1,9 +1,11 @@
-﻿namespace VacaYAY.Data.DTOs;
+﻿using System.ComponentModel;
+
+namespace VacaYAY.Data.DTOs;
 
 public class VacationRequestSearchFilters
 {
-    public string? EmployeeFirstName { get; set; }
-    public string? EmployeeLastName { get; set; }
+    [DisplayName("Employee full name")]
+    public string? EmployeeFullName { get; set; }
     public int? LeaveTypeId { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }

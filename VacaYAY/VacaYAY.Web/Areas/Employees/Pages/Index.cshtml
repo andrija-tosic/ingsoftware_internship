@@ -28,18 +28,17 @@
                 <input type="date" class="form-control" asp-for="Input.EmploymentEndDate"/>
                 <label asp-for="Input.EmploymentEndDate">Employment end date</label>
             </div>
-            <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+            <button id="searchSubmit" asp-page-handler="Search" type="submit" class="btn btn-primary">Search</button>
         </form>
     </div>
 
     <div class="col-md-4">
         <h4>Load existing employees from the old system</h4>
         <form method="post">
-
             <label asp-for="Input.NumberOfFakeEmployeesToGenerate">Number of fake employees</label>
-            <input type="number" min="1" class="form-control" asp-for="Input.NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
+            <input type="number" min="1" class="form-control mb-3" asp-for="Input.NumberOfFakeEmployeesToGenerate" name="numberOfFakeEmployeesToGenerate" value="2" />
 
-            <button id="generateSubmit" asp-page-handler="GenerateFakeEmployees" type="submit" class="w-100 btn btn-lg btn-primary">Load</button>
+            <button id="generateSubmit" asp-page-handler="GenerateFakeEmployees" type="submit" class="btn btn-primary">Load</button>
         </form>
     </div>
 </div>

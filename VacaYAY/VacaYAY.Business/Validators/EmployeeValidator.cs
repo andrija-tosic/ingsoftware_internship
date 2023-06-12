@@ -15,7 +15,8 @@ public class EmployeeValidator : AbstractValidator<Employee>
         RuleFor(e => e.DaysOffNumber).GreaterThanOrEqualTo(0);
         When(e => e.EmploymentEndDate is not null, () =>
         {
-            RuleFor(e => e.EmploymentEndDate).GreaterThan(e => e.EmploymentStartDate);
+            RuleFor(e => e.EmploymentEndDate).GreaterThan(e => e.EmploymentStartDate)
+            .WithMessage("Employment end date must be after the start date.");
         });
     }
 }

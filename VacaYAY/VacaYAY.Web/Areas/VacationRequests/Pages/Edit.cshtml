@@ -2,6 +2,10 @@
 @using VacaYAY.Data.Models;
 @model VacaYAY.Web.Areas.VacationRequests.EditModel
 
+@{
+    ViewData["Title"] = "Edit";
+}
+
 <h1>Edit</h1>
 
 <div class="row justify-content-between">
@@ -9,7 +13,6 @@
         <h4>Vacation request for @(Model.VacationRequestDTO.Employee.FirstName + " " + Model.VacationRequestDTO.Employee.LastName)</h4>
         <form method="post">
             <div class="form-floating mb-3">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 @Html.DropDownListFor(m => m.VacationRequestDTO.LeaveType.Id, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)),
                 new {@class="form-control dropdown-toggle"})
                 <label for="LeaveTypeId">Leave type</label>
@@ -25,18 +28,19 @@
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="VacationRequestDTO.StartDate"
-                       type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddThh:mm")"
+                       type="date" class="form-control" min="@DateTime.Now.Date.ToString("yyyy-MM-dd")"
                        readonly="@(!Model.IsSameEmployeeAsLoggedInOne)" />
                 <label for="VacationRequest.StartDate">Vacation start date</label>
                 <span asp-validation-for="VacationRequestDTO.StartDate" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="VacationRequestDTO.EndDate"
-                       type="date" class="form-control" min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-ddThh:mm")"
+                       type="date" class="form-control" min="@DateTime.Now.Date.AddDays(1).ToString("yyyy-MM-dd")"
                        readonly="@(!Model.IsSameEmployeeAsLoggedInOne)" />
                 <label for="VacationRequestDTO.EndDate">Vacation end date</label>
                 <span asp-validation-for="VacationRequestDTO.EndDate" class="text-danger"></span>
             </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-floating mb-3">
                 <input type="submit" asp-page-handler="Save" class="btn btn-primary" />
             </div>

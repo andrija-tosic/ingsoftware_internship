@@ -12,12 +12,17 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
     {
         _unitOfWork = unitOfWork;
 
-        RuleFor(v => v.StartDate).NotEmpty().GreaterThanOrEqualTo(DateTime.Now.Date.AddDays(1));
+        RuleFor(v => v.StartDate)
+            .NotEmpty()
+            .GreaterThanOrEqualTo(DateTime.Now.Date.AddDays(1))
+            .GreaterThan(v => v.Employee.EmploymentStartDate)
+            .WithMessage("Vacation start date must be after employment start date.")
+            .LessThan(v => v.Employee.EmploymentEndDate)
+            .WithMessage("Vacation end date must be before employment end date.");
 
         RuleFor(v => v.EndDate)
             .NotEmpty()
             .GreaterThan(v => v.StartDate)
-            .NotEmpty()
             .WithMessage("Vacation end date must be after the start date.");
 
         RuleFor(v => v).MustAsync(async (v, cancellation) =>

@@ -29,11 +29,10 @@ public class CreateModel : PageModel
         {
             Comment = string.Empty,
             Employee = loggedInEmployee,
-            StartDate = DateTime.Now.AddDays(2),
-            EndDate = DateTime.Now.AddDays(8),
-            LeaveType = LeaveTypes.FirstOrDefault()!,
+            StartDate = DateTime.Now.AddDays(1),
+            EndDate = DateTime.Now.AddDays(6),
+            LeaveType = LeaveTypes.FirstOrDefault()!
         };
-
 
         return Page();
     }
@@ -69,6 +68,7 @@ public class CreateModel : PageModel
         VacationRequest.Employee = loggedInEmployee;
         var requestValidationResult = await _unitOfWork.VacationService.CreateVacationRequest(VacationRequest);
 
+        ModelState.Clear();
         if (!requestValidationResult.IsValid)
         {
             foreach (var error in requestValidationResult.Errors)

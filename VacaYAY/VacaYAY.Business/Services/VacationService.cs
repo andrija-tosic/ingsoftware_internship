@@ -106,18 +106,6 @@ public class VacationService : IVacationService
             vacationRequests = vacationRequests.Where(v => v.Employee.Id == employeeId);
         }
 
-        if (!searchFilters.EmployeeFirstName.IsNullOrEmpty())
-        {
-            searchFilters.EmployeeFirstName = searchFilters.EmployeeFirstName!.Trim();
-            vacationRequests = vacationRequests.Where(v => v.Employee.FirstName.StartsWith(searchFilters.EmployeeFirstName));
-        }
-
-        if (!searchFilters.EmployeeLastName.IsNullOrEmpty())
-        {
-            searchFilters.EmployeeLastName = searchFilters.EmployeeLastName!.Trim();
-            vacationRequests = vacationRequests.Where(v => v.Employee.FirstName.StartsWith(searchFilters.EmployeeLastName));
-        }
-
         if (searchFilters.LeaveTypeId is not null)
         {
             vacationRequests = vacationRequests.Where(v => v.LeaveType.Id == searchFilters.LeaveTypeId);
@@ -133,7 +121,24 @@ public class VacationService : IVacationService
             vacationRequests = vacationRequests.Where(v => v.EndDate >= searchFilters.EndDate);
         }
 
-        return await vacationRequests.ToListAsync();
+        IQueryable<VacationRequest> employees = vacationRequests.Where(v => false);
+
+        if (!searchFilters.EmployeeFullName.IsNullOrEmpty())
+        {
+            foreach (string token in searchFilters.EmployeeFullName!.Trim().Split(" "))
+            {
+                employees = employees.Union(vacationRequests.Where(v => v.Employee.FirstName.Contains(token) || v.Employee.LastName.Contains(token)));
+            }
+        }
+
+        if (employees.Any())
+        {
+            return await vacationRequests.Intersect(employees).ToListAsync();
+        }
+        else
+        {
+            return await vacationRequests.ToListAsync();
+        }
     }
 
     public async Task<IList<LeaveType>> GetLeaveTypes()

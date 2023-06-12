@@ -98,7 +98,7 @@ public class EditModel : PageModel
         }
 
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequestFromDb.Employee.Id;
-        
+
         if (IsSameEmployeeAsLoggedInOne)
         {
             vacationRequestFromDb.Comment = VacationRequestDTO.Comment;
@@ -121,6 +121,7 @@ public class EditModel : PageModel
 
         var requestValidationResult = await _unitOfWork.VacationService.UpdateVacationRequest(vacationRequestFromDb);
 
+        ModelState.Clear();
         if (!requestValidationResult.IsValid)
         {
             foreach (var error in requestValidationResult.Errors)
@@ -202,7 +203,7 @@ public class EditModel : PageModel
         }
         else
         {
-                VacationReview? vacationReviewFromDb = await _unitOfWork.VacationService.GetVacationReviewByIdAsync(vacationReviewModel.Id);
+            VacationReview? vacationReviewFromDb = await _unitOfWork.VacationService.GetVacationReviewByIdAsync(vacationReviewModel.Id);
 
             if (vacationReviewFromDb is null)
             {

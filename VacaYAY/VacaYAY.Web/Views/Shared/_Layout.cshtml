@@ -1,4 +1,9 @@
-﻿@using VacaYAY.Data;
+﻿@using Microsoft.AspNetCore.Identity;
+@using VacaYAY.Data;
+@using VacaYAY.Data.Models;
+
+@inject SignInManager<Employee> SignInManager
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,15 +31,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        @if (User.IsInRole(InitialData.AdminRoleName))
+                        @if (SignInManager.IsSignedIn(User))
                         {
+                            @if (User.IsInRole(InitialData.AdminRoleName))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Employees" asp-page="/Index">Employees</a>
+                                </li>
+                            }
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Employees" asp-page="/Index">Employees</a>
+                                <a class="nav-link text-dark" asp-area="VacationRequests" asp-page="/Index">Vacation requests</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="VacationRequests" asp-page="/Index">Vacation requests</a>
-                        </li>
                     </ul>
                 </div>
             </div>

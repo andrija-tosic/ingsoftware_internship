@@ -2,6 +2,10 @@
 @using VacaYAY.Data.Models;
 @model VacaYAY.Web.Areas.VacationRequests.CreateModel
 
+@{
+    ViewData["Title"] = "Create";
+}
+
 <h1>Create</h1>
 
 <h4>Vacation request</h4>
@@ -25,12 +29,12 @@
                 <span asp-validation-for="VacationRequest.Comment" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                <input type="date" asp-for="VacationRequest.StartDate" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddThh:mm")" />
+                <input type="date" asp-for="VacationRequest.StartDate" class="form-control" min="@DateTime.Now.Date.ToString("yyyy-MM-dd")" />
                 <label for="VacationRequest.StartDate">Start date</label>
                 <span asp-validation-for="VacationRequest.StartDate" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                <input type="date" asp-for="VacationRequest.EndDate" class="form-control" min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-ddThh:mm")" />
+                <input type="date" asp-for="VacationRequest.EndDate" class="form-control" min="@DateTime.Now.Date.AddDays(1).ToString("yyyy-MM-dd")" />
                 <label for="VacationRequest.EndDate">End date</label>
                 <span asp-validation-for="VacationRequest.EndDate" class="text-danger"></span>
             </div>

@@ -2,11 +2,11 @@
 @using VacaYAY.Data.Models;
 @model VacaYAY.Web.Areas.VacationRequests.IndexModel
 
+<h1>Vacation requests</h1>
+
 @{
     ViewData["Title"] = "Index";
 }
-
-<h1>Vacation requests</h1>
 
 <p>
     <a asp-page="Create" class="btn btn-outline-primary">Create New</a>
@@ -19,12 +19,8 @@
         <label for="LeaveTypeId">Leave type</label>
     </div>
     <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeFirstName" />
-        <label asp-for="Input.EmployeeFirstName">First name</label>
-    </div>
-    <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeLastName" />
-        <label asp-for="Input.EmployeeLastName">Last name</label>
+        <input type="text" class="form-control" asp-for="Input.EmployeeFullName" />
+        <label asp-for="Input.EmployeeFullName">Employee name</label>
     </div>
     <div class="form-floating mb-3">
         <input type="date" class="form-control" asp-for="Input.StartDate" />
@@ -34,7 +30,7 @@
         <input type="date" class="form-control" asp-for="Input.EndDate" />
         <label asp-for="Input.EndDate">Vacation end date</label>
     </div>
-    <button id="searchSubmit" asp-page-handler="Search" type="submit" class="w-100 btn btn-lg btn-primary">Search</button>
+    <button id="searchSubmit" asp-page-handler="Search" type="submit" class="btn btn-primary">Search</button>
 </form>
 <table class="table">
     <thead>

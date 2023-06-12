@@ -7,8 +7,6 @@
     <div class="col-md-4">
         <h1>Register new employee</h1>
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            @Html.ValidationSummary()
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.FirstName" class="form-control" aria-required="true" />
                 <label asp-for="Input.FirstName">First name</label>
@@ -64,6 +62,7 @@
                 <label asp-for="Input.EmploymentEndDate">Employment end date</label>
                 <span asp-validation-for="Input.EmploymentEndDate" class="text-danger"></span>
             </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
