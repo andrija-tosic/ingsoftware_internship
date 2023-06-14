@@ -2,10 +2,10 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.IdentityModel.Tokens;
-using VacaYAY.Business.Fakes;
+using System.Security.Claims;
 using VacaYAY.Data;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Services;
@@ -38,6 +38,18 @@ public class EmployeeService : IEmployeeService
         return await _context.Employees.Include(e => e.Position).ToListAsync();
     }
 
+    public async Task<Employee?> GetLoggedInAsync(ClaimsPrincipal claims)
+    {
+        var employee = await _userManager.GetUserAsync(claims);
+
+        if (employee is null)
+        {
+            return null;
+        }
+
+        return await GetByIdAsync(employee.Id);
+    }
+
     public async Task<Employee?> GetByIdAsync(string id)
     {
         return await _context.Employees
@@ -46,46 +58,51 @@ public class EmployeeService : IEmployeeService
             .SingleAsync();
     }
 
-    public async Task<IdentityResult> CreateAsync(Employee employee, string password)
+    public async Task<ValidationResult> CreateAsync(Employee employee, string password)
     {
-        ValidationResult validationResult = await _employeeValidator.ValidateAsync(employee);
+        ValidationResult validationResult = _employeeValidator.Validate(employee);
 
         if (!validationResult.IsValid)
         {
-            return IdentityResult.Failed(new IdentityError());
+            return validationResult;
         }
 
-        bool isAlreadyAdmin = await _userManager.IsInRoleAsync(employee, nameof(UserRoles.Administrator));
+        bool isAlreadyAdmin = await _userManager.IsInRoleAsync(employee, InitialData.AdminRoleName);
 
-        if (employee.Position.Caption == Positions.HR && !isAlreadyAdmin)
+        if (employee.Position.Id == InitialData.AdminPosition.Id && !isAlreadyAdmin)
         {
-            await _userManager.AddToRoleAsync(employee, nameof(UserRoles.Administrator));
+            await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
         }
 
         await _userStore.SetUserNameAsync(employee, employee.Email, CancellationToken.None);
         await _emailStore.SetEmailAsync(employee, employee.Email, CancellationToken.None);
         IdentityResult result = await _userManager.CreateAsync(employee, password);
 
-        return result;
+        validationResult.Errors.AddRange(
+            result.Errors
+            .Select(e => new FluentValidation.Results.ValidationFailure(e.Code, e.Description))
+        );
+
+        return validationResult;
     }
 
-    public async Task<IdentityResult> UpdateAsync(Employee employee)
+    public async Task<ValidationResult> UpdateAsync(Employee employee)
     {
-        ValidationResult validationResult = await _employeeValidator.ValidateAsync(employee);
+        ValidationResult validationResult = _employeeValidator.Validate(employee);
 
         if (!validationResult.IsValid)
         {
-            return IdentityResult.Failed(new IdentityError());
+            return validationResult;
         }
 
-        if (employee.Position.Caption == Positions.HR)
+        if (employee.Position.Id == InitialData.AdminPosition.Id)
         {
-            await _userManager.AddToRoleAsync(employee, nameof(UserRoles.Administrator));
+            await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
         }
 
         IdentityResult result = await _userManager.UpdateAsync(employee);
 
-        return result;
+        return validationResult;
     }
 
     public async Task<IdentityResult> SoftDeleteAsync(Employee employee)
@@ -97,54 +114,59 @@ public class EmployeeService : IEmployeeService
         return result;
     }
 
-    public async Task<IEnumerable<Employee>> SearchAsync(string firstName, string lastName, DateTime? employmentStart, DateTime? employmentEnd)
+    public async Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters)
     {
-        var results = _context.Employees.AsQueryable();
+        IQueryable<Employee> employees = _context.Employees
+            .Include(e => e.Position)
+            .AsQueryable();
 
-        if (!string.IsNullOrEmpty(firstName))
+        IQueryable<Employee> nameResults = employees.Where(e => false);
+
+        if (!string.IsNullOrWhiteSpace(searchFilters.EmployeeFullName))
         {
-            firstName = firstName.Trim();
-            results = results.Where(e => e.FirstName.ToLower().StartsWith(firstName));
+            foreach (string token in searchFilters.EmployeeFullName!.Trim().Split(" "))
+            {
+                nameResults = nameResults.Union(employees.Where(v => v.FirstName.Contains(token) || v.LastName.Contains(token)));
+            }
         }
 
-        if (!string.IsNullOrEmpty(lastName))
+        if (searchFilters.EmploymentStartDate is not null)
         {
-            lastName = lastName.Trim();
-            results = results.Where(e => e.LastName.ToLower().StartsWith(lastName));
+            employees = employees.Where(e => e.EmploymentStartDate >= searchFilters.EmploymentStartDate);
         }
 
-        if (employmentStart is not null)
+        if (searchFilters.EmploymentEndDate is not null)
         {
-            results = results.Where(e => e.EmploymentStartDate >= employmentStart);
+            employees = employees.Where(e => e.EmploymentEndDate <= searchFilters.EmploymentEndDate);
         }
 
-        if (employmentEnd is not null)
+        if (nameResults.Any())
         {
-            results = results.Where(e => e.EmploymentEndDate <= employmentEnd);
+            return await employees.Intersect(nameResults).ToListAsync();
         }
-
-        results = results.Include(e => e.Position);
-
-        return await results.ToListAsync();
+        else
+        {
+            return await employees.ToListAsync();
+        }
     }
 
-    public async Task<IdentityResult> CreateFakes(int count)
+    public async Task<ValidationResult> CreateFakesAsync(int count)
     {
         IList<Employee>? employees = await _httpService.Get<IList<Employee>>($"/Employees/{count}");
 
-        if (employees.IsNullOrEmpty())
+        if (employees is null || employees.Count == 0)
         {
-            return IdentityResult.Failed(new IdentityError());
+            return new ValidationResult(new[] { new FluentValidation.Results.ValidationFailure(nameof(employees), "is null") });
         }
 
-        IdentityResult result = new IdentityResult();
+        ValidationResult result = new ValidationResult();
 
         foreach (var employee in employees!)
         {
             Position? position = await _context.Positions.FindAsync(employee.Position.Id); // To avoid adding an already existing Position.
             if (position is null)
             {
-                return IdentityResult.Failed(new IdentityError());
+                return new ValidationResult(new[] { new FluentValidation.Results.ValidationFailure(nameof(position), "is null") });
             }
             employee.Position = position;
             result = await CreateAsync(employee, "password");
@@ -152,9 +174,8 @@ public class EmployeeService : IEmployeeService
 
         return result;
     }
-
-    public IEnumerable<Employee> GenerateFakes(int count, IList<Position> positions)
+    public async Task<bool> IsInRoleAsync(Employee employee, string role)
     {
-        return EmployeeFaker.GenerateFakes(count, positions);
+        return await _userManager.IsInRoleAsync(employee, role);
     }
 }

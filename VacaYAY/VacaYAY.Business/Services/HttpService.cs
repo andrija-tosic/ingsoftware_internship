@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace VacaYAY.Business.Services;
@@ -29,7 +28,7 @@ public class HttpService : IHttpService
 
         string responseJson = await response.Content.ReadAsStringAsync();
 
-        if (responseJson.IsNullOrEmpty())
+        if (string.IsNullOrWhiteSpace(responseJson))
         {
             throw new JsonException(response.StatusCode.ToString());
         }

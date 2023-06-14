@@ -7,7 +7,7 @@ using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.Employees.Pages
 {
-    [Authorize(Roles = nameof(UserRoles.Administrator))]
+    [Authorize(Roles = InitialData.AdminRoleName)]
     public class DeleteModel : PageModel
     {
         private readonly IUnitOfWork _unitOfWork;

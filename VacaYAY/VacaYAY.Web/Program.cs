@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
-using FluentValidation;
-using VacaYAY.Business.Validators;
 using VacaYAY.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +26,7 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
 })
     .AddEntityFrameworkStores<VacayayDbContext>();
 
@@ -36,8 +35,6 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
-
 builder.Services.AddSingleton<IHttpService, HttpService>();
 builder.Services.AddSingleton<IJsonParserService, JsonParserService>();
 
@@ -45,7 +42,6 @@ builder.Services.AddHttpClient(nameof(IHttpService), httpClient =>
 {
     httpClient.BaseAddress = new Uri("http://localhost:5110");
 });
-
 
 builder.Services.AddRazorPages();
 

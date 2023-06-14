@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business;
-using VacaYAY.Data.Models;
+using VacaYAY.API.Fakes;
+using VacaYAY.API.Models;
 
 namespace VacaYAY.API.Controllers;
 
@@ -8,19 +8,51 @@ namespace VacaYAY.API.Controllers;
 [Route("[controller]")]
 public class EmployeesController : ControllerBase
 {
-    private readonly ILogger<EmployeesController> _logger;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public EmployeesController(ILogger<EmployeesController> logger, IUnitOfWork unitOfWork)
+    public EmployeesController()
     {
-        _logger = logger;
-        _unitOfWork = unitOfWork;
     }
 
     [HttpGet("{count}")]
-    public async Task<IEnumerable<Employee>> GetFakesAsync(int count)
+    public IEnumerable<Employee> GetFakesAsync(int count)
     {
-        IList<Position> positions = (await _unitOfWork.PositionService.GetAllAsync()).ToList();
-        return _unitOfWork.EmployeeService.GenerateFakes(count, positions);
+        var positions = new Position[]
+        {
+            new Position
+            {
+                Id = 1,
+                Caption = "HR",
+                Description = "Human Resources",
+                Employees = new List<Employee>()
+            },
+            new Position {
+                    Id = 2,
+                    Caption = "iOS Developer",
+                    Description = "Apple user",
+                    Employees = new List<Employee>()
+            },
+            new Position
+            {
+                Id = 3,
+                Caption = "Android Developer",
+                Description = "Android user",
+                Employees = new List<Employee>()
+            },
+            new Position
+            {
+                Id = 4,
+                Caption = "MVC Intern",
+                Description = "Lizard",
+                Employees = new List<Employee>()
+            },
+            new Position
+            {
+                Id = 5,
+                Caption = "Java Intern",
+                Description = "Also lizard",
+                Employees = new List<Employee>()
+            }
+        };
+
+        return EmployeeFaker.GenerateFakes(count, positions);
     }
 }

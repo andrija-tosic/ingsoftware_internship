@@ -2,25 +2,20 @@
 @using System.Collections;
 @using VacaYAY.Data.Models;
 @model RegisterModel
-@{
-    ViewData["Title"] = "Register";
-}
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-4">
+        <h1>Register new employee</h1>
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.FirstName" class="form-control" aria-required="true" />
                 <label asp-for="Input.FirstName">First name</label>
+                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.LastName" class="form-control" aria-required="true" />
                 <label asp-for="Input.LastName">Last name</label>
+                <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
@@ -40,28 +35,34 @@
             <div class="form-floating mb-3">
                 <input asp-for="Input.Address" class="form-control" aria-required="true" />
                 <label asp-for="Input.Address">Address</label>
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.IdNumber" class="form-control" autocomplete="username" aria-required="true" />
                 <label asp-for="Input.IdNumber">ID number</label>
+                <span asp-validation-for="Input.IdNumber" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.DaysOffNumber" class="form-control" type="number" min="0" max="50" aria-required="true" />
                 <label asp-for="Input.DaysOffNumber">Days off number</label>
+                <span asp-validation-for="Input.DaysOffNumber" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                Position:
                 @Html.DropDownListFor(m => m.Input.PositionId, new SelectList(@Model.Positions, nameof(Position.Id), nameof(Position.Caption)),
                 new {@class="form-control dropdown-toggle"})
+                <label for="Position">Position</label>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.EmploymentStartDate" class="form-control" type="date" aria-required="true" />
                 <label asp-for="Input.EmploymentStartDate">Employment start date</label>
+                <span asp-validation-for="Input.EmploymentStartDate" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.EmploymentEndDate" class="form-control" type="date" aria-required="true" />
                 <label asp-for="Input.EmploymentEndDate">Employment end date</label>
+                <span asp-validation-for="Input.EmploymentEndDate" class="text-danger"></span>
             </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
