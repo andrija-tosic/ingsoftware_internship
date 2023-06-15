@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business;
 using VacaYAY.Data;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.VacationRequests
@@ -45,6 +46,14 @@ namespace VacaYAY.Web.Areas.VacationRequests
             {
                 return NotFound();
             }
+
+            var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+
+            if (loggedInEmployee is null)
+            {
+                return Unauthorized();
+            }
+
             var vacationrequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
 
             if (vacationrequest is null)
@@ -60,6 +69,16 @@ namespace VacaYAY.Web.Areas.VacationRequests
             await _unitOfWork.EmployeeService.UpdateAsync(VacationRequest.Employee);
 
             await _unitOfWork.SaveChangesAsync();
+
+            var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
+
+            string emailSubject = $"Vacation request from {VacationRequest.Employee.FirstName} {VacationRequest.Employee.LastName} deleted";
+            string emailBody = VacationRequest.ToString();
+
+            _ = Task.WhenAll(hrEmployees
+                .Select(e => _unitOfWork.EmailService.SendEmailAsync(e.Email!, emailSubject, emailBody)));
+
+            _ = Task.Run(() => _unitOfWork.EmailService.SendEmailAsync(loggedInEmployee.Email!, emailSubject, emailBody));
 
             return RedirectToPage("./Index");
         }

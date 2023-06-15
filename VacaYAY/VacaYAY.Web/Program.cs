@@ -5,6 +5,7 @@ using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 using VacaYAY.Business.Services;
+using SendGrid;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,14 @@ builder.Services.AddHttpClient(nameof(IHttpService), httpClient =>
 {
     httpClient.BaseAddress = new Uri("http://localhost:5110");
 });
+
+builder.Services.AddSingleton<ISendGridClient>(provider =>
+    new SendGridClient(new SendGridClientOptions
+    {
+        ApiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? builder.Configuration["SendGrid:ApiKey"],
+        HttpErrorAsException = true
+    })
+);
 
 builder.Services.AddRazorPages();
 

@@ -107,7 +107,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<IdentityResult> SoftDeleteAsync(Employee employee)
     {
-        employee.DeleteDate = DateTime.Now;
+        employee.DeleteDate = DateTime.Now.Date;
         await _userManager.SetLockoutEnabledAsync(employee, true);
         IdentityResult result = await _userManager.SetLockoutEndDateAsync(employee, DateTime.Today.AddYears(10));
 
@@ -177,5 +177,13 @@ public class EmployeeService : IEmployeeService
     public async Task<bool> IsInRoleAsync(Employee employee, string role)
     {
         return await _userManager.IsInRoleAsync(employee, role);
+    }
+
+    public async Task<IEnumerable<Employee>> GetByPositions(int[] positions)
+    {
+        return await _context.Employees
+            .Include(e => e.Position)
+            .Where(e => positions.Contains(e.Position.Id))
+            .ToListAsync();
     }
 }

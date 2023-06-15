@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
@@ -82,11 +81,18 @@ public class EditModel : PageModel
         {
             return NotFound();
         }
-
         VacationRequestDTO.Employee = vacationRequestFromDb.Employee;
 
-        int previousDays = (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
-        int newDays = (VacationRequestDTO.EndDate - VacationRequestDTO.StartDate).Days;
+        string emailSubject = $"Vacation request from {VacationRequestDTO.Employee.FirstName} {VacationRequestDTO.Employee.LastName} updated";
+        string emailBody = $@"
+Old request:
+{vacationRequestFromDb}
+Updated request:
+{VacationRequestDTO}
+";
+
+        int previousDays = (vacationRequestFromDb.EndDate.Date - vacationRequestFromDb.StartDate.Date).Days;
+        int newDays = (VacationRequestDTO.EndDate.Date - VacationRequestDTO.StartDate.Date).Days;
 
         vacationRequestFromDb.VacationReview = VacationRequestDTO.VacationReview;
 
@@ -120,6 +126,13 @@ public class EditModel : PageModel
         vacationRequestFromDb.LeaveType = leaveType;
 
         var requestValidationResult = await _unitOfWork.VacationService.UpdateVacationRequest(vacationRequestFromDb);
+        
+        emailBody += $@"
+
+<a href=""https://localhost:7085/{nameof(VacationRequests)}/Details?id={vacationRequestFromDb.Id}"">
+Go to details page
+</a>
+";
 
         ModelState.Clear();
         if (!requestValidationResult.IsValid)
@@ -163,6 +176,13 @@ public class EditModel : PageModel
 
         await _unitOfWork.SaveChangesAsync();
 
+        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
+
+        _ = Task.WhenAll(hrEmployees
+            .Select(e => _unitOfWork.EmailService.SendEmailAsync(e.Email!, emailSubject, emailBody)));
+
+        _ = _unitOfWork.EmailService.SendEmailAsync(loggedInEmployee.Email!, emailSubject, emailBody);
+
         return RedirectToPage("./Index");
     }
     public async Task<IActionResult> OnPostUpsertVacationRequestReviewAsync()
@@ -178,8 +198,17 @@ public class EditModel : PageModel
 
         vacationReviewModel.Reviewer = loggedInEmployee;
 
-        if (vacationReviewModel.Id == 0)
+        string emailBody;
+        string emailSubject;
+
+        if (vacationReviewModel.Id == 0) // Create
         {
+            emailSubject = $"Vacation review created for vacation request from {VacationRequestDTO.Employee.FirstName} {VacationRequestDTO.Employee.LastName}";
+            emailBody = $@"
+            {VacationRequestDTO}
+            {VacationRequestDTO.VacationReview}
+            ";
+
             int vacationRequestId = (int)TempData["vacationRequestId"]!;
 
             var vacationRequestFromDb = await _unitOfWork.VacationService.GetVacationRequestByIdAsync(vacationRequestId);
@@ -200,8 +229,16 @@ public class EditModel : PageModel
             }
 
             _unitOfWork.VacationService.CreateVacationReview(vacationReviewModel);
+
+            emailBody += $@"
+
+<a href=""https://localhost:7085/{nameof(VacationRequests)}/Details?id={vacationReviewModel.Id}"">
+Go to details page
+</a>
+";
+
         }
-        else
+        else // Update
         {
             VacationReview? vacationReviewFromDb = await _unitOfWork.VacationService.GetVacationReviewByIdAsync(vacationReviewModel.Id);
 
@@ -228,10 +265,29 @@ public class EditModel : PageModel
             vacationReviewFromDb.Approved = vacationReviewModel.Approved;
             vacationReviewFromDb.Comment = vacationReviewModel.Comment;
 
+            emailSubject = $"Vacation review updated for vacation request from {VacationRequestDTO.Employee.FirstName} {VacationRequestDTO.Employee.LastName}";
+            emailBody = $@"
+            {VacationRequestDTO}
+            {vacationReviewFromDb}
+            ";
+
             _unitOfWork.VacationService.UpdateVacationReview(vacationReviewFromDb);
+
+            emailBody += $@"
+<a href=""https://localhost:7085/{nameof(VacationRequests)}/Details?id={vacationReviewFromDb.Id}"">
+Go to details page
+</a>
+";
         }
 
         await _unitOfWork.SaveChangesAsync();
+
+        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
+
+        _ = Task.WhenAll(hrEmployees
+            .Select(e => _unitOfWork.EmailService.SendEmailAsync(e.Email!, emailSubject, emailBody)));
+
+        _ = _unitOfWork.EmailService.SendEmailAsync(loggedInEmployee.Email!, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
     }
@@ -239,13 +295,29 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnPostDeleteVacationRequestReviewAsync()
     {
         await _unitOfWork.VacationService.DeleteVacationReviewAsync(VacationRequestDTO.VacationReview.Id);
-        try
+
+        await _unitOfWork.SaveChangesAsync();
+
+        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+
+        if (loggedInEmployee is null)
         {
-            await _unitOfWork.SaveChangesAsync();
+            return NotFound();
         }
-        catch (DbUpdateConcurrencyException)
-        {
-        }
+
+        string emailSubject = "Vacation review deleted for vacation request";
+        string emailBody = $@"
+            { VacationRequestDTO}
+            {VacationRequestDTO.VacationReview}
+            ";
+
+        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
+
+        _ = Task.WhenAll(hrEmployees
+            .Select(e => _unitOfWork.EmailService.SendEmailAsync(e.Email!, emailSubject, emailBody)));
+
+        _ = _unitOfWork.EmailService.SendEmailAsync(loggedInEmployee.Email!, emailSubject, emailBody);
+
         return RedirectToPage("./Index");
     }
 }
