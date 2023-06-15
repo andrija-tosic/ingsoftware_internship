@@ -1,4 +1,4 @@
-﻿using Polly;
+﻿using Hangfire;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -8,34 +8,29 @@ public class EmailService : IEmailService
 {
     private readonly ISendGridClient _sendGridClient;
 
-    private readonly IAsyncPolicy<Response> _retryPolicy =
-        Policy<Response>
-        .Handle<Exception>()
-        .OrResult(r => !r.IsSuccessStatusCode)
-        .WaitAndRetryForeverAsync(x => TimeSpan.FromSeconds(5));
-
     public EmailService(ISendGridClient sendGridClient)
     {
         _sendGridClient = sendGridClient;
     }
 
-    public async Task<Response> SendEmailAsync(string email, string subject, string htmlMessage)
+    public void EnqueueEmail(string email, string subject, string htmlMessage)
     {
-        return await _retryPolicy.ExecuteAsync(async () =>
+        BackgroundJob.Enqueue(() => SendEmail(email, subject, htmlMessage));
+    }
+
+    [AutomaticRetry(Attempts = int.MaxValue, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
+    public async Task SendEmail(string email, string subject, string htmlMessage)
+    {
+        var message = new SendGridMessage
         {
-            var message = new SendGridMessage
-            {
-                From = new EmailAddress("andrija.tosic@ingsoftware.com"),
-                Subject = subject,
-                PlainTextContent = htmlMessage,
-                HtmlContent = $"<pre>{htmlMessage}</pre>"
-            };
+            From = new EmailAddress("andrija.tosic@ingsoftware.com"),
+            Subject = subject,
+            PlainTextContent = htmlMessage,
+            HtmlContent = $"<pre>{htmlMessage}</pre>"
+        };
 
-            message.AddTo(new EmailAddress(email));
+        message.AddTo(new EmailAddress(email));
 
-            var response = await _sendGridClient.SendEmailAsync(message);
-
-            return response;
-        });
+        var response = await _sendGridClient.SendEmailAsync(message);
     }
 }

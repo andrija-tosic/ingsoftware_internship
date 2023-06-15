@@ -6,6 +6,7 @@ using VacaYAY.Data;
 using VacaYAY.Data.Models;
 using VacaYAY.Business.Services;
 using SendGrid;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,14 @@ builder.Services.AddSingleton<ISendGridClient>(provider =>
     })
 );
 
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("vacayay-db")));
+
+builder.Services.AddHangfireServer();
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -67,6 +76,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseHangfireDashboard();
+
 app.UseRouting();
 
 app.UseAuthorization();
@@ -74,6 +85,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHangfireDashboard();
 
 app.MapRazorPages();
 

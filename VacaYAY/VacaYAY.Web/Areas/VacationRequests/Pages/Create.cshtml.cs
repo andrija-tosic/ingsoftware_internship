@@ -107,10 +107,12 @@ Go to details page
 </a>
 ";
 
-        _ = Task.WhenAll(hrEmployees
-            .Select(e => _unitOfWork.EmailService.SendEmailAsync(e.Email!, emailSubject, emailBody)));
+        foreach (var e in hrEmployees)
+        {
+            _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
+        }
 
-        _ = Task.Run(() => _unitOfWork.EmailService.SendEmailAsync(loggedInEmployee.Email!, emailSubject, emailBody));
+        _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
     }
