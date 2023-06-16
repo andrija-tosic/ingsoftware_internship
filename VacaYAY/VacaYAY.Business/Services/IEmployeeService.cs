@@ -17,4 +17,5 @@ public interface IEmployeeService
     Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters);
     Task<ValidationResult> CreateFakesAsync(int count);
     Task<bool> IsInRoleAsync(Employee employee, string role);
+    Task<IEnumerable<Employee>> GetByPositions(int[] positions);
 }

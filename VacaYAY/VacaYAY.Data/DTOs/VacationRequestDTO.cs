@@ -11,4 +11,14 @@ public class VacationRequestDTO
     public required VacationReview VacationReview { get; set; }
     public required DateTime StartDate { get; set; }
     public required DateTime EndDate { get; set; }
+    public override string ToString()
+    {
+        return
+$@"Leave type: {LeaveType.Name}
+Request comment: {Comment}
+Start date: {StartDate.Date.ToShortDateString()}
+End date: {EndDate.Date.ToShortDateString()}
+Requested by: {Employee.FirstName} {Employee.LastName} ({Employee.Email})
+";
+    }
 }

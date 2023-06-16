@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.VacationRequests;
@@ -29,8 +30,8 @@ public class CreateModel : PageModel
         {
             Comment = string.Empty,
             Employee = loggedInEmployee,
-            StartDate = DateTime.Now.AddDays(1),
-            EndDate = DateTime.Now.AddDays(6),
+            StartDate = DateTime.Now.Date.AddDays(1),
+            EndDate = DateTime.Now.Date.AddDays(6),
             LeaveType = LeaveTypes.FirstOrDefault()!
         };
 
@@ -91,10 +92,27 @@ public class CreateModel : PageModel
             }
 
             return Page();
-
         }
 
         await _unitOfWork.SaveChangesAsync();
+
+        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
+
+        string emailSubject = $"Vacation requested by {VacationRequest.Employee.FirstName} {VacationRequest.Employee.LastName}";
+        string emailBody = VacationRequest.ToString();
+        emailBody += $@"
+
+<a href=""https://localhost:7085/{nameof(VacationRequests)}/Details?id={VacationRequest.Id}"">
+Go to details page
+</a>
+";
+
+        foreach (var e in hrEmployees)
+        {
+            _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
+        }
+
+        _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
     }

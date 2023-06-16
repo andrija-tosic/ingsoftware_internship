@@ -22,4 +22,15 @@ public class VacationRequest
     [DisplayName("End date")]
     [DataType(DataType.Date)]
     public required DateTime EndDate { get; set; }
+
+    public override string ToString()
+    {
+        return
+$@"Leave type: {LeaveType.Name}
+Request comment: {Comment}
+Start date: {StartDate.Date.ToShortDateString()}
+End date: {EndDate.Date.ToShortDateString()}
+Requested by: {Employee.FirstName} {Employee.LastName} ({Employee.Email})
+";
+    }
 }

@@ -19,7 +19,6 @@ public class RegisterModel : PageModel
 {
     private readonly SignInManager<Employee> _signInManager;
     private readonly UserManager<Employee> _userManager;
-    private readonly IUserStore<Employee> _userStore;
     private readonly ILogger<RegisterModel> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -27,14 +26,12 @@ public class RegisterModel : PageModel
 
     public RegisterModel(
         UserManager<Employee> userManager,
-        IUserStore<Employee> userStore,
         SignInManager<Employee> signInManager,
         ILogger<RegisterModel> logger,
         IUnitOfWork unitOfWork
         )
     {
         _userManager = userManager;
-        _userStore = userStore;
         _signInManager = signInManager;
         _logger = logger;
         _unitOfWork = unitOfWork;
@@ -113,7 +110,22 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
-            Employee user = await CreateUser();
+            var user = new Employee
+            {
+                Email = Input.Email,
+                Address = Input.Address,
+                DaysOffNumber = Input.DaysOffNumber,
+                EmploymentStartDate = Input.EmploymentStartDate,
+                EmploymentEndDate = Input.EmploymentEndDate,
+                FirstName = Input.FirstName,
+                LastName = Input.LastName,
+                IdNumber = Input.IdNumber,
+                InsertDate = DateTime.Now.Date,
+                Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
+                VacationRequests = new List<VacationRequest>(),
+                VacationReviews = new List<VacationReview>()
+            };
+
             var validationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
 
             if (validationResult.IsValid)
@@ -140,33 +152,5 @@ public class RegisterModel : PageModel
 
         // If we got this far, something failed, redisplay form
         return Page();
-    }
-
-    private async Task<Employee> CreateUser()
-    {
-        return new Employee
-        {
-            Email = Input.Email,
-            Address = Input.Address,
-            DaysOffNumber = Input.DaysOffNumber,
-            EmploymentStartDate = Input.EmploymentStartDate,
-            EmploymentEndDate = Input.EmploymentEndDate,
-            FirstName = Input.FirstName,
-            LastName = Input.LastName,
-            IdNumber = Input.IdNumber,
-            InsertDate = DateTime.Now,
-            Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
-            VacationRequests = new List<VacationRequest>(),
-            VacationReviews = new List<VacationReview>()
-        };
-    }
-
-    private IUserEmailStore<Employee> GetEmailStore()
-    {
-        if (!_userManager.SupportsUserEmail)
-        {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
-        }
-        return (IUserEmailStore<Employee>)_userStore;
     }
 }

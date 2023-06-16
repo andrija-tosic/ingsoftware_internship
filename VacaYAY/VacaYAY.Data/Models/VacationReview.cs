@@ -16,4 +16,13 @@ public class VacationReview
     public required bool Approved { get; set; }
     [Required]
     public required Employee Reviewer { get; set; }
+
+    public override string? ToString()
+    {
+        return 
+$@"Review comment: {Comment}
+Status: {(Approved ? "Approved" : "Rejected")}
+Reviewed by: {Reviewer.FirstName} {Reviewer.LastName} ({Reviewer.Email})
+";
+    }
 }
