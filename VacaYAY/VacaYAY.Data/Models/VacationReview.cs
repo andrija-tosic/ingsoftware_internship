@@ -6,7 +6,6 @@ public class VacationReview
 {
     [Key]
     public int Id { get; set; }
-    [Required, MaxLength(512)]
     public string? Comment { get; set; }
     [Required]
     public int VacationRequestRefId { get; set; }

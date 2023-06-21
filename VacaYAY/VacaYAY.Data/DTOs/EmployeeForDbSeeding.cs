@@ -8,7 +8,9 @@ public class EmployeeForDbSeeding
     public EmployeeForDbSeeding()
     {
         EmailConfirmed = true;
-        PasswordHash = new PasswordHasher<Employee>().HashPassword(default!, "password");
+        // Password is "password". Example given is pre-hashed value so it doesn't generate a new one on every migration.
+        PasswordHash = "AQAAAAIAAYagAAAAELBhGKQIekty8VzCyPnzBK8uFvx5mqUY+L0LNJ0fi616XYT/nVK9DfbIFFIotkyoHQ==";
+        //PasswordHash = new PasswordHasher<Employee>().HashPassword(default!, "password");
         SecurityStamp = string.Empty;
         AccessFailedCount = 0;
         LockoutEnabled = true;
