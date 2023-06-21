@@ -1,4 +1,5 @@
 ﻿@page
+@using VacaYAY.Data;
 @model VacaYAY.Web.Areas.Employees.Pages.IndexModel
 
 @{
@@ -12,16 +13,19 @@
     <div class="col-md-4">
         <h3>Search</h3>
         <form method="post">
+            @if (User.IsInRole(InitialData.AdminRoleName))
+            {
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" asp-for="Input.EmployeeFullName" />
+                    <label asp-for="Input.EmployeeFullName">Full name</label>
+                </div>
+            }
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" asp-for="Input.EmployeeFullName"/>
-                <label asp-for="Input.EmployeeFullName">Full name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="date" class="form-control" asp-for="Input.EmploymentStartDate"/>
+                <input type="date" class="form-control" asp-for="Input.EmploymentStartDate" />
                 <label asp-for="Input.EmploymentStartDate">Employment start date</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="date" class="form-control" asp-for="Input.EmploymentEndDate"/>
+                <input type="date" class="form-control" asp-for="Input.EmploymentEndDate" />
                 <label asp-for="Input.EmploymentEndDate">Employment end date</label>
             </div>
             <button id="searchSubmit" asp-page-handler="Search" type="submit" class="btn btn-primary">Search</button>
@@ -103,7 +107,7 @@
                     @Convert.ToDateTime(item.EmploymentStartDate).ToString("dd/MMMM/yyyy")
                 </td>
                 <td>
-                    @Convert.ToDateTime(item.EmploymentEndDate).ToString("dd/MMMM/yyyy")
+                    @(item.EmploymentEndDate is null ? "None" : Convert.ToDateTime(item.EmploymentEndDate).ToString("dd/MMMM/yyyy"))
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Position.Caption)
@@ -111,10 +115,7 @@
                 <td>
                     @Convert.ToDateTime(item.InsertDate).ToString("dd/MMMM/yyyy")
                 </td>
-@*                <td>
-                    @Convert.ToDateTime(item.DeleteDate).ToString("dd/MMMM/yyyy")
-                </td>
-*@                <td>
+                <td>
                     <a class="btn btn-outline-primary" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
                     <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@item.Id">Details</a>
                     <a class="btn btn-outline-danger" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
