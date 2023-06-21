@@ -11,8 +11,7 @@ public class VacationRequest
     public required Employee Employee { get; set; }
     [Required]
     public required LeaveType LeaveType { get; set; }
-    [Required]
-    public required string Comment { get; set; }
+    public string? Comment { get; set; }
     public VacationReview? VacationReview { get; set; }
     [Required]
     [DisplayName("Start date")]

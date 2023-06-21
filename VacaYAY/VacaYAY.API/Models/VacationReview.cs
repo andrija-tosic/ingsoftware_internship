@@ -3,7 +3,7 @@
 public class VacationReview
 {
     public int Id { get; set; }
-    public required string Comment { get; set; }
+    public string? Comment { get; set; }
     public int VacationRequestRefId { get; set; }
     public required VacationRequest VacationRequest { get; set; }
     public required bool Approved { get; set; }
