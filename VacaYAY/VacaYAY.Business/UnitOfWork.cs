@@ -14,6 +14,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly IEmployeeService _employeeService;
     private readonly IPositionService _positionService;
     private readonly IVacationService _vacationService;
+    private readonly IContractService _contractService;
     private readonly IUserStore<Employee> _userStore;
     private readonly UserManager<Employee> _userManager;
     private readonly IEmailService _emailService;
@@ -32,12 +33,14 @@ public class UnitOfWork : IUnitOfWork
         _positionService ??= new PositionService(_context);
         _vacationService ??= new VacationService(_context, new VacationRequestValidator(this), vacationLogger);
         _emailService ??= new EmailService(sendGridClient);
+        _contractService ??= new ContractService(_context.Contracts, _context.ContractTypes);
     }
 
     public IEmployeeService EmployeeService => _employeeService;
     public IPositionService PositionService => _positionService;
     public IVacationService VacationService => _vacationService;
     public IEmailService EmailService => _emailService;
+    public IContractService ContractService => _contractService;
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();

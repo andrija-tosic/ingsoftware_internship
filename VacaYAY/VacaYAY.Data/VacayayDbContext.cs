@@ -12,6 +12,9 @@ public class VacayayDbContext : IdentityDbContext<Employee>
     public required DbSet<VacationRequest> VacationRequests { get; set; }
     public required DbSet<VacationReview> VacationReviews { get; set; }
     public required DbSet<LeaveType> LeaveTypes { get; set; }
+    public required DbSet<ContractType> ContractTypes { get; set; }
+    public required DbSet<Contract> Contracts { get; set; }
+
     public VacayayDbContext(DbContextOptions<VacayayDbContext> options) : base(options)
     {
     }
@@ -23,6 +26,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
         modelBuilder.Entity<Employee>().HasQueryFilter(e => e.DeleteDate == null);
         modelBuilder.Entity<VacationRequest>().HasQueryFilter(r => r.Employee.DeleteDate == null);
         modelBuilder.Entity<VacationReview>().HasQueryFilter(r => r.VacationRequest.Employee.DeleteDate == null);
+        modelBuilder.Entity<Contract>().HasQueryFilter(c => c.Employee.DeleteDate == null);
 
         modelBuilder.Entity<VacationRequest>()
             .HasOne(r => r.VacationReview)
@@ -65,5 +69,8 @@ public class VacayayDbContext : IdentityDbContext<Employee>
             }));
 
         modelBuilder.Entity<LeaveType>().HasData(InitialData.LeaveTypes);
+
+        modelBuilder.Entity<ContractType>().HasData(InitialData.ContractTypes);
+        modelBuilder.Entity<Contract>().HasData(InitialData.Contracts);
     }
 }

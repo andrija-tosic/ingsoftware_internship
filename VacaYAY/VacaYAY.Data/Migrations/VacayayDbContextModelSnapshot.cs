@@ -622,7 +622,7 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("LeaveTypes");
+                    b.ToTable("LeaveTypes", (string)null);
 
                     b.HasData(
                         new
@@ -667,7 +667,7 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Positions");
+                    b.ToTable("Positions", (string)null);
 
                     b.HasData(
                         new
@@ -733,7 +733,7 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasIndex("LeaveTypeId");
 
-                    b.ToTable("VacationRequests");
+                    b.ToTable("VacationRequests", (string)null);
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Models.VacationReview", b =>
@@ -771,7 +771,7 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("VacationRequestRefId")
                         .IsUnique();
 
-                    b.ToTable("VacationReviews");
+                    b.ToTable("VacationReviews", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
