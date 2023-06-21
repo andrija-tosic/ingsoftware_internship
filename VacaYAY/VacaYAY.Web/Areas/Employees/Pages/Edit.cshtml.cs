@@ -65,22 +65,24 @@ public class EditModel : PageModel
         employeeFromDb.LastName = EmployeeDTO.LastName;
         employeeFromDb.Email = EmployeeDTO.Email;
         employeeFromDb.IdNumber = EmployeeDTO.IdNumber;
-        employeeFromDb.InsertDate = EmployeeDTO.InsertDate;
         employeeFromDb.Position = (await _unitOfWork.PositionService.GetByIdAsync(EmployeeDTO.PositionId))!;
 
-        try
+        var validationResult = await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
+
+        if (!validationResult.IsValid)
         {
-            var validationResult = await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
-            if (validationResult.IsValid)
+            ModelState.Clear();
+            foreach (var error in validationResult.Errors)
             {
-                await _unitOfWork.SaveChangesAsync();
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            throw;
+
+            Positions = await _unitOfWork.PositionService.GetAllAsync();
+
+            return Page();
         }
 
+        await _unitOfWork.SaveChangesAsync();
         return RedirectToPage("./Index");
     }
 }

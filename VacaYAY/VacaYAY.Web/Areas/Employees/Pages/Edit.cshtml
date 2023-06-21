@@ -14,7 +14,6 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="EmployeeDTO.Id" />
             <div class="form-floating mb-3">
                 <input asp-for="EmployeeDTO.FirstName" class="form-control" />
@@ -35,11 +34,6 @@
                 <input asp-for="EmployeeDTO.Email" class="form-control" />
                 <label asp-for="EmployeeDTO.Email" class="control-label">Email</label>
                 <span asp-validation-for="EmployeeDTO.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="EmployeeDTO.Password" class="form-control" />
-                <label asp-for="EmployeeDTO.Password" class="control-label">Password</label>
-                <span asp-validation-for="EmployeeDTO.Password" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="EmployeeDTO.IdNumber" class="form-control" />
@@ -70,6 +64,7 @@
             <div class="form-floating mb-3">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
         </form>
     </div>
 </div>
@@ -79,5 +74,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

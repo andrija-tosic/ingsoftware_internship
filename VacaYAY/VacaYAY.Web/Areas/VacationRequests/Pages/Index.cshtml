@@ -1,5 +1,6 @@
 ﻿@page
 @using VacaYAY.Data.Models;
+@using VacaYAY.Data;
 @model VacaYAY.Web.Areas.VacationRequests.IndexModel
 
 <h1>Vacation requests</h1>
@@ -18,10 +19,13 @@
         new {@class="form-control dropdown-toggle"})
         <label for="LeaveTypeId">Leave type</label>
     </div>
-    <div class="form-floating mb-3">
-        <input type="text" class="form-control" asp-for="Input.EmployeeFullName" />
-        <label asp-for="Input.EmployeeFullName">Employee name</label>
-    </div>
+    @if (User.IsInRole(InitialData.AdminRoleName))
+    {
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" asp-for="Input.EmployeeFullName" />
+            <label asp-for="Input.EmployeeFullName">Employee name</label>
+        </div>
+    }
     <div class="form-floating mb-3">
         <input type="date" class="form-control" asp-for="Input.StartDate" />
         <label asp-for="Input.StartDate">Vacation start date</label>

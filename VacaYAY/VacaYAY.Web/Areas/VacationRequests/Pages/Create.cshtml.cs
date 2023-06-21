@@ -81,18 +81,6 @@ public class CreateModel : PageModel
         }
 
         int days = (VacationRequest.EndDate - VacationRequest.StartDate).Days;
-        VacationRequest.Employee.DaysOffNumber -= days;
-        var employeeValidationResult = await _unitOfWork.EmployeeService.UpdateAsync(VacationRequest.Employee);
-
-        if (!employeeValidationResult.IsValid)
-        {
-            foreach (var error in requestValidationResult.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
-
-            return Page();
-        }
 
         await _unitOfWork.SaveChangesAsync();
 

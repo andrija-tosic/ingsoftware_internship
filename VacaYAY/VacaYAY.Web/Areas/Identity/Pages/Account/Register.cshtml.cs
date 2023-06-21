@@ -75,6 +75,7 @@ public class RegisterModel : PageModel
 
         [Required]
         [Display(Name = "ID number")]
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = "ID number must contain numbers only.")]
         public required string IdNumber { get; set; }
 
         [Required]
@@ -88,10 +89,8 @@ public class RegisterModel : PageModel
         [Required]
         [Display(Name = "Employment start date")]
         public required DateTime EmploymentStartDate { get; set; }
-        [Required]
         [Display(Name = "Employment end date")]
-        public required DateTime EmploymentEndDate { get; set; }
-
+        public DateTime? EmploymentEndDate { get; set; }
     }
 
     public async Task OnGetAsync(string returnUrl = null)
@@ -106,7 +105,7 @@ public class RegisterModel : PageModel
     {
         Positions = await _unitOfWork.PositionService.GetAllAsync();
         
-        returnUrl ??= Url.Content("~/");
+        returnUrl ??= Url.Content("~/" + nameof(Employees));
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
@@ -123,7 +122,8 @@ public class RegisterModel : PageModel
                 InsertDate = DateTime.Now.Date,
                 Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
                 VacationRequests = new List<VacationRequest>(),
-                VacationReviews = new List<VacationReview>()
+                VacationReviews = new List<VacationReview>(),
+                Contracts = new List<Contract>()
             };
 
             var validationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
@@ -139,7 +139,6 @@ public class RegisterModel : PageModel
                 }
                 else
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
             }

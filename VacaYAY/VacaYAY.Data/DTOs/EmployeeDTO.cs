@@ -1,4 +1,5 @@
-﻿using VacaYAY.Data.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using VacaYAY.Data.Models;
 
 namespace VacaYAY.Data.DTOs;
 
@@ -8,9 +9,14 @@ public class EmployeeDTO
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required string Address { get; set; }
+    [Required]
+    [EmailAddress]
     public string? Email { get; set; }
     public string? Password { get; set; }
+    [Required]
+    [RegularExpression(@"^[0-9]+$", ErrorMessage = "ID number must contain numbers only.")]
     public required string IdNumber { get; set; }
+    [Required]
     public required int DaysOffNumber { get; set; }
     public required int PositionId { get; set; }
     public required DateTime EmploymentStartDate { get; set; }
