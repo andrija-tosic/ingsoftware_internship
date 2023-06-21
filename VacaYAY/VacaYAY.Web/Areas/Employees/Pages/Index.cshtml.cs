@@ -28,21 +28,22 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
     }
+
     public async Task<IActionResult> OnPostSearchAsync()
     {
-        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
 
         return Page();
     }
 
     public async Task<IActionResult> OnPostGenerateFakeEmployeesAsync()
-    { 
+    {
         await _unitOfWork.EmployeeService.CreateFakesAsync(NumberOfFakeEmployeesToGenerate);
         await _unitOfWork.SaveChangesAsync();
 
-        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
 
         return Page();
     }
