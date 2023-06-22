@@ -2,7 +2,6 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
@@ -50,29 +49,9 @@ public class VacationService : IVacationService
         _context.VacationRequests.Add(vacationRequest);
         return validationResult;
     }
-    public async Task<ValidationResult> UpdateVacationRequest(VacationRequest vacationRequest)
+    public void UpdateVacationRequest(VacationRequest vacationRequest)
     {
-        var validationResult = await _vacationRequestValidator.ValidateAsync(vacationRequest);
-
-        if (!validationResult.IsValid)
-        {
-            foreach (ValidationFailure error in validationResult.Errors)
-            {
-                _logger.LogError(error.ErrorMessage);
-            }
-
-            return validationResult;
-        }
-
-        VacationRequest? previousRequest = await _context.VacationRequests.FindAsync(vacationRequest.Id);
-
-        if (previousRequest is null)
-        {
-            return new ValidationResult(new[] { new ValidationFailure(nameof(previousRequest), "not found") });
-        }
-
         _context.VacationRequests.Update(vacationRequest);
-        return validationResult;
     }
 
     public async Task DeleteVacationRequestAsync(int id)
@@ -176,7 +155,8 @@ public class VacationService : IVacationService
     public async Task<VacationReview?> GetVacationReviewByIdAsync(int id)
     {
         return await _context.VacationReviews.Where(v => v.Id == id)
-            .Include(v => v.VacationRequest)
+            .Include(v => v.VacationRequest).ThenInclude(vr => vr.LeaveType)
+            .Include(v => v.VacationRequest).ThenInclude(vr => vr.Employee)
             .SingleAsync();
     }
 }

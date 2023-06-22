@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VacaYAY.Data;
 
@@ -11,9 +12,11 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(VacayayDbContext))]
-    partial class VacayayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230621101254_MakeInitialDataStaticAndMakeVacationRequestAndVacationReviewCommentOptional")]
+    partial class MakeInitialDataStaticAndMakeVacationRequestAndVacationReviewCommentOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -622,7 +625,7 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("LeaveTypes", (string)null);
+                    b.ToTable("LeaveTypes");
 
                     b.HasData(
                         new
@@ -667,7 +670,7 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Positions", (string)null);
+                    b.ToTable("Positions");
 
                     b.HasData(
                         new
@@ -732,7 +735,7 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasIndex("LeaveTypeId");
 
-                    b.ToTable("VacationRequests", (string)null);
+                    b.ToTable("VacationRequests");
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Models.VacationReview", b =>
@@ -768,7 +771,7 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("VacationRequestRefId")
                         .IsUnique();
 
-                    b.ToTable("VacationReviews", (string)null);
+                    b.ToTable("VacationReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
