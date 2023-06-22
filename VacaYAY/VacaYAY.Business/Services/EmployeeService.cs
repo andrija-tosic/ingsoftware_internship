@@ -140,6 +140,11 @@ public class EmployeeService : IEmployeeService
             employees = employees.Where(e => e.EmploymentEndDate <= searchFilters.EmploymentEndDate);
         }
 
+        if (searchFilters.Positions?.Length > 0)
+        {
+            employees = employees.Where(e => searchFilters.Positions.Contains(e.Position.Id));
+        }
+
         if (nameResults.Any())
         {
             return await employees.Intersect(nameResults).ToListAsync();

@@ -1,5 +1,6 @@
 ﻿@page
 @using VacaYAY.Data;
+@using VacaYAY.Data.Models;
 @model VacaYAY.Web.Areas.Employees.Pages.IndexModel
 
 @{
@@ -27,6 +28,12 @@
             <div class="form-floating mb-3">
                 <input type="date" class="form-control" asp-for="Input.EmploymentEndDate" />
                 <label asp-for="Input.EmploymentEndDate">Employment end date</label>
+            </div>
+            <div class="form-floating mb-3">
+                <h5>Positions</h5>
+                @Html.ListBoxFor(m => m.Input.Positions,
+                new SelectList(Model.Positions, nameof(Position.Id), nameof(Position.Caption)),
+                new { @class = "selectpicker" })
             </div>
             <button id="searchSubmit" asp-page-handler="Search" type="submit" class="btn btn-primary">Search</button>
         </form>
