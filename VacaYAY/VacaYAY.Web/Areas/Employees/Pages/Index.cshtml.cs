@@ -25,15 +25,18 @@ public class IndexModel : PageModel
     public int NumberOfFakeEmployeesToGenerate { get; set; }
 
     public IList<Employee> Employees { get; set; } = default!;
+    public IList<Position> Positions { get; set; } = default!;
 
     public async Task OnGetAsync()
     {
         Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Positions = await _unitOfWork.PositionService.GetAllAsync();
     }
 
     public async Task<IActionResult> OnPostSearchAsync()
     {
         Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Positions = await _unitOfWork.PositionService.GetAllAsync();
 
         return Page();
     }
@@ -43,7 +46,7 @@ public class IndexModel : PageModel
         await _unitOfWork.EmployeeService.CreateFakesAsync(NumberOfFakeEmployeesToGenerate);
         await _unitOfWork.SaveChangesAsync();
 
-        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
 
         return Page();
     }

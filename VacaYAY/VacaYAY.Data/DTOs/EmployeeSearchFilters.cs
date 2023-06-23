@@ -5,4 +5,5 @@ public class EmployeeSearchFilters
     public required string EmployeeFullName { get; set; }
     public DateTime? EmploymentStartDate { get; set; }
     public DateTime? EmploymentEndDate { get; set; }
+    public int[]? PositionIds { get; set; }
 }

@@ -123,7 +123,6 @@ public class RegisterModel : PageModel
                 Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
                 VacationRequests = new List<VacationRequest>(),
                 VacationReviews = new List<VacationReview>(),
-                Contracts = new List<Contract>()
             };
 
             var validationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);

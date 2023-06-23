@@ -12,7 +12,7 @@ public class PositionService : IPositionService
     {
         _context = context;
     }
-    public async Task<IEnumerable<Position>> GetAllAsync()
+    public async Task<IList<Position>> GetAllAsync()
     {
         return await _context.Positions.ToListAsync();
     }
