@@ -29,14 +29,14 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
-        Positions = (IList<Position>)await _unitOfWork.PositionService.GetAllAsync();
+        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Positions = await _unitOfWork.PositionService.GetAllAsync();
     }
 
     public async Task<IActionResult> OnPostSearchAsync()
     {
-        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
-        Positions = (IList<Position>)await _unitOfWork.PositionService.GetAllAsync();
+        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Positions = await _unitOfWork.PositionService.GetAllAsync();
 
         return Page();
     }

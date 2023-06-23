@@ -31,9 +31,12 @@
             </div>
             <div class="form-floating mb-3">
                 <h5>Positions</h5>
-                @Html.ListBoxFor(m => m.Input.Positions,
-                new SelectList(Model.Positions, nameof(Position.Id), nameof(Position.Caption)),
-                new { @class = "selectpicker" })
+                <select asp-for="Input.PositionIds"
+                        asp-items="@(new SelectList(Model.Positions, nameof(Position.Id), nameof(Position.Caption)))"
+                        name="@(nameof(Model.Input)).@(nameof(Model.Input.PositionIds))"
+                        class="selectpicker positions-select"
+                        multiple="multiple">
+                </select>
             </div>
             <button id="searchSubmit" asp-page-handler="Search" type="submit" class="btn btn-primary">Search</button>
         </form>
@@ -131,3 +134,13 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.positions-select').select2();
+        });
+    </script>
+}

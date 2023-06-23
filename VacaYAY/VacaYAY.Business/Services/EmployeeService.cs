@@ -33,7 +33,7 @@ public class EmployeeService : IEmployeeService
         }
         _emailStore = (IUserEmailStore<Employee>)_userStore;
     }
-    public async Task<IEnumerable<Employee>> GetAllAsync()
+    public async Task<IList<Employee>> GetAllAsync()
     {
         return await _context.Employees.Include(e => e.Position).ToListAsync();
     }
@@ -114,7 +114,7 @@ public class EmployeeService : IEmployeeService
         return result;
     }
 
-    public async Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters)
+    public async Task<IList<Employee>> SearchAsync(EmployeeSearchFilters searchFilters)
     {
         IQueryable<Employee> employees = _context.Employees
             .Include(e => e.Position)
@@ -140,9 +140,9 @@ public class EmployeeService : IEmployeeService
             employees = employees.Where(e => e.EmploymentEndDate <= searchFilters.EmploymentEndDate);
         }
 
-        if (searchFilters.Positions?.Length > 0)
+        if (searchFilters.PositionIds?.Length > 0)
         {
-            employees = employees.Where(e => searchFilters.Positions.Contains(e.Position.Id));
+            employees = employees.Where(e => searchFilters.PositionIds.Contains(e.Position.Id));
         }
 
         if (nameResults.Any())
