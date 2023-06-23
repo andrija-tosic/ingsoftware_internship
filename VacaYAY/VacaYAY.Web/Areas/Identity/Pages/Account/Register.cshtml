@@ -3,10 +3,10 @@
 @using VacaYAY.Data.Models;
 @model RegisterModel
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <h1>Register new employee</h1>
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+    <div class="row justify-content-between">
+        <div class="col-md-4">
+            <h1>Register new employee</h1>
             <div class="form-floating mb-3">
                 <input asp-for="Input.FirstName" class="form-control" aria-required="true" />
                 <label asp-for="Input.FirstName">First name</label>
@@ -65,9 +65,37 @@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
+        </div>
+        <div class="col-md-4">
+            <h2>Contract</h2>
+            @Html.HiddenFor(m => m.Input.ContractDTO.EmployeeId)
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ContractDTO.Number" class="form-control" aria-required="true" />
+                <label asp-for="Input.ContractDTO.Number">Contract number</label>
+                <span asp-validation-for="Input.ContractDTO.Number" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ContractDTO.StartDate" class="form-control" type="date" aria-required="true" />
+                <label asp-for="Input.ContractDTO.StartDate">Contract start date</label>
+                <span asp-validation-for="Input.ContractDTO.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ContractDTO.EndDate" class="form-control" type="date" aria-required="true" />
+                <label asp-for="Input.ContractDTO.EndDate">Contract end date</label>
+                <span asp-validation-for="Input.ContractDTO.EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                @Html.DropDownListFor(m => m.Input.ContractDTO.ContractTypeId, new SelectList(@Model.ContractTypes, nameof(Contract.Type.Id), nameof(Contract.Type.Name)),
+                new {@class="form-control dropdown-toggle"})
+                <label for="Contract type">Contract type</label>
+            </div>
+            <div class="form-floating mb-3">
+                <p asp-for="Input.ContractDTO.ContractFile">Contract document</p>
+                <input class="file" asp-for="Input.ContractDTO.ContractFile" accept=".pdf,.doc,.docx" type="file" value="Upload file" />
+            </div>
+        </div>
     </div>
-</div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

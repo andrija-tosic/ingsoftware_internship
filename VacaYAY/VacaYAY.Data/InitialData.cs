@@ -284,4 +284,64 @@ public static class InitialData
             VacationRequests = new List<VacationRequest>()
         }
     };
+
+    public static ContractType OpenEndedContractType = new ContractType
+    {
+        Id = 1,
+        Name = "Open-Ended"
+    };
+
+    public static ContractType[] ContractTypes { get; } = new ContractType[]
+    {
+        OpenEndedContractType,
+        new ContractType
+        {
+            Id = 2,
+            Name = "Full-Time"
+        },
+        new ContractType
+        {
+            Id = 3,
+            Name = "Part-Time"
+        },
+        new ContractType
+        {
+            Id = 4,
+            Name = "Fixed-Term"
+        },
+        new ContractType
+        {
+            Id = 5,
+            Name = "Consultant"
+        },
+        new ContractType
+        {
+            Id = 6,
+            Name = "Internship"
+        }
+    };
+
+    public static ContractForDbSeeding[] Contracts { get; } = new ContractForDbSeeding[]
+    {
+        new ContractForDbSeeding
+        {
+            Id = 1,
+            Number = "100000",
+            TypeId = 1,
+            DocumentUrl = "placeholder",
+            EmployeeId = AdminEmployee.Id,
+            StartDate = ExampleDate,
+            EndDate = ExampleDate.AddMonths(2)
+        },
+        new ContractForDbSeeding
+        {
+            Id = 2,
+            Number = "100001",
+            TypeId = 3,
+            DocumentUrl = "placeholder",
+            EmployeeId = AdminEmployee.Id,
+            StartDate = ExampleDate,
+            EndDate = ExampleDate.AddMonths(2)
+        }
+    };
 }

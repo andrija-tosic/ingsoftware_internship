@@ -9,5 +9,6 @@ public interface IUnitOfWork
     public IVacationService VacationService { get; }
     public IEmailService EmailService { get; }
     public IContractService ContractService { get; }
+    public IFileService FileService { get; }
     public Task<int> SaveChangesAsync();
 }

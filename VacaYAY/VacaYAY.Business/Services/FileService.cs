@@ -1,5 +1,8 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace VacaYAY.Business.Services;
 
@@ -12,22 +15,25 @@ public class FileService : IFileService
         _blobServiceClient = new BlobServiceClient(connectionString);
     }
 
-    public async Task<Azure.Response<Azure.Storage.Blobs.Models.BlobContentInfo>> SaveFile(IFormFile file)
+    public async Task<Uri> SaveFile(IFormFile file)
     {
-        string newFileName = new Guid().ToString()
+        string newFileName = Guid.NewGuid().ToString()
             + "-"
             + DateTime.Now.ToString("yyyyMMddHHmmss")
             + Path.GetExtension(file.FileName);
 
         BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("container1");
+        await containerClient.CreateIfNotExistsAsync();
 
         BlobClient blobClient = containerClient.GetBlobClient(newFileName);
 
-        Azure.Response<Azure.Storage.Blobs.Models.BlobContentInfo> response = await blobClient.UploadAsync(file.OpenReadStream());
+        Azure.Response<BlobContentInfo> response = await blobClient.UploadAsync(file.OpenReadStream(),
+            new BlobHttpHeaders
+            {
+                ContentType = file.ContentType
+            });
 
-        return response;
-
-        //return $"{blobClient.Uri}/{newFileName}";
+        return blobClient.Uri;
     }
     public async Task<Azure.Response<bool>> DeleteFile(string path)
     {

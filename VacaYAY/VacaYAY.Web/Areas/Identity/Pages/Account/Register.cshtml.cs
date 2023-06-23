@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Business.Validators;
 using VacaYAY.Data;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.Identity.Pages.Account;
@@ -23,6 +25,7 @@ public class RegisterModel : PageModel
     private readonly IUnitOfWork _unitOfWork;
 
     public IEnumerable<Position> Positions { get; set; }
+    public IList<ContractType> ContractTypes { get; set; }
 
     public RegisterModel(
         UserManager<Employee> userManager,
@@ -91,6 +94,7 @@ public class RegisterModel : PageModel
         public required DateTime EmploymentStartDate { get; set; }
         [Display(Name = "Employment end date")]
         public DateTime? EmploymentEndDate { get; set; }
+        public ContractDTO ContractDTO { get; set; }
     }
 
     public async Task OnGetAsync(string returnUrl = null)
@@ -99,12 +103,69 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
         Positions = await _unitOfWork.PositionService.GetAllAsync();
+        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+
+        Input = new()
+        {
+            Address = "adr",
+            FirstName = "FirstName",
+            LastName = "LastName",
+            ConfirmPassword = "password",
+            Password = "password",
+            DaysOffNumber = 20,
+            Email = "a@a",
+            EmploymentStartDate = DateTime.Now.Date,
+            EmploymentEndDate = DateTime.Now.Date.AddDays(7),
+            IdNumber = "00000",
+            PositionId = 1,
+            ContractDTO = new()
+            {
+                ContractTypeId = InitialData.OpenEndedContractType.Id,
+                EmployeeId = InitialData.AdminEmployee.Id,
+                Number = "000000",
+                StartDate = DateTime.Now.Date,
+                ContractFile = default!
+            }
+        };
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
+        var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        if (loggedInEmployee is null)
+        {
+            return Unauthorized();
+        }
+
+        Input.ContractDTO.EmployeeId = loggedInEmployee.Id;
+
         Positions = await _unitOfWork.PositionService.GetAllAsync();
-        
+        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+
+        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(Input.ContractDTO.ContractFile);
+
+        var contract = new Contract()
+        {
+            Employee = loggedInEmployee,
+            Number = Input.ContractDTO.Number,
+            StartDate = Input.ContractDTO.StartDate,
+            EndDate = Input.ContractDTO.EndDate,
+            Type = ContractTypes.Single(ct => ct.Id == Input.ContractDTO.ContractTypeId),
+            DocumentUrl = contractFileUrl.ToString()
+        };
+
+        var contractValidationResult = new ContractValidator().Validate(contract);
+
+        if (!contractValidationResult.IsValid)
+        {
+            ModelState.Clear();
+            foreach (var error in contractValidationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+            return Page();
+        }
+
         returnUrl ??= Url.Content("~/" + nameof(Employees));
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
@@ -123,12 +184,12 @@ public class RegisterModel : PageModel
                 Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
                 VacationRequests = new List<VacationRequest>(),
                 VacationReviews = new List<VacationReview>(),
-                Contracts = new List<Contract>()
+                Contracts = new List<Contract>() { contract }
             };
 
-            var validationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
+            var employeeValidationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
 
-            if (validationResult.IsValid)
+            if (employeeValidationResult.IsValid)
             {
                 await _unitOfWork.SaveChangesAsync();
                 _logger.LogInformation("User created a new account with password.");
@@ -143,7 +204,7 @@ public class RegisterModel : PageModel
                 }
             }
             ModelState.Clear();
-            foreach (var error in validationResult.Errors)
+            foreach (var error in employeeValidationResult.Errors)
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }

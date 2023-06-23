@@ -13,7 +13,7 @@ public class ContractService : IContractService
         _contracts = contracts;
         _contractTypes = contractTypes;
     }
-    public async Task<IList<Contract>> GetContractsAsync()
+    public async Task<IList<Contract>> GetAllAsync()
     {
         return await _contracts
             .Include(c => c.Employee)

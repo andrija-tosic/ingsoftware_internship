@@ -43,7 +43,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
         base.OnConfiguring(optionsBuilder);
 
         optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.UseValidationCheckConstraints();
+        optionsBuilder.UseValidationCheckConstraints(opts => opts.UseRegex(false));
     }
 
     public static void SeedInitialData(ModelBuilder modelBuilder)

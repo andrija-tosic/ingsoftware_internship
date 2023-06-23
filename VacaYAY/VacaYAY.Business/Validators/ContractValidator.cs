@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Validators;
@@ -11,8 +12,17 @@ public class ContractValidator : AbstractValidator<Contract>
             .GreaterThan(c => c.StartDate)
             .WithMessage("Contract end date must be after the start date.");
 
+        RuleFor(c => c).Must(c =>
+        {
+            if (!c.EndDate.HasValue)
+            {
+                return c.Type.Id == InitialData.OpenEndedContractType.Id;
+            }
+            return true;
+        }).WithMessage($"Contract must have end date if the contract type is not {InitialData.OpenEndedContractType.Name}.");
+
         RuleFor(c => c.Employee).NotNull();
-        RuleFor(c => c.DocumentUri).Must(uri =>
+        RuleFor(c => c.DocumentUrl).Must(uri =>
         {
             if (string.IsNullOrWhiteSpace(uri))
             {

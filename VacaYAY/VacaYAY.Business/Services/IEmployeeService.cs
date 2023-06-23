@@ -13,9 +13,9 @@ public interface IEmployeeService
     Task<ValidationResult> CreateAsync(Employee employee, string password);
     Task<ValidationResult> UpdateAsync(Employee employee);
     Task<IdentityResult> SoftDeleteAsync(Employee employee);
-    Task<IEnumerable<Employee>> GetAllAsync();
-    Task<IEnumerable<Employee>> SearchAsync(EmployeeSearchFilters searchFilters);
+    Task<IList<Employee>> GetAllAsync();
+    Task<IList<Employee>> SearchAsync(EmployeeSearchFilters searchFilters);
     Task<ValidationResult> CreateFakesAsync(int count);
     Task<bool> IsInRoleAsync(Employee employee, string role);
-    Task<IEnumerable<Employee>> GetByPositions(int[] positions);
+    Task<IList<Employee>> GetByPositions(int[] positions);
 }

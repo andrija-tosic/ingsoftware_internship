@@ -4,6 +4,6 @@ namespace VacaYAY.Business.Services;
 
 public interface IFileService
 {
-    Task<Azure.Response<Azure.Storage.Blobs.Models.BlobContentInfo>> SaveFile(IFormFile file);
+    Task<Uri> SaveFile(IFormFile file);
     Task<Azure.Response<bool>> DeleteFile(string path);
 }

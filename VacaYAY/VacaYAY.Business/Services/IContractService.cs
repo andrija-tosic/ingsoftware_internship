@@ -5,5 +5,5 @@ namespace VacaYAY.Business.Services;
 public interface IContractService
 {
     Task<IList<ContractType>> GetContractTypesAsync();
-    Task<IList<Contract>> GetContractsAsync();
+    Task<IList<Contract>> GetAllAsync();
 }

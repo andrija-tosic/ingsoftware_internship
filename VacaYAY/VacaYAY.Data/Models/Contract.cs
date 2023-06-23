@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace VacaYAY.Data.Models;
 
+[Index(nameof(Number), IsUnique = true)]
 public class Contract
 {
     [Key]
@@ -14,7 +16,7 @@ public class Contract
     public required ContractType Type { get; set; }
     [Required]
     [Url]
-    public required string DocumentUri { get; set; }
+    public required string DocumentUrl { get; set; }
     [Required]
     [DataType(DataType.Date)]
     public required DateTime StartDate { get; set; }

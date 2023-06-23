@@ -15,6 +15,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly IPositionService _positionService;
     private readonly IVacationService _vacationService;
     private readonly IContractService _contractService;
+    private readonly IFileService _fileService;
     private readonly IUserStore<Employee> _userStore;
     private readonly UserManager<Employee> _userManager;
     private readonly IEmailService _emailService;
@@ -34,6 +35,7 @@ public class UnitOfWork : IUnitOfWork
         _vacationService ??= new VacationService(_context, new VacationRequestValidator(this), vacationLogger);
         _emailService ??= new EmailService(sendGridClient);
         _contractService ??= new ContractService(_context.Contracts, _context.ContractTypes);
+        _fileService ??= new FileService("UseDevelopmentStorage=true");
     }
 
     public IEmployeeService EmployeeService => _employeeService;
@@ -41,6 +43,7 @@ public class UnitOfWork : IUnitOfWork
     public IVacationService VacationService => _vacationService;
     public IEmailService EmailService => _emailService;
     public IContractService ContractService => _contractService;
+    public IFileService FileService => _fileService;
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
