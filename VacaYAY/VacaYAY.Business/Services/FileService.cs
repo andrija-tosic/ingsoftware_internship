@@ -1,8 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace VacaYAY.Business.Services;
 
@@ -27,7 +25,7 @@ public class FileService : IFileService
 
         BlobClient blobClient = containerClient.GetBlobClient(newFileName);
 
-        Azure.Response<BlobContentInfo> response = await blobClient.UploadAsync(file.OpenReadStream(),
+        _ = await blobClient.UploadAsync(file.OpenReadStream(),
             new BlobHttpHeaders
             {
                 ContentType = file.ContentType
@@ -35,6 +33,7 @@ public class FileService : IFileService
 
         return blobClient.Uri;
     }
+
     public async Task<Azure.Response<bool>> DeleteFile(string path)
     {
         Uri uri = new Uri(path);

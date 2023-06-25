@@ -7,13 +7,13 @@ namespace VacaYAY.Data;
 
 public class VacayayDbContext : IdentityDbContext<Employee>
 {
-    public required DbSet<Employee> Employees { get; set; }
-    public required DbSet<Position> Positions { get; set; }
-    public required DbSet<VacationRequest> VacationRequests { get; set; }
-    public required DbSet<VacationReview> VacationReviews { get; set; }
-    public required DbSet<LeaveType> LeaveTypes { get; set; }
-    public required DbSet<ContractType> ContractTypes { get; set; }
-    public required DbSet<Contract> Contracts { get; set; }
+    public DbSet<Employee> Employees { get; set; } = default!;
+    public DbSet<Position> Positions { get; set; } = default!;
+    public DbSet<VacationRequest> VacationRequests { get; set; } = default!;
+    public DbSet<VacationReview> VacationReviews { get; set; } = default!;
+    public DbSet<LeaveType> LeaveTypes { get; set; } = default!;
+    public DbSet<ContractType> ContractTypes { get; set; } = default!;
+    public DbSet<Contract> Contracts { get; set; } = default!;
 
     public VacayayDbContext(DbContextOptions<VacayayDbContext> options) : base(options)
     {

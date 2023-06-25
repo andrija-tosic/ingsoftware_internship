@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -90,11 +91,14 @@ public class RegisterModel : PageModel
         public required int PositionId { get; set; }
 
         [Required]
-        [Display(Name = "Employment start date")]
+        [DisplayName("Employment start date")]
         public required DateTime EmploymentStartDate { get; set; }
-        [Display(Name = "Employment end date")]
+        [DisplayName("Employment end date")]
         public DateTime? EmploymentEndDate { get; set; }
         public ContractDTO ContractDTO { get; set; }
+
+        [Required(ErrorMessage = "Contract document is required.")]
+        public required IFormFile ContractFile { get; set; }
     }
 
     public async Task OnGetAsync(string returnUrl = null)
@@ -123,9 +127,9 @@ public class RegisterModel : PageModel
                 ContractTypeId = InitialData.OpenEndedContractType.Id,
                 EmployeeId = InitialData.AdminEmployee.Id,
                 Number = "000000",
-                StartDate = DateTime.Now.Date,
-                ContractFile = default!
-            }
+                StartDate = DateTime.Now.Date
+            },
+            ContractFile = default!
         };
     }
 
@@ -142,7 +146,7 @@ public class RegisterModel : PageModel
         Positions = await _unitOfWork.PositionService.GetAllAsync();
         ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
 
-        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(Input.ContractDTO.ContractFile);
+        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(Input.ContractFile);
 
         var contract = new Contract()
         {

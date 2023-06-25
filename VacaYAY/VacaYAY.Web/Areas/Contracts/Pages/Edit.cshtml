@@ -1,0 +1,63 @@
+﻿@page
+@using VacaYAY.Data.Models;
+@model VacaYAY.Web.Areas.Contracts.Pages.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Contract</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" enctype="multipart/form-data">
+            @Html.HiddenFor(m => m.ContractDTO.Id)
+            @Html.HiddenFor(m => m.ContractDTO.EmployeeId)
+            <h2>Add contract</h2>
+            <div class="form-floating mb-3">
+                <input asp-for="ContractDTO.Number" class="form-control" aria-required="true" />
+                <label asp-for="ContractDTO.Number">Contract number</label>
+                <span asp-validation-for="ContractDTO.Number" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="ContractDTO.StartDate"
+                       min="@(Model.Contract.Employee.EmploymentStartDate.Date.ToString("yyyy-MM-dd"))"
+                       class="form-control" type="date" aria-required="true" />
+                <label asp-for="Contract.StartDate">Contract start date</label>
+                <span asp-validation-for="Contract.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="ContractDTO.EndDate"
+                       class="form-control" type="date" aria-required="true" />
+                <label asp-for="ContractDTO.EndDate">Contract end date</label>
+                <span asp-validation-for="ContractDTO.EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                @Html.DropDownListFor(m => m.ContractDTO.ContractTypeId, new SelectList(@Model.ContractTypes, nameof(Contract.Type.Id), nameof(Contract.Type.Name)),
+                new {@class="form-control dropdown-toggle"})
+                <label for="Contract type">Contract type</label>
+            </div>
+            <div class="form-floating mb-3">
+                <p asp-for="ContractFile">Contract document</p>
+                <input class="file" asp-for="ContractFile" accept=".pdf,.doc,.docx" type="file" value="Upload file" />
+            </div>
+            <div class="form-floating mb-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+            }

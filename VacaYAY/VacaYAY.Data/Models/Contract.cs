@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace VacaYAY.Data.Models;
@@ -16,10 +17,13 @@ public class Contract
     public required ContractType Type { get; set; }
     [Required]
     [Url]
+    [DisplayName("Contract document")]
     public required string DocumentUrl { get; set; }
     [Required]
     [DataType(DataType.Date)]
+    [DisplayName("Contract start date")]
     public required DateTime StartDate { get; set; }
     [DataType(DataType.Date)]
+    [DisplayName("Contract end date")]
     public DateTime? EndDate { get; set; }
 }

@@ -32,7 +32,7 @@ public class VacationService : IVacationService
             .SingleAsync();
     }
 
-    public async Task<ValidationResult> CreateVacationRequest(VacationRequest vacationRequest)
+    public async Task<ValidationResult> CreateVacationRequestAsync(VacationRequest vacationRequest)
     {
         var validationResult = await _vacationRequestValidator.ValidateAsync(vacationRequest);
 
@@ -120,12 +120,12 @@ public class VacationService : IVacationService
         }
     }
 
-    public async Task<IList<LeaveType>> GetLeaveTypes()
+    public async Task<IList<LeaveType>> GetLeaveTypesAsync()
     {
         return await _context.LeaveTypes.ToListAsync();
     }
 
-    public async Task<LeaveType?> GetLeaveTypeById(int id)
+    public async Task<LeaveType?> GetLeaveTypeByIdAsync(int id)
     {
         return await _context.LeaveTypes.FindAsync(id);
     }

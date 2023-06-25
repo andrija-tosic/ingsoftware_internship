@@ -13,7 +13,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
             _unitOfWork = unitOfWork;
         }
 
-      public Employee Employee { get; set; } = default!; 
+      public required Employee Employee { get; set; } = default!; 
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -23,7 +23,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
             }
 
             var employee = await _unitOfWork.EmployeeService.GetByIdAsync(id);
-            if (employee == null)
+            if (employee is null)
             {
                 return NotFound();
             }

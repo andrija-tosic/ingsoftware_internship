@@ -25,7 +25,8 @@ public class UnitOfWork : IUnitOfWork
         UserManager<Employee> userManager,
         IHttpService httpService,
         ISendGridClient sendGridClient,
-        ILogger<IVacationService> vacationLogger)
+        ILogger<IVacationService> vacationLogger,
+        ILogger<IContractService> contractLogger)
     {
         _context = context;
         _userStore = userStore;
@@ -34,7 +35,7 @@ public class UnitOfWork : IUnitOfWork
         _positionService ??= new PositionService(_context);
         _vacationService ??= new VacationService(_context, new VacationRequestValidator(this), vacationLogger);
         _emailService ??= new EmailService(sendGridClient);
-        _contractService ??= new ContractService(_context.Contracts, _context.ContractTypes);
+        _contractService ??= new ContractService(_context.Contracts, _context.ContractTypes, contractLogger);
         _fileService ??= new FileService("UseDevelopmentStorage=true");
     }
 

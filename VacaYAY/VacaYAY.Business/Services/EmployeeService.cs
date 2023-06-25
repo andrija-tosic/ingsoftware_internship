@@ -55,6 +55,7 @@ public class EmployeeService : IEmployeeService
         return await _context.Employees
             .Where(e => e.Id == id)
             .Include(e => e.Position)
+            .Include(e => e.Contracts).ThenInclude(c => c.Type)
             .SingleAsync();
     }
 
@@ -157,7 +158,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<ValidationResult> CreateFakesAsync(int count)
     {
-        IList<Employee>? employees = await _httpService.Get<IList<Employee>>($"/Employees/{count}");
+        IList<Employee>? employees = await _httpService.GetAsync<IList<Employee>>($"/Employees/{count}");
 
         if (employees is null || employees.Count == 0)
         {

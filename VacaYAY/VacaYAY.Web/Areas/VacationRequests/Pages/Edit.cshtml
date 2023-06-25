@@ -48,13 +48,13 @@
     </div>
     <div class="col-md-4">
         <h4>Vacation request review</h4>
-        <form method="post">
-            @if (Model.VacationRequestDTO.VacationReview.Id == 0 && !Model.IsLoggedInEmployeeAdmin)
-            {
-                <h5>Not reviewed yet</h5>
-            }
-            else
-            {
+        @if (Model.VacationRequestDTO.VacationReview.Id == 0 && !Model.IsLoggedInEmployeeAdmin)
+        {
+            <h5>Not reviewed yet</h5>
+        }
+        else
+        {
+            <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 @Html.HiddenFor(m => m.VacationRequestDTO.VacationReview.Id)
                 <div class="form-floating mb-3">
@@ -93,8 +93,8 @@
                         </div>
                     }
                 }
-            }
-        </form>
+            </form>
+        }
     </div>
 </div>
 
@@ -106,4 +106,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+            }
