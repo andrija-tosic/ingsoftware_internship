@@ -108,29 +108,6 @@ public class RegisterModel : PageModel
 
         Positions = await _unitOfWork.PositionService.GetAllAsync();
         ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
-
-        Input = new()
-        {
-            Address = "adr",
-            FirstName = "FirstName",
-            LastName = "LastName",
-            ConfirmPassword = "password",
-            Password = "password",
-            DaysOffNumber = 20,
-            Email = "a@a",
-            EmploymentStartDate = DateTime.Now.Date,
-            EmploymentEndDate = DateTime.Now.Date.AddDays(7),
-            IdNumber = "00000",
-            PositionId = 1,
-            ContractDTO = new()
-            {
-                ContractTypeId = InitialData.OpenEndedContractType.Id,
-                EmployeeId = InitialData.AdminEmployee.Id,
-                Number = "000000",
-                StartDate = DateTime.Now.Date
-            },
-            ContractFile = default!
-        };
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)

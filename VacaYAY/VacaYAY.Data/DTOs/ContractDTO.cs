@@ -14,8 +14,6 @@ public class ContractDTO
     public required string EmployeeId { get; set; }
     [Required]
     public required int ContractTypeId { get; set; }
-    //[Required(ErrorMessage = "Contract document is required.")]
-    //public IFormFile? ContractFile { get; set; }
     [Required]
     [DataType(DataType.Date)]
     [DisplayName("Contract start date")]

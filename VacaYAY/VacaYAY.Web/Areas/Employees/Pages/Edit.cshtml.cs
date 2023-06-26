@@ -52,10 +52,6 @@ public class EditModel : PageModel
 
         ContractDTO.StartDate = EmployeeDTO.EmploymentStartDate;
 
-        ContractDTO.EndDate = EmployeeDTO.EmploymentStartDate.AddMonths(2) < EmployeeDTO.EmploymentEndDate
-            ? EmployeeDTO.EmploymentStartDate.AddMonths(2)
-            : EmployeeDTO.EmploymentEndDate;
-
         ContractDTO.EmployeeId = employeeFromDb.Id;
 
         return Page();

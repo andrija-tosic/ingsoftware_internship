@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using VacaYAY.Data.Models;
-
-namespace VacaYAY.Data.DTOs;
+﻿namespace VacaYAY.Data.DTOs;
 
 public class EmployeeForDbSeeding
 {
@@ -10,7 +7,6 @@ public class EmployeeForDbSeeding
         EmailConfirmed = true;
         // Password is "password". Example given is pre-hashed value so it doesn't generate a new one on every migration.
         PasswordHash = "AQAAAAIAAYagAAAAELBhGKQIekty8VzCyPnzBK8uFvx5mqUY+L0LNJ0fi616XYT/nVK9DfbIFFIotkyoHQ==";
-        //PasswordHash = new PasswordHasher<Employee>().HashPassword(default!, "password");
         SecurityStamp = string.Empty;
         AccessFailedCount = 0;
         LockoutEnabled = true;

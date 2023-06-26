@@ -11,7 +11,6 @@ public static class EmployeeFaker
             .RuleFor(e => e.LastName, f => f.Person.LastName)
             .RuleFor(e => e.Address, f => f.Address.FullAddress())
             .RuleFor(e => e.Email, f => f.Internet.Email(f.Person.FirstName, f.Person.LastName))
-            //.RuleFor(e => e.PasswordHash, f => f.Hashids.Encode())
             .RuleFor(e => e.IdNumber, f => GenerateRandomIdNumber())
             .RuleFor(e => e.DaysOffNumber, f => f.Random.Int(0, int.MaxValue))
             .RuleFor(e => e.Position, f => positions[f.Random.Int(0, positions.Count - 1)])
