@@ -39,7 +39,7 @@ public class EditModel : PageModel
             return Unauthorized();
         }
 
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
         var vacationRequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
         if (vacationRequest is null)
@@ -111,9 +111,9 @@ Updated request:
 
         IsLoggedInEmployeeAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
 
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
-        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeById(VacationRequestDTO.LeaveType.Id);
+        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeByIdAsync(VacationRequestDTO.LeaveType.Id);
 
         if (leaveType is null)
         {

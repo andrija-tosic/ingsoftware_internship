@@ -46,7 +46,8 @@ public class IndexModel : PageModel
         await _unitOfWork.EmployeeService.CreateFakesAsync(NumberOfFakeEmployeesToGenerate);
         await _unitOfWork.SaveChangesAsync();
 
-        Employees = (IList<Employee>)await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
+        Positions = await _unitOfWork.PositionService.GetAllAsync();
 
         return Page();
     }

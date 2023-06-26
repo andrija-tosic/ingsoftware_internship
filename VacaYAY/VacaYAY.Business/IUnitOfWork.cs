@@ -8,5 +8,7 @@ public interface IUnitOfWork
     public IPositionService PositionService { get; }
     public IVacationService VacationService { get; }
     public IEmailService EmailService { get; }
+    public IContractService ContractService { get; }
+    public IFileService FileService { get; }
     public Task<int> SaveChangesAsync();
 }

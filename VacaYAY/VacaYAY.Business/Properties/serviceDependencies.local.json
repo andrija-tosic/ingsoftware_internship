@@ -1,13 +1,5 @@
 {
   "dependencies": {
-    "mssql1": {
-      "type": "mssql.local",
-      "connectionId": "ConnectionStrings:VacaYAYWebContextConnection"
-    },
-    "mssql2": {
-      "type": "mssql.local",
-      "connectionId": "ConnectionStrings:VacaYAYWebContext"
-    },
     "secrets1": {
       "type": "secrets.user"
     },

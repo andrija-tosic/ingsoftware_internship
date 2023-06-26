@@ -7,11 +7,14 @@ namespace VacaYAY.Data;
 
 public class VacayayDbContext : IdentityDbContext<Employee>
 {
-    public required DbSet<Employee> Employees { get; set; }
-    public required DbSet<Position> Positions { get; set; }
-    public required DbSet<VacationRequest> VacationRequests { get; set; }
-    public required DbSet<VacationReview> VacationReviews { get; set; }
-    public required DbSet<LeaveType> LeaveTypes { get; set; }
+    public DbSet<Employee> Employees { get; set; } = default!;
+    public DbSet<Position> Positions { get; set; } = default!;
+    public DbSet<VacationRequest> VacationRequests { get; set; } = default!;
+    public DbSet<VacationReview> VacationReviews { get; set; } = default!;
+    public DbSet<LeaveType> LeaveTypes { get; set; } = default!;
+    public DbSet<ContractType> ContractTypes { get; set; } = default!;
+    public DbSet<Contract> Contracts { get; set; } = default!;
+
     public VacayayDbContext(DbContextOptions<VacayayDbContext> options) : base(options)
     {
     }
@@ -23,6 +26,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
         modelBuilder.Entity<Employee>().HasQueryFilter(e => e.DeleteDate == null);
         modelBuilder.Entity<VacationRequest>().HasQueryFilter(r => r.Employee.DeleteDate == null);
         modelBuilder.Entity<VacationReview>().HasQueryFilter(r => r.VacationRequest.Employee.DeleteDate == null);
+        modelBuilder.Entity<Contract>().HasQueryFilter(c => c.Employee.DeleteDate == null);
 
         modelBuilder.Entity<VacationRequest>()
             .HasOne(r => r.VacationReview)
@@ -39,7 +43,7 @@ public class VacayayDbContext : IdentityDbContext<Employee>
         base.OnConfiguring(optionsBuilder);
 
         optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.UseValidationCheckConstraints();
+        optionsBuilder.UseValidationCheckConstraints(opts => opts.UseRegex(false));
     }
 
     public static void SeedInitialData(ModelBuilder modelBuilder)
@@ -65,5 +69,8 @@ public class VacayayDbContext : IdentityDbContext<Employee>
             }));
 
         modelBuilder.Entity<LeaveType>().HasData(InitialData.LeaveTypes);
+
+        modelBuilder.Entity<ContractType>().HasData(InitialData.ContractTypes);
+        modelBuilder.Entity<Contract>().HasData(InitialData.Contracts);
     }
 }

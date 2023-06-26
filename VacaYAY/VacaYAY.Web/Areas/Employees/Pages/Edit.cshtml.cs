@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using VacaYAY.Business;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
@@ -20,13 +22,21 @@ public class EditModel : PageModel
         _unitOfWork = unitOfWork;
     }
 
-    [BindProperty]
+    [BindProperty(SupportsGet = true)]
     public EmployeeDTO EmployeeDTO { get; set; } = default!;
-    public IEnumerable<Position> Positions { get; set; } = default!;
+
+    [BindProperty(SupportsGet = true)]
+    public ContractDTO ContractDTO { get; set; } = default!;
+    [BindProperty]
+    [Required(ErrorMessage = "Contract document is required.")]
+    public required IFormFile ContractFile { get; set; }
+    public IList<ContractType> ContractTypes { get; set; } = default!;
+    public IList<Position> Positions { get; set; } = default!;
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
         Positions = await _unitOfWork.PositionService.GetAllAsync();
+        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
 
         if (id is null)
         {
@@ -39,16 +49,16 @@ public class EditModel : PageModel
             return NotFound();
         }
         EmployeeDTO = employeeFromDb;
+
+        ContractDTO.StartDate = EmployeeDTO.EmploymentStartDate;
+
+        ContractDTO.EmployeeId = employeeFromDb.Id;
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
-
         var employeeFromDb = await _unitOfWork.EmployeeService.GetByIdAsync(EmployeeDTO.Id);
 
         if (employeeFromDb is null)
@@ -72,6 +82,7 @@ public class EditModel : PageModel
         if (!validationResult.IsValid)
         {
             ModelState.Clear();
+
             foreach (var error in validationResult.Errors)
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
@@ -84,5 +95,48 @@ public class EditModel : PageModel
 
         await _unitOfWork.SaveChangesAsync();
         return RedirectToPage("./Index");
+    }
+
+    public async Task<IActionResult> OnPostAddContractAsync()
+    {
+        var employee = await _unitOfWork.EmployeeService.GetByIdAsync(ContractDTO.EmployeeId);
+        if (employee is null)
+        {
+            return Unauthorized();
+        }
+
+        ContractDTO.EmployeeId = employee.Id;
+
+        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+
+        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(ContractFile);
+
+        var contract = new Contract()
+        {
+            Employee = employee,
+            Number = ContractDTO.Number,
+            StartDate = ContractDTO.StartDate,
+            EndDate = ContractDTO.EndDate,
+            Type = ContractTypes.Single(ct => ct.Id == ContractDTO.ContractTypeId),
+            DocumentUrl = contractFileUrl.ToString()
+        };
+
+        var contractValidationResult = _unitOfWork.ContractService.CreateContract(contract);
+
+        if (!contractValidationResult.IsValid)
+        {
+            ModelState.Clear();
+            foreach (var error in contractValidationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+
+            return Page();
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction("Index", nameof(Contracts));
     }
 }
