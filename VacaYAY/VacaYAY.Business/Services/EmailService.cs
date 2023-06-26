@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Microsoft.AspNetCore.StaticFiles;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -13,13 +14,15 @@ public class EmailService : IEmailService
         _sendGridClient = sendGridClient;
     }
 
-    public void EnqueueEmail(string email, string subject, string htmlMessage)
+    public void EnqueueEmail(string email, string subject, string htmlMessage, byte[]? attachment,
+        string? attachmentName = null)
     {
-        BackgroundJob.Enqueue(() => SendEmail(email, subject, htmlMessage));
+        BackgroundJob.Enqueue(() => SendEmail(email, subject, htmlMessage, attachment, attachmentName));
     }
 
     [AutomaticRetry(Attempts = int.MaxValue, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
-    public async Task SendEmail(string email, string subject, string htmlMessage)
+    public async Task SendEmail(string email, string subject, string htmlMessage, byte[]? attachment,
+        string? attachmentName)
     {
         var message = new SendGridMessage
         {
@@ -28,6 +31,14 @@ public class EmailService : IEmailService
             PlainTextContent = htmlMessage,
             HtmlContent = $"<pre>{htmlMessage}</pre>"
         };
+
+        if (!string.IsNullOrWhiteSpace(attachmentName) && attachment is not null)
+        {
+            string? contentType;
+            new FileExtensionContentTypeProvider().TryGetContentType(attachmentName, out contentType);
+
+            message.AddAttachment(attachmentName, Convert.ToBase64String(attachment), contentType);
+        }
 
         message.AddTo(new EmailAddress(email));
 

@@ -41,7 +41,7 @@
             <div class="form-floating mb-3">
                 <input type="date" asp-for="VacationRequest.StartDate"
                        class="form-control"
-                       min="@DateTime.Now.Date.ToString("yyyy-MM-dd")"
+                       min="@DateTime.Now.Date.AddDays(1).ToString("yyyy-MM-dd")"
                        readonly="@(Model.VacationRequest.Employee.DaysOffNumber == 0)" />
                 <label for="VacationRequest.StartDate">Start date</label>
                 <span asp-validation-for="VacationRequest.StartDate" class="text-danger"></span>
@@ -49,7 +49,7 @@
             <div class="form-floating mb-3">
                 <input type="date" asp-for="VacationRequest.EndDate"
                        class="form-control"
-                       min="@DateTime.Now.Date.AddDays(1).ToString("yyyy-MM-dd")"
+                       min="@DateTime.Now.Date.AddDays(2).ToString("yyyy-MM-dd")"
                        readonly="@(Model.VacationRequest.Employee.DaysOffNumber == 0)" />
                 <label for="VacationRequest.EndDate">End date</label>
                 <span asp-validation-for="VacationRequest.EndDate" class="text-danger"></span>
