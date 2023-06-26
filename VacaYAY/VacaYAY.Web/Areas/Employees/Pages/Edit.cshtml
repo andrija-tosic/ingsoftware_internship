@@ -9,10 +9,9 @@
 
 <h1>Edit</h1>
 
-<h4>Employee</h4>
-<hr />
-<div class="row">
+<div class="row justify-content-between">
     <div class="col-md-4">
+        <h4>Employee</h4>
         <form method="post">
             <input type="hidden" asp-for="EmployeeDTO.Id" />
             <div class="form-floating mb-3">
@@ -63,6 +62,45 @@
             </div>
             <div class="form-floating mb-3">
                 <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <form method="post" enctype="multipart/form-data">
+            @Html.HiddenFor(m => m.ContractDTO.Id)
+            @Html.HiddenFor(m => m.ContractDTO.EmployeeId)
+            <h2>Add contract</h2>
+            <div class="form-floating mb-3">
+                <input asp-for="ContractDTO.Number" class="form-control" aria-required="true" />
+                <label asp-for="ContractDTO.Number">Contract number</label>
+                <span asp-validation-for="ContractDTO.Number" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="ContractDTO.StartDate" 
+                min="@(Model.EmployeeDTO.EmploymentStartDate.Date.ToString("yyyy-MM-dd"))"
+                class="form-control" type="date" aria-required="true" />
+                <label asp-for="ContractDTO.StartDate">Contract start date</label>
+                <span asp-validation-for="ContractDTO.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="ContractDTO.EndDate"
+                class="form-control" type="date" aria-required="true" />
+                <label asp-for="ContractDTO.EndDate">Contract end date</label>
+                <span asp-validation-for="ContractDTO.EndDate" class="text-danger"></span>
+            </div>  
+            <div class="form-floating mb-3">
+                @Html.DropDownListFor(m => m.ContractDTO.ContractTypeId, new SelectList(@Model.ContractTypes, nameof(Contract.Type.Id), nameof(Contract.Type.Name)),
+                new {@class="form-control dropdown-toggle"})
+                <label for="Contract type">Contract type</label>
+            </div>
+            <div class="form-floating mb-3">
+                <p asp-for="ContractFile">Contract document</p>
+                <input class="file" asp-for="ContractFile" accept=".pdf,.doc,.docx" type="file" value="Upload file" />
+            </div>
+            <div class="form-floating mb-3">
+                <input type="submit" asp-page-handler="AddContract" value="Save" class="btn btn-primary" />
             </div>
             <div asp-validation-summary="All" class="text-danger"></div>
         </form>

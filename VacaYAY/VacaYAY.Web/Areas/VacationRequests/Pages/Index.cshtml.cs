@@ -23,7 +23,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
         Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
@@ -40,7 +40,7 @@ public class IndexModel : PageModel
 
     public async Task<ActionResult> OnPostSearchAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
         Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 

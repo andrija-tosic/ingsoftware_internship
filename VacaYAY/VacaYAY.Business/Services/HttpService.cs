@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace VacaYAY.Business.Services;
@@ -16,7 +17,7 @@ public class HttpService : IHttpService
         _httpClient = httpClientFactory.CreateClient(nameof(IHttpService));
     }
 
-    public async Task<T?> Get<T>(string requestUri)
+    public async Task<T?> GetAsync<T>(string requestUri)
     {
         HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
 
@@ -36,5 +37,23 @@ public class HttpService : IHttpService
         T? items = _jsonParser.Deserialize<T>(responseJson);
 
         return items;
+    }
+
+    public async Task<IFormFile?> GetFormFileAsync(string requestUri)
+    {
+        Uri uri = new Uri(requestUri);
+        string fileName = uri.Segments.Last();
+
+        HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError(requestUri, response.StatusCode, response.ReasonPhrase);
+            return default;
+        }
+
+        var stream = await response.Content.ReadAsStreamAsync();
+
+        return new FormFile(stream, 0, stream.Length, default!, fileName);
     }
 }

@@ -17,7 +17,7 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
         Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
@@ -48,9 +48,9 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypes();
+        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
-        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeById(LeaveTypeId);
+        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeByIdAsync(LeaveTypeId);
 
         if (leaveType is null)
         {
@@ -67,7 +67,7 @@ public class CreateModel : PageModel
         }
 
         VacationRequest.Employee = loggedInEmployee;
-        var requestValidationResult = await _unitOfWork.VacationService.CreateVacationRequest(VacationRequest);
+        var requestValidationResult = await _unitOfWork.VacationService.CreateVacationRequestAsync(VacationRequest);
 
         ModelState.Clear();
         if (!requestValidationResult.IsValid)

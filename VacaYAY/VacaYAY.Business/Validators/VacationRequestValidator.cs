@@ -55,7 +55,6 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
             return newRequest.Employee.DaysOffNumber - usedDays >= 0;
         }).WithMessage(v => $"Employee {v.Employee.FirstName} {v.Employee.LastName} has only {v.Employee.DaysOffNumber} days off left.");
 
-        //RuleFor(v => v.Comment).NotEmpty();
         RuleFor(v => v.Employee).NotNull();
 
         RuleFor(v => v).MustAsync(async (newRequest, cancellation) =>
