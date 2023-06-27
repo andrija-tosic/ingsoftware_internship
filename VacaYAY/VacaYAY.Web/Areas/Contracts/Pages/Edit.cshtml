@@ -16,7 +16,6 @@
         <form method="post" enctype="multipart/form-data">
             @Html.HiddenFor(m => m.ContractDTO.Id)
             @Html.HiddenFor(m => m.ContractDTO.EmployeeId)
-            <h2>Add contract</h2>
             <div class="form-floating mb-3">
                 <input asp-for="ContractDTO.Number" class="form-control" aria-required="true" />
                 <label asp-for="ContractDTO.Number">Contract number</label>

@@ -159,4 +159,23 @@ public class VacationService : IVacationService
             .Include(v => v.VacationRequest).ThenInclude(vr => vr.Employee)
             .SingleAsync();
     }
+
+    public PdfDocument GenerateVacationReportPdf(VacationReview vacationReview)
+    {
+        var document = new HtmlToPdf();
+
+        string htmlContent = $@"
+            <h1>Vacation Report</h1>
+            <p><strong>Employee:</strong> {vacationReview.VacationRequest.Employee.FirstName} {vacationReview.VacationRequest.Employee.LastName}</p>
+            <p><strong>Period:</strong> {vacationReview.VacationRequest.StartDate.ToShortDateString()} - {vacationReview.VacationRequest.EndDate.ToShortDateString()}</p>
+            <p><strong>Comment:</strong> {vacationReview.VacationRequest.Comment}</p>
+            <p><strong>Leave Type:</strong> {vacationReview.VacationRequest.LeaveType.Name}</p>
+            <p><strong>Remaining Days Off:</strong> {vacationReview.VacationRequest.Employee.DaysOffNumber}</p>
+            <p><strong>Approved by:</strong> {vacationReview.Reviewer.FirstName} {vacationReview.Reviewer.LastName}</p>
+        ";
+
+        PdfDocument pdf = document.RenderHtmlAsPdf(htmlContent);
+
+        return pdf;
+    }
 }

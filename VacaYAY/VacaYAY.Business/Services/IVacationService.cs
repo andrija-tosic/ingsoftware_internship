@@ -17,4 +17,5 @@ public interface IVacationService
     void UpdateVacationReview(VacationReview vacationRequestReview);
     Task DeleteVacationReviewAsync(int id);
     Task<VacationReview?> GetVacationReviewByIdAsync(int id);
+    PdfDocument GenerateVacationReportPdf(VacationReview vacationReview);
 }

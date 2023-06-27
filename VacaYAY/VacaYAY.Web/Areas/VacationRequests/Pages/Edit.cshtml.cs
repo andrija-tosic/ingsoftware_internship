@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IronPdf;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
 using VacaYAY.Business.Validators;
@@ -235,6 +236,8 @@ Go to details page
                 vacationRequestFromDb.Employee.DaysOffNumber -= (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
 
                 await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+
+                GenerateAndSendVacationReportEmail(newVacationreview);
             }
 
             _unitOfWork.VacationService.CreateVacationReview(newVacationreview);
@@ -268,6 +271,8 @@ Go to details page
             {
                 vacationRequestFromDb.Employee.DaysOffNumber -= (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
                 await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+
+                GenerateAndSendVacationReportEmail(vacationReviewFromDb);
             }
             else if (reviewBecameRejected)
             {
@@ -344,5 +349,27 @@ Go to details page
         _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
+    }
+
+    private void GenerateAndSendVacationReportEmail(VacationReview vacationReview)
+    {
+        PdfDocument vacationReportPdf = _unitOfWork.VacationService.GenerateVacationReportPdf(vacationReview);
+
+        string pdfName = $"{vacationReview.VacationRequest.Employee.FirstName}" +
+            $"-" +
+            $"{vacationReview.VacationRequest.Employee.LastName}" +
+            $"-" +
+            $"{vacationReview.VacationRequest.StartDate.Date.ToShortDateString()}" +
+            $"-" +
+            $"{vacationReview.VacationRequest.EndDate.Date.ToShortDateString()}" +
+            $".pdf";
+
+        byte[] pdfData = vacationReportPdf.BinaryData;
+
+        _unitOfWork.EmailService.EnqueueEmail(vacationReview.VacationRequest.Employee.Email!,
+            $"Vacation report for approved vacation request from {vacationReview.VacationRequest.Employee.FirstName} {vacationReview.VacationRequest.Employee.LastName}",
+            "",
+            pdfData,
+            pdfName);
     }
 }
