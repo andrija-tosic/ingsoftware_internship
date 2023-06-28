@@ -61,13 +61,16 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
         {
             IList<VacationRequest> otherRequests = (await _unitOfWork.VacationService.SearchVacationRequestsAsync(
                 newRequest.Employee.Id, false, new VacationRequestSearchFilters()))
-                .Where(req => newRequest.Id != req.Id).ToList();
+                .Where(req => newRequest.Id != req.Id)
+                .Where(req => req.VacationReview == null || req.VacationReview.Approved)
+                .ToList();
 
             return otherRequests.All(req =>
             {
                 return
                 (newRequest.StartDate < req.StartDate && newRequest.EndDate < req.StartDate)
              || (newRequest.StartDate > req.EndDate && newRequest.EndDate > req.EndDate);
+
             });
         }).WithMessage("Vacation dates overlap with an existing vacation request.");
     }
