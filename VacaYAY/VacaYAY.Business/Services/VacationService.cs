@@ -181,8 +181,8 @@ public class VacationService : IVacationService
     public async Task<int> GetPotentiallyUsedDaysAsync(string employeeId)
     {
         return await _context.VacationRequests
-            .Where(v => v.VacationReview == null)
-            .Where(v => v.Employee.Id == employeeId)
+            .Where(v => v.VacationReview == null
+                     && v.Employee.Id == employeeId)
             .SumAsync(v => EF.Functions.DateDiffDay(v.StartDate, v.EndDate));
     }
 }
