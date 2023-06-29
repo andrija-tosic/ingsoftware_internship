@@ -18,4 +18,6 @@ public interface IEmployeeService
     Task<ValidationResult> CreateFakesAsync(int count);
     Task<bool> IsInRoleAsync(Employee employee, string role);
     Task<IList<Employee>> GetByPositions(int[] positions);
+    Task<(IList<Employee>, IList<Employee>)> GetEmployeesWithRemainingVacationDaysAndAdmins();
+    Task AddDaysToAllEmployees(int days);
 }
