@@ -15,9 +15,19 @@ public class CreateModel : PageModel
         _unitOfWork = unitOfWork;
     }
 
+    [BindProperty]
+    public VacationRequest VacationRequest { get; set; } = default!;
+
+    public IList<LeaveType> LeaveTypes { get; set; } = default!;
+
+    [BindProperty]
+    public int LeaveTypeId { get; set; } = default;
+    public int PotentialDaysOff { get; set; } = default;
+
     public async Task<IActionResult> OnGetAsync()
     {
         LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
+
 
         Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
 
@@ -25,6 +35,10 @@ public class CreateModel : PageModel
         {
             return Unauthorized();
         }
+
+        int potentiallyUsedDays = await _unitOfWork.VacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
+
+        PotentialDaysOff = loggedInEmployee.DaysOffNumber - potentiallyUsedDays;
 
         VacationRequest = new()
         {
@@ -37,14 +51,6 @@ public class CreateModel : PageModel
 
         return Page();
     }
-
-    [BindProperty]
-    public VacationRequest VacationRequest { get; set; } = default!;
-
-    public IList<LeaveType> LeaveTypes { get; set; } = default!;
-
-    [BindProperty]
-    public int LeaveTypeId { get; set; } = default;
 
     public async Task<IActionResult> OnPostAsync()
     {
@@ -65,6 +71,10 @@ public class CreateModel : PageModel
         {
             return NotFound();
         }
+
+        int potentiallyUsedDays = await _unitOfWork.VacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
+
+        PotentialDaysOff = loggedInEmployee.DaysOffNumber - potentiallyUsedDays;
 
         VacationRequest.Employee = loggedInEmployee;
         var requestValidationResult = await _unitOfWork.VacationService.CreateVacationRequestAsync(VacationRequest);

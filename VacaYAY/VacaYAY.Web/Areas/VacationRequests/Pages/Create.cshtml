@@ -14,11 +14,11 @@
     <div class="col-md-4">
         <form method="post">
             <div class="form-floating mb-3">
-                <b>&#9432;</b> You have <b>@(Model.VacationRequest.Employee.DaysOffNumber)</b> days off left
+                <b>&#9432;</b> You have <b>@(Model.PotentialDaysOff)</b> days off left
             </div>
             <div class="form-floating mb-3">
                 @Html.DropDownListFor(m => m.LeaveTypeId, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)),
-                Model.VacationRequest.Employee.DaysOffNumber == 0
+                Model.PotentialDaysOff == 0
                 ? new {
                 @class="form-control dropdown-toggle",
                 @disabled="disabled"
@@ -34,7 +34,7 @@
             <div class="form-floating mb-3">
                 <textarea asp-for="VacationRequest.Comment"
                           class="form-control"
-                          readonly="@(Model.VacationRequest.Employee.DaysOffNumber == 0)"></textarea>
+                          readonly="@(Model.PotentialDaysOff == 0)"></textarea>
                 <label asp-for="VacationRequest.Comment"></label>
                 <span asp-validation-for="VacationRequest.Comment" class="text-danger"></span>
             </div>
@@ -42,7 +42,7 @@
                 <input type="date" asp-for="VacationRequest.StartDate"
                        class="form-control"
                        min="@DateTime.Now.Date.AddDays(1).ToString("yyyy-MM-dd")"
-                       readonly="@(Model.VacationRequest.Employee.DaysOffNumber == 0)" />
+                       readonly="@(Model.PotentialDaysOff == 0)" />
                 <label for="VacationRequest.StartDate">Start date</label>
                 <span asp-validation-for="VacationRequest.StartDate" class="text-danger"></span>
             </div>
@@ -50,13 +50,13 @@
                 <input type="date" asp-for="VacationRequest.EndDate"
                        class="form-control"
                        min="@DateTime.Now.Date.AddDays(2).ToString("yyyy-MM-dd")"
-                       readonly="@(Model.VacationRequest.Employee.DaysOffNumber == 0)" />
+                       readonly="@(Model.PotentialDaysOff == 0)" />
                 <label for="VacationRequest.EndDate">End date</label>
                 <span asp-validation-for="VacationRequest.EndDate" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input type="submit" asp-page-handler="Save" class="btn btn-primary"
-                       disabled="@(Model.VacationRequest.Employee.DaysOffNumber == 0)" />
+                       disabled="@(Model.PotentialDaysOff == 0)" />
             </div>
             <div asp-validation-summary="All" class="text-danger"></div>
         </form>
