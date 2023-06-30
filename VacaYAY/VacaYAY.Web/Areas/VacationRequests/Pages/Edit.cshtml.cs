@@ -64,7 +64,8 @@ public class EditModel : PageModel
                 Comment = string.Empty,
                 Reviewer = default!,
                 VacationRequestRefId = vacationRequest.Id,
-                VacationRequest = vacationRequest
+                VacationRequest = vacationRequest,
+                LastYearsDaysTakenOffNumber = 0
             },
             StartDate = vacationRequest.StartDate,
             EndDate = vacationRequest.EndDate,
@@ -146,7 +147,8 @@ Updated request:
                 Approved = false,
                 Comment = string.Empty,
                 Reviewer = default!,
-                VacationRequest = default!
+                VacationRequest = default!,
+                LastYearsDaysTakenOffNumber = 0
             };
 
             return Page();
@@ -183,7 +185,8 @@ Go to details page
                 Approved = false,
                 Comment = string.Empty,
                 Reviewer = default!,
-                VacationRequest = default!
+                VacationRequest = default!,
+                LastYearsDaysTakenOffNumber = 0
             };
 
             return Page();

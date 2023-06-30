@@ -24,6 +24,7 @@ public class EmployeeForDbSeeding
     public required string Address { get; init; }
     public required string IdNumber { get; init; }
     public required int DaysOffNumber { get; init; }
+    public required int LastYearsDaysOffNumber { get; init; }
     public required DateTime EmploymentStartDate { get; init; }
     public required DateTime? EmploymentEndDate { get; init; }
     public required DateTime InsertDate { get; init; }

@@ -62,7 +62,8 @@ public static class InitialData
         LastName = "Outlook",
         IdNumber = "12345",
         InsertDate = ExampleDate,
-        PositionId = AdminPosition.Id
+        PositionId = AdminPosition.Id,
+        LastYearsDaysOffNumber = 0
     };
 
     public static EmployeeForDbSeeding[] Employees { get; } = new EmployeeForDbSeeding[]
@@ -83,7 +84,8 @@ public static class InitialData
             LastName = "Tošić",
             IdNumber = "10000",
             InsertDate = ExampleDate,
-            PositionId = Positions[3].Id
+            PositionId = Positions[3].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -100,7 +102,8 @@ public static class InitialData
             LastName = "Potočar",
             IdNumber = "10001",
             InsertDate = ExampleDate,
-            PositionId = Positions[4].Id
+            PositionId = Positions[4].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -117,7 +120,8 @@ public static class InitialData
             LastName = "F",
             IdNumber = "10002",
             InsertDate = ExampleDate,
-            PositionId = Positions[2].Id
+            PositionId = Positions[2].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -135,6 +139,7 @@ public static class InitialData
             IdNumber = "10003",
             InsertDate = ExampleDate,
             PositionId = Positions[1].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -152,6 +157,7 @@ public static class InitialData
             IdNumber = "10004",
             InsertDate = ExampleDate,
             PositionId = Positions[4].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -169,6 +175,7 @@ public static class InitialData
             IdNumber = "10005",
             InsertDate = ExampleDate,
             PositionId = Positions[3].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -186,6 +193,7 @@ public static class InitialData
             IdNumber = "10006",
             InsertDate = ExampleDate,
             PositionId = Positions[1].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -203,6 +211,7 @@ public static class InitialData
             IdNumber = "10007",
             InsertDate = ExampleDate,
             PositionId = Positions[2].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -220,6 +229,7 @@ public static class InitialData
             IdNumber = "10008",
             InsertDate = ExampleDate,
             PositionId = Positions[3].Id,
+            LastYearsDaysOffNumber = 0
         },
         new EmployeeForDbSeeding
         {
@@ -237,6 +247,7 @@ public static class InitialData
             IdNumber = "10009",
             InsertDate = ExampleDate,
             PositionId = Positions[3].Id,
+            LastYearsDaysOffNumber = 0
         },
     };
 
@@ -344,4 +355,6 @@ public static class InitialData
             EndDate = ExampleDate.AddMonths(2)
         }
     };
+
+    public const int YearlyVacationAddedDaysNumber = 22;
 }

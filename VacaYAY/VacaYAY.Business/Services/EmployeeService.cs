@@ -99,6 +99,10 @@ public class EmployeeService : IEmployeeService
         {
             await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
         }
+        else
+        {
+            await _userManager.RemoveFromRoleAsync(employee, InitialData.AdminRoleName);
+        }
 
         IdentityResult result = await _userManager.UpdateAsync(employee);
 
@@ -190,5 +194,34 @@ public class EmployeeService : IEmployeeService
             .Include(e => e.Position)
             .Where(e => positions.Contains(e.Position.Id))
             .ToListAsync();
+    }
+
+    public async Task<(IList<Employee>, IList<Employee>)> GetEmployeesWithRemainingVacationDaysAndAdmins()
+    {
+        var allEmployees = await _context.Employees
+            .Include(e => e.Position)
+            .Where(e => e.DaysOffNumber > 0 || e.Position.Id == InitialData.AdminPosition.Id)
+            .ToListAsync();
+
+        var lookupEmployees = allEmployees.ToLookup(e => e.Position.Id == InitialData.AdminPosition.Id);
+        var admins = lookupEmployees[true].ToList();
+        var regulars = lookupEmployees[false].ToList();
+
+        return (regulars, admins);
+    }
+
+    public async Task AddDaysToAllEmployees(int days)
+    {
+        await _context.Employees.ExecuteUpdateAsync(setters => setters
+            .SetProperty(e => e.LastYearsDaysOffNumber, e => e.LastYearsDaysOffNumber + e.DaysOffNumber)
+            .SetProperty(e => e.DaysOffNumber, days)
+        );
+    }
+
+    public async Task RemoveLastYearsDaysOffFromAllEmployees()
+    {
+        await _context.Employees.ExecuteUpdateAsync(setters => setters
+            .SetProperty(e => e.LastYearsDaysOffNumber, 0)
+        );
     }
 }

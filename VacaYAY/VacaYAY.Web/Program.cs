@@ -8,6 +8,7 @@ using VacaYAY.Business.Services;
 using SendGrid;
 using Hangfire;
 using Microsoft.Extensions.Azure;
+using VacaYAY.Business.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,6 +106,22 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapHangfireDashboard();
+
+RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_CheckRemainingVacationDays_April",
+    x => x.YearlyEnqueueEmailsForRemainingVacationDays(),
+    Cron.Yearly(4, 30));
+
+RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_CheckRemainingVacationDays_June",
+    x => x.YearlyEnqueueEmailsForRemainingVacationDays(),
+    Cron.Yearly(6, 30));
+
+RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_RemoveLastYearsDaysOffFromAllEmployees_June",
+    x => x.YearlyRemoveLastYearsDaysOff(),
+    Cron.Yearly(6, 30));
+
+RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_AddDaysToAllEmployees_January",
+    x => x.YearlyAddDaysToAllEmployees(InitialData.YearlyVacationAddedDaysNumber),
+    Cron.Yearly(1, 1));
 
 app.MapRazorPages();
 
