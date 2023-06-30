@@ -25,6 +25,9 @@ public class Employee : IdentityUser
     [Required, Range(0, int.MaxValue)]
     [DisplayName("Number of days off")]
     public required int DaysOffNumber { get; set; }
+    [Required, Range(0, int.MaxValue)]
+    [DisplayName("Number of last year's days off")]
+    public required int LastYearsDaysOffNumber { get; set; }
     [Required]
     [DisplayName("Position")]
     public required Position Position { get; set; }

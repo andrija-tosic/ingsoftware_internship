@@ -15,7 +15,8 @@ public class VacationReview
     public required bool Approved { get; set; }
     [Required]
     public required Employee Reviewer { get; set; }
-
+    [Required]
+    public required int LastYearsDaysTakenOffNumber { get; set; }
     public override string? ToString()
     {
         return 

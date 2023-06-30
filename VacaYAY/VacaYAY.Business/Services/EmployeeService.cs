@@ -217,4 +217,11 @@ public class EmployeeService : IEmployeeService
             .SetProperty(e => e.DaysOffNumber, days)
         );
     }
+
+    public async Task RemoveLastYearsDaysOffFromAllEmployees()
+    {
+        await _context.Employees.ExecuteUpdateAsync(setters => setters
+            .SetProperty(e => e.LastYearsDaysOffNumber, 0)
+        );
+    }
 }

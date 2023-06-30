@@ -156,6 +156,7 @@ public class RegisterModel : PageModel
                 Email = Input.Email,
                 Address = Input.Address,
                 DaysOffNumber = Input.DaysOffNumber,
+                LastYearsDaysOffNumber = 0,
                 EmploymentStartDate = Input.EmploymentStartDate,
                 EmploymentEndDate = Input.EmploymentEndDate,
                 FirstName = Input.FirstName,

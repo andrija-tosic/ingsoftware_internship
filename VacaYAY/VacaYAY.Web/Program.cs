@@ -115,10 +115,13 @@ RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_CheckRemainingVa
     x => x.YearlyEnqueueEmailsForRemainingVacationDays(),
     Cron.Yearly(6, 30));
 
+RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_RemoveLastYearsDaysOffFromAllEmployees_June",
+    x => x.YearlyRemoveLastYearsDaysOff(),
+    Cron.Yearly(6, 30));
+
 RecurringJob.AddOrUpdate<VacationJobs>($"{nameof(VacationJobs)}_AddDaysToAllEmployees_January",
     x => x.YearlyAddDaysToAllEmployees(InitialData.YearlyVacationAddedDaysNumber),
     Cron.Yearly(1, 1));
-
 
 app.MapRazorPages();
 

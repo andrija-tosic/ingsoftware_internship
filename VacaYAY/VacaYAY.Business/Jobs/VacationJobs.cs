@@ -42,4 +42,9 @@ public class VacationJobs
     {
         await _unitOfWork.EmployeeService.AddDaysToAllEmployees(days);
     }
+
+    public async Task YearlyRemoveLastYearsDaysOff()
+    {
+        await _unitOfWork.EmployeeService.RemoveLastYearsDaysOffFromAllEmployees();
+    }
 }
