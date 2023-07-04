@@ -20,10 +20,9 @@ public class EditModel : PageModel
 
     [BindProperty]
     public VacationRequestDTO VacationRequestDTO { get; set; } = default!;
-
     public IList<LeaveType> LeaveTypes { get; set; } = default!;
     public bool IsSameEmployeeAsLoggedInOne = false;
-    public bool IsLoggedInEmployeeAdmin = false;
+    public bool IsLoggedInEmployeeAdmin => User.IsInRole(InitialData.AdminRoleName);
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
@@ -47,10 +46,7 @@ public class EditModel : PageModel
             return NotFound();
         }
 
-        TempData["vacationRequestId"] = vacationRequest.Id;
-
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequest.Employee.Id;
-        IsLoggedInEmployeeAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
 
         VacationRequestDTO = new()
         {
@@ -94,10 +90,16 @@ Updated request:
 {VacationRequestDTO}
 ";
 
-        var vacationRequestValidator = new VacationRequestValidator(_unitOfWork);
-
         int previousDays = (vacationRequestFromDb.EndDate.Date - vacationRequestFromDb.StartDate.Date).Days;
-        int newDays = (VacationRequestDTO.EndDate.Date - VacationRequestDTO.StartDate.Date).Days;
+
+        // Since vacation review gets deleted when vacation request is updated, if it was approved, return the taken days to the employee.
+        if (vacationRequestFromDb.VacationReview is not null && vacationRequestFromDb.VacationReview.Approved)
+        {
+            vacationRequestFromDb.Employee.LastYearsDaysOffNumber += vacationRequestFromDb.VacationReview.LastYearsDaysTakenOffNumber;
+            vacationRequestFromDb.Employee.DaysOffNumber += previousDays - vacationRequestFromDb.VacationReview.LastYearsDaysTakenOffNumber;
+
+            await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+        }
 
         vacationRequestFromDb.VacationReview = VacationRequestDTO.VacationReview;
 
@@ -110,20 +112,13 @@ Updated request:
 
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequestFromDb.Employee.Id;
 
-        IsLoggedInEmployeeAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
-
         LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
 
-        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeByIdAsync(VacationRequestDTO.LeaveType.Id);
-
-        if (leaveType is null)
-        {
-            return NotFound();
-        }
+        LeaveType leaveType = LeaveTypes.Single(lt => lt.Id == VacationRequestDTO.LeaveType.Id);
 
         vacationRequestFromDb.LeaveType = leaveType;
 
-        var vacationRequestDTOValidationResult = await vacationRequestValidator.ValidateAsync(new VacationRequest
+        var vacationRequestDTOValidationResult = await new VacationRequestValidator(_unitOfWork).ValidateAsync(new VacationRequest
         {
             Id = VacationRequestDTO.Id,
             Comment = VacationRequestDTO.Comment,
@@ -170,7 +165,6 @@ Go to details page
 </a>
 ";
 
-        vacationRequestFromDb.Employee.DaysOffNumber += previousDays - newDays;
         var employeeValidationResult = await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
 
         if (!employeeValidationResult.IsValid)
@@ -194,14 +188,7 @@ Go to details page
 
         await _unitOfWork.SaveChangesAsync();
 
-        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
-
-        foreach (var e in hrEmployees)
-        {
-            _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
-        }
-
-        _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
+        await GenerateAndSendEmailsToHrEmployeesAsync(loggedInEmployee, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
     }
@@ -214,13 +201,13 @@ Go to details page
             return NotFound();
         }
 
-        int vacationRequestId = (int)TempData["vacationRequestId"]!;
-
-        var vacationRequestFromDb = await _unitOfWork.VacationService.GetVacationRequestByIdAsync(vacationRequestId);
+        var vacationRequestFromDb = await _unitOfWork.VacationService.GetVacationRequestByIdAsync(VacationRequestDTO.Id);
         if (vacationRequestFromDb is null)
         {
             return NotFound();
         }
+
+        Employee vacationEmployee = vacationRequestFromDb.Employee;
 
         VacationReview newVacationreview = VacationRequestDTO.VacationReview;
 
@@ -229,23 +216,28 @@ Go to details page
         string emailBody;
         string emailSubject;
 
+        int days = (vacationRequestFromDb.EndDate.Date - vacationRequestFromDb.StartDate.Date).Days;
+
         if (newVacationreview.Id == 0) // Create
         {
+            newVacationreview.LastYearsDaysTakenOffNumber = Math.Min(vacationEmployee.LastYearsDaysOffNumber, days);
+
             newVacationreview.VacationRequest = vacationRequestFromDb;
             newVacationreview.VacationRequestRefId = vacationRequestFromDb.Id;
 
             if (newVacationreview.Approved)
             {
-                vacationRequestFromDb.Employee.DaysOffNumber -= (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
+                vacationEmployee.LastYearsDaysOffNumber -= newVacationreview.LastYearsDaysTakenOffNumber;
+                vacationEmployee.DaysOffNumber -= days - newVacationreview.LastYearsDaysTakenOffNumber;
 
-                await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+                await _unitOfWork.EmployeeService.UpdateAsync(vacationEmployee);
 
                 GenerateAndSendVacationReportEmail(newVacationreview);
             }
 
             _unitOfWork.VacationService.CreateVacationReview(newVacationreview);
 
-            emailSubject = $"Vacation review created for vacation request from {vacationRequestFromDb.Employee.FirstName} {vacationRequestFromDb.Employee.LastName}";
+            emailSubject = $"Vacation review created for vacation request from {vacationEmployee.FirstName} {vacationEmployee.LastName}";
             emailBody = $@"
             {vacationRequestFromDb}
             {newVacationreview}
@@ -267,27 +259,33 @@ Go to details page
                 return NotFound();
             }
 
+            newVacationreview.LastYearsDaysTakenOffNumber = vacationReviewFromDb.LastYearsDaysTakenOffNumber;
+
             bool reviewBecameApproved = !vacationReviewFromDb.Approved && newVacationreview.Approved;
             bool reviewBecameRejected = vacationReviewFromDb.Approved && !newVacationreview.Approved;
 
+
             if (reviewBecameApproved)
             {
-                vacationRequestFromDb.Employee.DaysOffNumber -= (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
-                await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+                newVacationreview.LastYearsDaysTakenOffNumber = Math.Min(vacationEmployee.LastYearsDaysOffNumber, days);
+                
+                vacationEmployee.LastYearsDaysOffNumber -= newVacationreview.LastYearsDaysTakenOffNumber;
+                vacationEmployee.DaysOffNumber -= days - newVacationreview.LastYearsDaysTakenOffNumber;
 
                 GenerateAndSendVacationReportEmail(vacationReviewFromDb);
             }
             else if (reviewBecameRejected)
             {
-                vacationRequestFromDb.Employee.DaysOffNumber += (vacationRequestFromDb.EndDate - vacationRequestFromDb.StartDate).Days;
-                await _unitOfWork.EmployeeService.UpdateAsync(vacationRequestFromDb.Employee);
+                vacationEmployee.LastYearsDaysOffNumber += newVacationreview.LastYearsDaysTakenOffNumber;
+                vacationEmployee.DaysOffNumber += days - newVacationreview.LastYearsDaysTakenOffNumber;
             }
+            await _unitOfWork.EmployeeService.UpdateAsync(vacationEmployee);
 
             vacationReviewFromDb.Reviewer = loggedInEmployee;
             vacationReviewFromDb.Approved = newVacationreview.Approved;
             vacationReviewFromDb.Comment = newVacationreview.Comment;
 
-            emailSubject = $"Vacation review updated for vacation request from {vacationRequestFromDb.Employee.FirstName} {vacationRequestFromDb.Employee.LastName}";
+            emailSubject = $"Vacation review updated for vacation request from {vacationEmployee.FirstName} {vacationEmployee.LastName}";
             emailBody = $@"
 {vacationRequestFromDb}
 {vacationReviewFromDb}
@@ -304,14 +302,7 @@ Go to details page
 
         await _unitOfWork.SaveChangesAsync();
 
-        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
-
-        foreach (var e in hrEmployees)
-        {
-            _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
-        }
-
-        _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
+        await GenerateAndSendEmailsToHrEmployeesAsync(loggedInEmployee, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
     }
@@ -325,16 +316,20 @@ Go to details page
             return NotFound();
         }
 
+        int days = (vacationReview.VacationRequest.EndDate.Date - vacationReview.VacationRequest.StartDate.Date).Days;
+        var vacationEmployee = vacationReview.VacationRequest.Employee;
+
+        if (vacationReview.Approved)
+        {
+            vacationEmployee.LastYearsDaysOffNumber += vacationReview.LastYearsDaysTakenOffNumber;
+            vacationEmployee.DaysOffNumber += days - vacationReview.LastYearsDaysTakenOffNumber;
+        }
+
         await _unitOfWork.VacationService.DeleteVacationReviewAsync(VacationRequestDTO.VacationReview.Id);
 
+        await _unitOfWork.EmployeeService.UpdateAsync(vacationEmployee);
+
         await _unitOfWork.SaveChangesAsync();
-
-        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
-
-        if (loggedInEmployee is null)
-        {
-            return NotFound();
-        }
 
         string emailSubject = "Vacation review deleted for vacation request";
         string emailBody = $@"
@@ -342,6 +337,20 @@ Go to details page
             {vacationReview}
             ";
 
+        var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+
+        if (loggedInEmployee is null)
+        {
+            return NotFound();
+        }
+
+        await GenerateAndSendEmailsToHrEmployeesAsync(loggedInEmployee, emailSubject, emailBody);
+
+        return RedirectToPage("./Index");
+    }
+
+    private async Task GenerateAndSendEmailsToHrEmployeesAsync(Employee employee, string emailSubject, string emailBody)
+    {
         var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
 
         foreach (var e in hrEmployees)
@@ -349,9 +358,7 @@ Go to details page
             _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
         }
 
-        _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
-
-        return RedirectToPage("./Index");
+        _unitOfWork.EmailService.EnqueueEmail(employee.Email!, emailSubject, emailBody);
     }
 
     private void GenerateAndSendVacationReportEmail(VacationReview vacationReview)

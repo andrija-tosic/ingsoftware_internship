@@ -15,7 +15,10 @@ public class VacationService : IVacationService
     private readonly IValidator<VacationRequest> _vacationRequestValidator;
     private readonly ILogger<IVacationService> _logger;
 
-    public VacationService(VacayayDbContext context, IValidator<VacationRequest> vacationRequestValidator, ILogger<IVacationService> logger)
+    public VacationService(
+        VacayayDbContext context,
+        IValidator<VacationRequest> vacationRequestValidator,
+        ILogger<IVacationService> logger)
     {
         _context = context;
         _vacationRequestValidator = vacationRequestValidator;
@@ -156,7 +159,7 @@ public class VacationService : IVacationService
     {
         return await _context.VacationReviews.Where(v => v.Id == id)
             .Include(v => v.VacationRequest).ThenInclude(vr => vr.LeaveType)
-            .Include(v => v.VacationRequest).ThenInclude(vr => vr.Employee)
+            .Include(v => v.VacationRequest).ThenInclude(vr => vr.Employee).ThenInclude(e => e.Position)
             .SingleAsync();
     }
 
@@ -181,7 +184,7 @@ public class VacationService : IVacationService
     public async Task<int> GetPotentiallyUsedDaysAsync(string employeeId)
     {
         return await _context.VacationRequests
-            .Where(v => v.VacationReview == null
+            .Where(v => (v.VacationReview == null)
                      && v.Employee.Id == employeeId)
             .SumAsync(v => EF.Functions.DateDiffDay(v.StartDate, v.EndDate));
     }
