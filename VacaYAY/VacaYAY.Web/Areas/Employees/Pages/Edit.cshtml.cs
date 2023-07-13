@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
@@ -16,10 +17,17 @@ namespace VacaYAY.Web.Areas.Employees.Pages;
 public class EditModel : PageModel
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IContractService _contractService;
+    private readonly IFileService _fileService;
 
-    public EditModel(IUnitOfWork unitOfWork)
+    public EditModel(
+        IUnitOfWork unitOfWork,
+        IContractService contractService,
+        IFileService fileService)
     {
         _unitOfWork = unitOfWork;
+        _contractService = contractService;
+        _fileService = fileService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -36,7 +44,7 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnGetAsync(string id)
     {
         Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
 
         if (id is null)
         {
@@ -108,9 +116,9 @@ public class EditModel : PageModel
         ContractDTO.EmployeeId = employee.Id;
 
         Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
 
-        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(ContractFile);
+        Uri contractFileUrl = await _fileService.SaveFileAsync(ContractFile);
 
         var contract = new Contract()
         {
@@ -122,7 +130,7 @@ public class EditModel : PageModel
             DocumentUrl = contractFileUrl.ToString()
         };
 
-        var contractValidationResult = _unitOfWork.ContractService.CreateContract(contract);
+        var contractValidationResult = await _contractService.CreateContractAsync(contract);
 
         if (!contractValidationResult.IsValid)
         {
@@ -134,8 +142,6 @@ public class EditModel : PageModel
 
             return Page();
         }
-
-        await _unitOfWork.SaveChangesAsync();
 
         return RedirectToAction("Index", nameof(Contracts));
     }

@@ -13,7 +13,7 @@ public class FileService : IFileService
         _blobServiceClient = new BlobServiceClient(connectionString);
     }
 
-    public async Task<Uri> SaveFile(IFormFile file)
+    public async Task<Uri> SaveFileAsync(IFormFile file)
     {
         string newFileName = Guid.NewGuid().ToString()
             + "-"

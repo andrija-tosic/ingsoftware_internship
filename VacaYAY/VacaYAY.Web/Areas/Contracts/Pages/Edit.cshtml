@@ -40,8 +40,8 @@
                 <label for="Contract type">Contract type</label>
             </div>
             <div class="form-floating mb-3">
-                <p asp-for="ContractFile">Contract document</p>
-                <input class="file" asp-for="ContractFile" accept=".pdf,.doc,.docx" type="file" value="Upload file" />
+                <p asp-for="ContractDTO.ContractFile">Contract document</p>
+                <input class="file" asp-for="ContractDTO.ContractFile" accept=".pdf,.doc,.docx" type="file" value="Upload file" />
             </div>
             <div class="form-floating mb-3">
                 <input type="submit" value="Save" class="btn btn-primary" />

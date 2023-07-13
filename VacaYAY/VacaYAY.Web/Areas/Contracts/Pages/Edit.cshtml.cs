@@ -13,19 +13,24 @@ namespace VacaYAY.Web.Areas.Contracts.Pages;
 [Authorize(Roles = InitialData.AdminRoleName)]
 public class EditModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IContractService _contractService;
+    private readonly IEmployeeService _employeeService;
+    private readonly IFileService _fileService;
     private readonly IHttpService _httpService;
 
-    public EditModel(IUnitOfWork unitOfWork, IHttpService httpService)
+    public EditModel(
+        IContractService contractService,
+        IEmployeeService employeeService,
+        IHttpService httpService)
     {
-        _unitOfWork = unitOfWork;
+        _contractService = contractService;
+        _employeeService = employeeService;
+        _fileService = new FileService("UseDevelopmentStorage=true");
         _httpService = httpService;
     }
 
     [BindProperty(SupportsGet = true)]
     public ContractDTO ContractDTO { get; set; } = default!;
-    [BindProperty]
-    public IFormFile? ContractFile { get; set; } = default!;
 
     [BindProperty(SupportsGet = true)]
     public Contract Contract { get; set; } = default!;
@@ -33,14 +38,14 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
 
         if (id is null)
         {
             return NotFound();
         }
 
-        var contract = await _unitOfWork.ContractService.GetByIdAsync((int)id);
+        var contract = await _contractService.GetByIdAsync((int)id);
         if (contract is null)
         {
             return NotFound();
@@ -48,7 +53,7 @@ public class EditModel : PageModel
 
         Contract = contract;
 
-        ContractFile = await _httpService.GetFormFileAsync(contract.DocumentUrl);
+        ContractDTO.ContractFile = await _httpService.GetFormFileAsync(contract.DocumentUrl);
 
         ContractDTO = new ContractDTO()
         {
@@ -65,40 +70,7 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        var contract = await _unitOfWork.ContractService.GetByIdAsync(ContractDTO.Id);
-        if (contract is null)
-        {
-            return NotFound();
-        }
-
-        var employee = await _unitOfWork.EmployeeService.GetByIdAsync(ContractDTO.EmployeeId);
-        if (employee is null)
-        {
-            return Unauthorized();
-        }
-
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
-
-        string contractFileUrl = contract.DocumentUrl;
-
-        if (ContractFile is not null)
-        {
-            // Contract file changed.
-            Uri uri = await _unitOfWork.FileService.SaveFile(ContractFile);
-
-            contractFileUrl = uri.ToString();
-        }
-
-        contract.Employee = employee;
-        contract.Number = ContractDTO.Number;
-        contract.StartDate = ContractDTO.StartDate;
-        contract.EndDate = ContractDTO.EndDate;
-        contract.Type = ContractTypes.Single(ct => ct.Id == ContractDTO.ContractTypeId);
-        contract.DocumentUrl = contractFileUrl;
-
-        Contract = contract;
-
-        var contractValidationResult = _unitOfWork.ContractService.UpdateContract(contract);
+        var contractValidationResult = await _contractService.UpdateContractAsync(ContractDTO);
 
         if (!contractValidationResult.IsValid)
         {
@@ -110,7 +82,8 @@ public class EditModel : PageModel
             return Page();
         }
 
-        await _unitOfWork.SaveChangesAsync();
+        Contract = await _contractService.GetByIdAsync(Contract.Id);
+        ContractTypes = await _contractService.GetContractTypesAsync();
 
         return RedirectToPage("./Index");
     }

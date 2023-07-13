@@ -1,36 +1,48 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VacaYAY.Business.Validators;
+using VacaYAY.Data;
+using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Business.Services;
 
 public class ContractService : IContractService
 {
-    private readonly DbSet<Contract> _contracts;
-    private readonly DbSet<ContractType> _contractTypes;
+    private readonly VacayayDbContext _context;
+    private readonly IFileService _fileService;
+    private readonly IEmployeeService _employeeService;
     private readonly ILogger<IContractService> _logger;
 
-    public ContractService(DbSet<Contract> contracts, DbSet<ContractType> contractTypes, ILogger<IContractService> logger)
+    public ContractService(
+        VacayayDbContext context,
+        IUserStore<Employee> userStore,
+        UserManager<Employee> userManager,
+        IHttpService httpService,
+        ILogger<IContractService> logger
+        )
     {
-        _contracts = contracts;
-        _contractTypes = contractTypes;
+        _context = context;
+        _fileService = new FileService("UseDevelopmentStorage=true");
+        _employeeService = new EmployeeService(context, userStore, userManager, httpService);
         _logger = logger;
     }
     public async Task<IList<Contract>> GetAllAsync()
     {
-        return await _contracts
+        return await _context.Contracts
             .Include(c => c.Employee)
             .ToListAsync();
     }
 
     public async Task<IList<ContractType>> GetContractTypesAsync()
     {
-        return await _contractTypes.ToListAsync();
+        return await _context.ContractTypes.ToListAsync();
     }
 
-    public ValidationResult CreateContract(Contract contract)
+    public async Task<ValidationResult> CreateContractAsync(Contract contract)
     {
         var validationResult = new ContractValidator().Validate(contract);
 
@@ -44,11 +56,43 @@ public class ContractService : IContractService
             return validationResult;
         }
 
-        _contracts.Add(contract);
+        _context.Add(contract);
+        await _context.SaveChangesAsync();
+
         return validationResult;
     }
-    public ValidationResult UpdateContract(Contract contract)
+    public async Task<ValidationResult> UpdateContractAsync(ContractDTO contractDto)
     {
+        var contract = await GetByIdAsync(contractDto.Id);
+        // TODO
+        //if (contract is null)
+        //{
+        //    return NotFound();
+        //}
+
+        string contractFileUrl = contract.DocumentUrl;
+
+        if (contractDto.ContractFile is not null)
+        {
+            // Contract file changed.
+            Uri uri = await _fileService.SaveFileAsync(contractDto.ContractFile);
+
+            contractFileUrl = uri.ToString();
+        }
+
+        var employee = await _employeeService.GetByIdAsync(contractDto.EmployeeId);
+        // TODO
+        //if (employee is null)
+        //{
+        //    return Unauthorized();
+        //}
+        contract.Employee = employee;
+        contract.Number = contractDto.Number;
+        contract.StartDate = contractDto.StartDate;
+        contract.EndDate = contractDto.EndDate;
+        contract.Type = _context.ContractTypes.Single(ct => ct.Id == contractDto.ContractTypeId);
+        contract.DocumentUrl = contractFileUrl;
+
         var validationResult = new ContractValidator().Validate(contract);
 
         if (!validationResult.IsValid)
@@ -60,15 +104,16 @@ public class ContractService : IContractService
 
             return validationResult;
         }
-        
-        _contracts.Update(contract);
+
+        _context.Update(contract);
+        await _context.SaveChangesAsync();
 
         return validationResult;
     }
 
-    public async Task DeleteContract(int id)
+    public async Task DeleteContractAsync(int id)
     {
-        var contract = await _contracts
+        var contract = await _context.Contracts
             .Where(v => v.Id == id)
             .SingleAsync();
 
@@ -77,12 +122,13 @@ public class ContractService : IContractService
             return;
         }
 
-        _contracts.Remove(contract);
+        _context.Remove(contract);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<Contract> GetByIdAsync(int id)
     {
-        return await _contracts
+        return await _context.Contracts
             .Include(c => c.Employee)
             .Include(c => c.Type)
             .SingleAsync(c => c.Id == id);

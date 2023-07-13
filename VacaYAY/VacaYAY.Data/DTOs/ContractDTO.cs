@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace VacaYAY.Data.DTOs;
@@ -21,4 +22,5 @@ public class ContractDTO
     [DataType(DataType.Date)]
     [DisplayName("Contract end date")]
     public DateTime? EndDate { get; set; }
+    public IFormFile? ContractFile { get; set; } = default!;
 }

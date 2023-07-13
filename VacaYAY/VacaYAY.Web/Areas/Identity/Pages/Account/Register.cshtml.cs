@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Business.Validators;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
@@ -24,6 +25,8 @@ public class RegisterModel : PageModel
     private readonly UserManager<Employee> _userManager;
     private readonly ILogger<RegisterModel> _logger;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IContractService _contractService;
+    private readonly IFileService _fileService;
 
     public IEnumerable<Position> Positions { get; set; }
     public IList<ContractType> ContractTypes { get; set; }
@@ -32,13 +35,17 @@ public class RegisterModel : PageModel
         UserManager<Employee> userManager,
         SignInManager<Employee> signInManager,
         ILogger<RegisterModel> logger,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        IContractService contractService,
+        IFileService fileService
         )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
         _unitOfWork = unitOfWork;
+        _contractService = contractService;
+        _fileService = fileService;
     }
 
     [BindProperty]
@@ -107,7 +114,7 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
         Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -121,9 +128,9 @@ public class RegisterModel : PageModel
         Input.ContractDTO.EmployeeId = loggedInEmployee.Id;
 
         Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
 
-        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(Input.ContractFile);
+        Uri contractFileUrl = await _fileService.SaveFileAsync(Input.ContractFile);
 
         var contract = new Contract()
         {

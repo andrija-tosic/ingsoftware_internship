@@ -37,6 +37,9 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options =>
 builder.Services.AddScoped<SignInManager<Employee>, SignInManager<Employee>>();
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+//builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddSingleton<IHttpService, HttpService>();

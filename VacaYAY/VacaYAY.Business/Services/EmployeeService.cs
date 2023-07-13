@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using VacaYAY.Business.Validators;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
@@ -18,13 +19,17 @@ public class EmployeeService : IEmployeeService
     private readonly IHttpService _httpService;
     private readonly IUserEmailStore<Employee> _emailStore;
 
-    public EmployeeService(VacayayDbContext context, IUserStore<Employee> userStore, UserManager<Employee> userManager,
-        IValidator<Employee> employeeValidator, IHttpService httpService)
+    public EmployeeService(
+        VacayayDbContext context,
+        IUserStore<Employee> userStore,
+        UserManager<Employee> userManager,
+        IHttpService httpService
+        )
     {
         _context = context;
         _userStore = userStore;
         _userManager = userManager;
-        _employeeValidator = employeeValidator;
+        _employeeValidator = new EmployeeValidator();
         _httpService = httpService;
         if (!_userManager.SupportsUserEmail)
         {

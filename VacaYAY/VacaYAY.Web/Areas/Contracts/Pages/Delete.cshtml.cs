@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -11,11 +12,11 @@ namespace VacaYAY.Web.Areas.Contracts.Pages;
 [Authorize(Roles = InitialData.AdminRoleName)]
 public class DeleteModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IContractService _contractService;
 
-    public DeleteModel(IUnitOfWork unitOfWork)
+    public DeleteModel(IContractService contractService)
     {
-        _unitOfWork = unitOfWork;
+        _contractService = contractService;
     }
 
     [BindProperty]
@@ -28,7 +29,7 @@ public class DeleteModel : PageModel
             return NotFound();
         }
 
-        var contract = await _unitOfWork.ContractService.GetByIdAsync((int)id);
+        var contract = await _contractService.GetByIdAsync((int)id);
 
         if (contract is null)
         {
@@ -47,13 +48,12 @@ public class DeleteModel : PageModel
         {
             return NotFound();
         }
-        var contract = await _unitOfWork.ContractService.GetByIdAsync((int)id);
+        var contract = await _contractService.GetByIdAsync((int)id);
 
         if (contract is not null)
         {
             Contract = contract;
-            await _unitOfWork.ContractService.DeleteContract((int)id);
-            await _unitOfWork.SaveChangesAsync();
+            await _contractService.DeleteContractAsync((int)id);
         }
 
         return RedirectToPage("./Index");
