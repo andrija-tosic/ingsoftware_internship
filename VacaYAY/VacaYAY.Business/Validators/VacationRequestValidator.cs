@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using VacaYAY.Business.Services;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
 
@@ -6,11 +7,11 @@ namespace VacaYAY.Business.Validators;
 
 public class VacationRequestValidator : AbstractValidator<VacationRequest>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVacationService _vacationService;
 
-    public VacationRequestValidator(IUnitOfWork unitOfWork)
+    public VacationRequestValidator(IVacationService vacationService)
     {
-        _unitOfWork = unitOfWork;
+        _vacationService = vacationService;
 
         RuleFor(v => v.StartDate)
             .NotEmpty()
@@ -29,7 +30,7 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
         {
             int newRequestDays = (newRequest.EndDate.Date - newRequest.StartDate.Date).Days;
 
-            var employeesVacationRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(
+            var employeesVacationRequests = await _vacationService.SearchVacationRequestsAsync(
                 newRequest.Employee.Id, false, new VacationRequestSearchFilters { });
 
             var otherRequestsWithPendingReview = employeesVacationRequests
@@ -59,7 +60,7 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
 
         RuleFor(v => v).MustAsync(async (newRequest, cancellation) =>
         {
-            IList<VacationRequest> otherRequests = (await _unitOfWork.VacationService.SearchVacationRequestsAsync(
+            IList<VacationRequest> otherRequests = (await _vacationService.SearchVacationRequestsAsync(
                 newRequest.Employee.Id, false, new VacationRequestSearchFilters()))
                 .Where(req => (newRequest.Id != req.Id)
                            && (req.VacationReview == null || req.VacationReview.Approved))

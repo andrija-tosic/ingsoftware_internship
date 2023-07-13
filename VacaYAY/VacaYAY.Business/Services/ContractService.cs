@@ -1,6 +1,5 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VacaYAY.Business.Validators;
@@ -22,11 +21,12 @@ public class ContractService : IContractService
         IUserStore<Employee> userStore,
         UserManager<Employee> userManager,
         IHttpService httpService,
+        IFileService fileService,
         ILogger<IContractService> logger
         )
     {
         _context = context;
-        _fileService = new FileService("UseDevelopmentStorage=true");
+        _fileService = fileService;
         _employeeService = new EmployeeService(context, userStore, userManager, httpService);
         _logger = logger;
     }

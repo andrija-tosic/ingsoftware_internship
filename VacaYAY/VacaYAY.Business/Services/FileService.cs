@@ -8,9 +8,9 @@ public class FileService : IFileService
 {
     private readonly BlobServiceClient _blobServiceClient;
 
-    public FileService(string connectionString)
+    public FileService()
     {
-        _blobServiceClient = new BlobServiceClient(connectionString);
+        _blobServiceClient = new BlobServiceClient("UseDevelopmentMode=true");
     }
 
     public async Task<Uri> SaveFileAsync(IFormFile file)

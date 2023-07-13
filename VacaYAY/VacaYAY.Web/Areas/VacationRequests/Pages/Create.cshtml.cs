@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -8,11 +9,16 @@ namespace VacaYAY.Web.Areas.VacationRequests;
 
 public class CreateModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVacationService _vacationService;
+    private readonly IEmployeeService _employeeService;
 
-    public CreateModel(IUnitOfWork unitOfWork)
+    public CreateModel(
+        IVacationService vacationService,
+        IEmployeeService employeeService
+        )
     {
-        _unitOfWork = unitOfWork;
+        _vacationService = vacationService;
+        _employeeService = employeeService;
     }
 
     [BindProperty]
@@ -26,17 +32,16 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
+        LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
-
-        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
         if (loggedInEmployee is null)
         {
             return Unauthorized();
         }
 
-        int potentiallyUsedDays = await _unitOfWork.VacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
+        int potentiallyUsedDays = await _vacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
 
         PotentialDaysOff = loggedInEmployee.DaysOffNumber - potentiallyUsedDays;
 
@@ -54,9 +59,9 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
+        LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
-        LeaveType? leaveType = await _unitOfWork.VacationService.GetLeaveTypeByIdAsync(LeaveTypeId);
+        LeaveType? leaveType = await _vacationService.GetLeaveTypeByIdAsync(LeaveTypeId);
 
         if (leaveType is null)
         {
@@ -65,52 +70,18 @@ public class CreateModel : PageModel
 
         VacationRequest.LeaveType = leaveType;
 
-        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
         if (loggedInEmployee is null)
         {
             return NotFound();
         }
 
-        int potentiallyUsedDays = await _unitOfWork.VacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
+        int potentiallyUsedDays = await _vacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
 
         PotentialDaysOff = loggedInEmployee.DaysOffNumber - potentiallyUsedDays;
 
-        VacationRequest.Employee = loggedInEmployee;
-        var requestValidationResult = await _unitOfWork.VacationService.CreateVacationRequestAsync(VacationRequest);
-
-        ModelState.Clear();
-        if (!requestValidationResult.IsValid)
-        {
-            foreach (var error in requestValidationResult.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
-
-            return Page();
-        }
-
-        int days = (VacationRequest.EndDate - VacationRequest.StartDate).Days;
-
-        await _unitOfWork.SaveChangesAsync();
-
-        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
-
-        string emailSubject = $"Vacation requested by {VacationRequest.Employee.FirstName} {VacationRequest.Employee.LastName}";
-        string emailBody = VacationRequest.ToString();
-        emailBody += $@"
-
-<a href=""https://localhost:7085/{nameof(VacationRequests)}/Details?id={VacationRequest.Id}"">
-Go to details page
-</a>
-";
-
-        foreach (var e in hrEmployees)
-        {
-            _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
-        }
-
-        _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
+        await _vacationService.CreateVacationRequestAsync(VacationRequest, User);
 
         return RedirectToPage("./Index");
     }

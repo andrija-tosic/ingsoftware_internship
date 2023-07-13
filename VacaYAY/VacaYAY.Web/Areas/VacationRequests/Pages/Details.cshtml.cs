@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.VacationRequests;
 
 public class DetailsModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVacationService _vacationService;
 
-    public DetailsModel(IUnitOfWork unitOfWork)
+    public DetailsModel(IVacationService vacationService)
     {
-        _unitOfWork = unitOfWork;
+        _vacationService = vacationService;
     }
 
   public VacationRequest VacationRequest { get; set; } = default!; 
@@ -23,7 +23,7 @@ public class DetailsModel : PageModel
             return NotFound();
         }
 
-        var vacationRequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
+        var vacationRequest = await _vacationService.GetVacationRequestByIdAsync((int)id);
 
         if (vacationRequest is null)
         {

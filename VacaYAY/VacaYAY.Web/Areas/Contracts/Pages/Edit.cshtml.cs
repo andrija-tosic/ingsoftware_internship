@@ -14,8 +14,6 @@ namespace VacaYAY.Web.Areas.Contracts.Pages;
 public class EditModel : PageModel
 {
     private readonly IContractService _contractService;
-    private readonly IEmployeeService _employeeService;
-    private readonly IFileService _fileService;
     private readonly IHttpService _httpService;
 
     public EditModel(
@@ -24,8 +22,6 @@ public class EditModel : PageModel
         IHttpService httpService)
     {
         _contractService = contractService;
-        _employeeService = employeeService;
-        _fileService = new FileService("UseDevelopmentStorage=true");
         _httpService = httpService;
     }
 

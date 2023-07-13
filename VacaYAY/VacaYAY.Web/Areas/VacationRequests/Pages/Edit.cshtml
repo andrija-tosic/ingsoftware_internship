@@ -18,7 +18,7 @@
                 <label for="LeaveTypeId">Leave type</label>
             </div>
 
-            <input type="hidden" asp-for="VacationRequestDTO.Id" />
+            @Html.HiddenFor(m => m.VacationRequestDTO.Id)
             <div class="form-floating mb-3">
                 <textarea asp-for="VacationRequestDTO.Comment"
                           class="form-control"

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
@@ -9,11 +9,16 @@ namespace VacaYAY.Web.Areas.VacationRequests;
 
 public class IndexModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVacationService _vacationService;
+    private readonly IEmployeeService _employeeService;
 
-    public IndexModel(IUnitOfWork unitOfWork)
+    public IndexModel(
+        IVacationService vacationService,
+        IEmployeeService employeeService
+        )
     {
-        _unitOfWork = unitOfWork;
+        _vacationService = vacationService;
+        _employeeService = employeeService;
     }
 
     public IList<VacationRequest> VacationRequests { get; set; } = default!;
@@ -23,34 +28,34 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
+        LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
-        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
         if (loggedInEmployee is null)
         {
             return Unauthorized();
         }
 
-        bool isAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
-        VacationRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(loggedInEmployee.Id, isAdmin, Input);
+        bool isAdmin = await _employeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
+        VacationRequests = await _vacationService.SearchVacationRequestsAsync(loggedInEmployee.Id, isAdmin, Input);
 
         return Page();
     }
 
     public async Task<ActionResult> OnPostSearchAsync()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
+        LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
-        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
         if (loggedInEmployee is null)
         {
             return Unauthorized();
         }
 
-        bool isAdmin = await _unitOfWork.EmployeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
-        VacationRequests = await _unitOfWork.VacationService.SearchVacationRequestsAsync(loggedInEmployee.Id, isAdmin, Input);
+        bool isAdmin = await _employeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
+        VacationRequests = await _vacationService.SearchVacationRequestsAsync(loggedInEmployee.Id, isAdmin, Input);
         
         return Page();
     }
