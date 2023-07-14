@@ -205,7 +205,6 @@ Go to details page
         //}
 
         _context.Remove(vacationRequest);
-        await _context.SaveChangesAsync();
 
         int days = (vacationRequest.EndDate - vacationRequest.StartDate).Days;
         vacationRequest.Employee.DaysOffNumber += days;
@@ -431,7 +430,7 @@ Go to details page
 
     public async Task DeleteVacationReviewAsync(int id, ClaimsPrincipal AuthenticatedUser)
     {
-        var vacationReview = await _context.VacationReviews.FindAsync(id);
+        var vacationReview = await GetVacationReviewByIdAsync(id);
 
         // TODO
         //if (vacationReview is null)

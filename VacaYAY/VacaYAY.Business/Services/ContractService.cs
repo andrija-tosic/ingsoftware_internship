@@ -18,16 +18,14 @@ public class ContractService : IContractService
 
     public ContractService(
         VacayayDbContext context,
-        IUserStore<Employee> userStore,
-        UserManager<Employee> userManager,
-        IHttpService httpService,
+        IEmployeeService employeeService,
         IFileService fileService,
         ILogger<IContractService> logger
         )
     {
         _context = context;
         _fileService = fileService;
-        _employeeService = new EmployeeService(context, userStore, userManager, httpService);
+        _employeeService = employeeService;
         _logger = logger;
     }
     public async Task<IList<Contract>> GetAllAsync()
@@ -42,8 +40,31 @@ public class ContractService : IContractService
         return await _context.ContractTypes.ToListAsync();
     }
 
-    public async Task<ValidationResult> CreateContractAsync(Contract contract)
+    public async Task<ValidationResult> CreateContractAsync(ContractDTO contractDto)
     {
+        var employee = await _employeeService.GetByIdAsync(contractDto.EmployeeId);
+        //TODO
+        //if (employee is null)
+        //{
+        //    return Unauthorized();
+        //}
+
+        contractDto.EmployeeId = employee.Id;
+
+        var contractTypes = await GetContractTypesAsync();
+
+        Uri contractFileUrl = await _fileService.SaveFileAsync(contractDto.ContractFile);
+
+        var contract = new Contract()
+        {
+            Employee = employee,
+            Number = contractDto.Number,
+            StartDate = contractDto.StartDate,
+            EndDate = contractDto.EndDate,
+            Type = contractTypes.Single(ct => ct.Id == contractDto.ContractTypeId),
+            DocumentUrl = contractFileUrl.ToString()
+        };
+
         var validationResult = new ContractValidator().Validate(contract);
 
         if (!validationResult.IsValid)

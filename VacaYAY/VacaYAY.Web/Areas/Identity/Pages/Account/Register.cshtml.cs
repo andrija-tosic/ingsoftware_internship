@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
 using VacaYAY.Business.Services;
 using VacaYAY.Business.Validators;
 using VacaYAY.Data;
@@ -24,7 +23,8 @@ public class RegisterModel : PageModel
     private readonly SignInManager<Employee> _signInManager;
     private readonly UserManager<Employee> _userManager;
     private readonly ILogger<RegisterModel> _logger;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmployeeService _employeeService;
+    private readonly IPositionService _positionService;
     private readonly IContractService _contractService;
     private readonly IFileService _fileService;
 
@@ -35,7 +35,8 @@ public class RegisterModel : PageModel
         UserManager<Employee> userManager,
         SignInManager<Employee> signInManager,
         ILogger<RegisterModel> logger,
-        IUnitOfWork unitOfWork,
+        IEmployeeService employeeService,
+        IPositionService positionService,
         IContractService contractService,
         IFileService fileService
         )
@@ -43,7 +44,8 @@ public class RegisterModel : PageModel
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
-        _unitOfWork = unitOfWork;
+        _employeeService = employeeService;
+        _positionService = positionService;
         _contractService = contractService;
         _fileService = fileService;
     }
@@ -113,13 +115,13 @@ public class RegisterModel : PageModel
         ReturnUrl = returnUrl;
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        Positions = await _positionService.GetAllAsync();
         ContractTypes = await _contractService.GetContractTypesAsync();
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
-        var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        var loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
         if (loggedInEmployee is null)
         {
             return Unauthorized();
@@ -127,7 +129,7 @@ public class RegisterModel : PageModel
 
         Input.ContractDTO.EmployeeId = loggedInEmployee.Id;
 
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        Positions = await _positionService.GetAllAsync();
         ContractTypes = await _contractService.GetContractTypesAsync();
 
         Uri contractFileUrl = await _fileService.SaveFileAsync(Input.ContractFile);
@@ -158,8 +160,9 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
-            var user = new Employee
+            var user = new EmployeeDTO
             {
+                Id = string.Empty,
                 Email = Input.Email,
                 Address = Input.Address,
                 DaysOffNumber = Input.DaysOffNumber,
@@ -170,17 +173,14 @@ public class RegisterModel : PageModel
                 LastName = Input.LastName,
                 IdNumber = Input.IdNumber,
                 InsertDate = DateTime.Now.Date,
-                Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
-                VacationRequests = new List<VacationRequest>(),
-                VacationReviews = new List<VacationReview>(),
-                Contracts = new List<Contract>() { contract }
+                PositionId = Input.PositionId,
+                Contract = contract
             };
 
-            var employeeValidationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
+            var employeeValidationResult = await _employeeService.CreateAsync(user, Input.Password);
 
             if (employeeValidationResult.IsValid)
             {
-                await _unitOfWork.SaveChangesAsync();
                 _logger.LogInformation("User created a new account with password.");
 
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)

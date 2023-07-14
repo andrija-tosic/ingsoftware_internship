@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
+using System.ComponentModel.DataAnnotations;
 using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
@@ -18,7 +18,6 @@ public class EditModel : PageModel
 
     public EditModel(
         IContractService contractService,
-        IEmployeeService employeeService,
         IHttpService httpService)
     {
         _contractService = contractService;
@@ -27,6 +26,10 @@ public class EditModel : PageModel
 
     [BindProperty(SupportsGet = true)]
     public ContractDTO ContractDTO { get; set; } = default!;
+
+    [BindProperty]
+    [Required(ErrorMessage = "Contract document is required.")]
+    public required IFormFile ContractFile { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public Contract Contract { get; set; } = default!;
@@ -66,6 +69,8 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
+        ContractDTO.ContractFile = ContractFile;
+
         var contractValidationResult = await _contractService.UpdateContractAsync(ContractDTO);
 
         if (!contractValidationResult.IsValid)

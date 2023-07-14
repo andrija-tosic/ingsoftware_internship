@@ -1,21 +1,26 @@
 ﻿using System.Text;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 
 namespace VacaYAY.Business.Jobs;
 
 public class VacationJobs
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmployeeService _employeeService;
+    private readonly IEmailService _emailService;
 
-    public VacationJobs(IUnitOfWork unitOfWork)
+    public VacationJobs(
+        IEmployeeService employeeService,
+        IEmailService emailService)
     {
-        _unitOfWork = unitOfWork;
+        _employeeService = employeeService;
+        _emailService = emailService;
     }
     public async Task YearlyEnqueueEmailsForRemainingVacationDays()
     {
         const string subject = "Vacation days reminder";
 
-        (var employees, var hrEmployees) = await _unitOfWork.EmployeeService.GetEmployeesWithRemainingVacationDaysAndAdmins();
+        (var employees, var hrEmployees) = await _employeeService.GetEmployeesWithRemainingVacationDaysAndAdmins();
 
         var hrEmailContent = new StringBuilder()
             .AppendLine("Employees with remaining vacation days:");
@@ -25,7 +30,7 @@ public class VacationJobs
         {
             hrEmailContent.AppendLine($"{i}) {employee.FirstName} {employee.LastName}: {employee.DaysOffNumber}");
 
-            _unitOfWork.EmailService.EnqueueEmail(employee.Email!,
+            _emailService.EnqueueEmail(employee.Email!,
                 subject,
                 $"You have {employee.DaysOffNumber} days of vacation remaining");
 
@@ -34,17 +39,17 @@ public class VacationJobs
 
         foreach (var hrEmployee in hrEmployees)
         {
-            _unitOfWork.EmailService.EnqueueEmail(hrEmployee.Email!, subject, hrEmailContent.ToString());
+            _emailService.EnqueueEmail(hrEmployee.Email!, subject, hrEmailContent.ToString());
         }
     }
 
     public async Task YearlyAddDaysToAllEmployees(int days = InitialData.YearlyVacationAddedDaysNumber)
     {
-        await _unitOfWork.EmployeeService.AddDaysToAllEmployees(days);
+        await _employeeService.AddDaysToAllEmployees(days);
     }
 
     public async Task YearlyRemoveLastYearsDaysOff()
     {
-        await _unitOfWork.EmployeeService.RemoveLastYearsDaysOffFromAllEmployees();
+        await _employeeService.RemoveLastYearsDaysOffFromAllEmployees();
     }
 }

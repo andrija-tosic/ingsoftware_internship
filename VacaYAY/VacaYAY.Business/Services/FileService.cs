@@ -10,7 +10,7 @@ public class FileService : IFileService
 
     public FileService()
     {
-        _blobServiceClient = new BlobServiceClient("UseDevelopmentMode=true");
+        _blobServiceClient = new BlobServiceClient("UseDevelopmentStorage=true");
     }
 
     public async Task<Uri> SaveFileAsync(IFormFile file)

@@ -17,13 +17,15 @@ public class EmployeeService : IEmployeeService
     private readonly UserManager<Employee> _userManager;
     private readonly IValidator<Employee> _employeeValidator;
     private readonly IHttpService _httpService;
+    private readonly IPositionService _positionService;
     private readonly IUserEmailStore<Employee> _emailStore;
 
     public EmployeeService(
         VacayayDbContext context,
         IUserStore<Employee> userStore,
         UserManager<Employee> userManager,
-        IHttpService httpService
+        IHttpService httpService,
+        IPositionService positionService
         )
     {
         _context = context;
@@ -31,6 +33,7 @@ public class EmployeeService : IEmployeeService
         _userManager = userManager;
         _employeeValidator = new EmployeeValidator();
         _httpService = httpService;
+        _positionService = positionService;
         if (!_userManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
@@ -63,8 +66,35 @@ public class EmployeeService : IEmployeeService
             .SingleAsync();
     }
 
-    public async Task<ValidationResult> CreateAsync(Employee employee, string password)
+    public async Task<ValidationResult> CreateAsync(EmployeeDTO employeeDto, string password)
     {
+        var position = await _positionService.GetByIdAsync(employeeDto.PositionId);
+
+        //TODO
+        //if (position is null)
+        //{
+
+        //}
+
+        var employee = new Employee
+        {
+            Email = employeeDto.Email,
+            UserName = employeeDto.Email,
+            Address = employeeDto.Address,
+            DaysOffNumber = employeeDto.DaysOffNumber,
+            LastYearsDaysOffNumber = 0,
+            EmploymentStartDate = employeeDto.EmploymentStartDate,
+            EmploymentEndDate = employeeDto.EmploymentEndDate,
+            FirstName = employeeDto.FirstName,
+            LastName = employeeDto.LastName,
+            IdNumber = employeeDto.IdNumber,
+            InsertDate = DateTime.Now.Date,
+            Position = position,
+            VacationRequests = new List<VacationRequest>(),
+            VacationReviews = new List<VacationReview>(),
+            Contracts = employeeDto.Contract is not null ? new List<Contract>() { employeeDto.Contract } : new List<Contract>()
+        };
+
         ValidationResult validationResult = _employeeValidator.Validate(employee);
 
         if (!validationResult.IsValid)
@@ -85,31 +115,54 @@ public class EmployeeService : IEmployeeService
 
         validationResult.Errors.AddRange(
             result.Errors
-            .Select(e => new FluentValidation.Results.ValidationFailure(e.Code, e.Description))
+            .Select(e => new ValidationFailure(e.Code, e.Description))
         );
 
         return validationResult;
     }
 
-    public async Task<ValidationResult> UpdateAsync(Employee employee)
+    public async Task<ValidationResult> UpdateAsync(EmployeeDTO employeeDto)
     {
-        ValidationResult validationResult = _employeeValidator.Validate(employee);
+        var employeeFromDb = await GetByIdAsync(employeeDto.Id);
+
+        //TODO
+        //if (employeeFromDb is null)
+        //{
+        //    return (IActionResult)IdentityResult.Failed(new IdentityError());
+        //}
+
+        employeeFromDb.Address = employeeDto.Address;
+        employeeFromDb.Id = employeeDto.Id;
+        employeeFromDb.DaysOffNumber = employeeDto.DaysOffNumber;
+        employeeFromDb.EmploymentStartDate = employeeDto.EmploymentStartDate;
+        employeeFromDb.EmploymentEndDate = employeeDto.EmploymentEndDate;
+        employeeFromDb.FirstName = employeeDto.FirstName;
+        employeeFromDb.LastName = employeeDto.LastName;
+        employeeFromDb.Email = employeeDto.Email;
+        employeeFromDb.IdNumber = employeeDto.IdNumber;
+        employeeFromDb.Position = (await _positionService.GetByIdAsync(employeeDto.PositionId))!;
+
+        var validationResult = _employeeValidator.Validate(employeeFromDb);
 
         if (!validationResult.IsValid)
         {
             return validationResult;
         }
 
-        if (employee.Position.Id == InitialData.AdminPosition.Id)
+        _context.Employees.Update(employeeFromDb);
+        await _context.SaveChangesAsync();
+
+        if (employeeFromDb.Position.Id == InitialData.AdminPosition.Id)
         {
-            await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
+            await _userManager.AddToRoleAsync(employeeFromDb, InitialData.AdminRoleName);
         }
         else
         {
-            await _userManager.RemoveFromRoleAsync(employee, InitialData.AdminRoleName);
+            await _userManager.RemoveFromRoleAsync(employeeFromDb, InitialData.AdminRoleName);
         }
 
-        IdentityResult result = await _userManager.UpdateAsync(employee);
+        IdentityResult result = await _userManager.UpdateAsync(employeeFromDb);
+        await _context.SaveChangesAsync();
 
         return validationResult;
     }
@@ -170,7 +223,7 @@ public class EmployeeService : IEmployeeService
 
         if (employees is null || employees.Count == 0)
         {
-            return new ValidationResult(new[] { new FluentValidation.Results.ValidationFailure(nameof(employees), "is null") });
+            return new ValidationResult(new[] { new ValidationFailure(nameof(employees), "is null") });
         }
 
         ValidationResult result = new ValidationResult();
@@ -180,11 +233,12 @@ public class EmployeeService : IEmployeeService
             Position? position = await _context.Positions.FindAsync(employee.Position.Id); // To avoid adding an already existing Position.
             if (position is null)
             {
-                return new ValidationResult(new[] { new FluentValidation.Results.ValidationFailure(nameof(position), "is null") });
+                return new ValidationResult(new[] { new ValidationFailure(nameof(position), "is null") });
             }
             employee.Position = position;
             result = await CreateAsync(employee, "password");
         }
+        await _context.SaveChangesAsync();
 
         return result;
     }

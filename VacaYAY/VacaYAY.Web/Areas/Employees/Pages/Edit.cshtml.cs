@@ -14,17 +14,20 @@ namespace VacaYAY.Web.Areas.Employees.Pages;
 [Authorize(Roles = InitialData.AdminRoleName)]
 public class EditModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmployeeService _employeeService;
+    private readonly IPositionService _positionService;
     private readonly IContractService _contractService;
     private readonly IFileService _fileService;
 
     public EditModel(
-        IUnitOfWork unitOfWork,
+        IEmployeeService employeeService,
+        IPositionService positionService,
         IContractService contractService,
         IFileService fileService
         )
     {
-        _unitOfWork = unitOfWork;
+        _employeeService = employeeService;
+        _positionService = positionService;
         _contractService = contractService;
         _fileService = fileService;
     }
@@ -42,7 +45,7 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        Positions = await _positionService.GetAllAsync();
         ContractTypes = await _contractService.GetContractTypesAsync();
 
         if (id is null)
@@ -50,7 +53,7 @@ public class EditModel : PageModel
             return NotFound();
         }
 
-        var employeeFromDb = await _unitOfWork.EmployeeService.GetByIdAsync(id);
+        var employeeFromDb = await _employeeService.GetByIdAsync(id);
         if (employeeFromDb is null)
         {
             return NotFound();
@@ -66,25 +69,9 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        var employeeFromDb = await _unitOfWork.EmployeeService.GetByIdAsync(EmployeeDTO.Id);
+        Positions = await _positionService.GetAllAsync();
 
-        if (employeeFromDb is null)
-        {
-            return (IActionResult)IdentityResult.Failed(new IdentityError());
-        }
-
-        employeeFromDb.Address = EmployeeDTO.Address;
-        employeeFromDb.Id = EmployeeDTO.Id;
-        employeeFromDb.DaysOffNumber = EmployeeDTO.DaysOffNumber;
-        employeeFromDb.EmploymentStartDate = EmployeeDTO.EmploymentStartDate;
-        employeeFromDb.EmploymentEndDate = EmployeeDTO.EmploymentEndDate;
-        employeeFromDb.FirstName = EmployeeDTO.FirstName;
-        employeeFromDb.LastName = EmployeeDTO.LastName;
-        employeeFromDb.Email = EmployeeDTO.Email;
-        employeeFromDb.IdNumber = EmployeeDTO.IdNumber;
-        employeeFromDb.Position = (await _unitOfWork.PositionService.GetByIdAsync(EmployeeDTO.PositionId))!;
-
-        var validationResult = await _unitOfWork.EmployeeService.UpdateAsync(employeeFromDb);
+        var validationResult = await _employeeService.UpdateAsync(EmployeeDTO);
 
         if (!validationResult.IsValid)
         {
@@ -95,41 +82,17 @@ public class EditModel : PageModel
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
 
-            Positions = await _unitOfWork.PositionService.GetAllAsync();
 
             return Page();
         }
 
-        await _unitOfWork.SaveChangesAsync();
         return RedirectToPage("./Index");
     }
 
     public async Task<IActionResult> OnPostAddContractAsync()
     {
-        var employee = await _unitOfWork.EmployeeService.GetByIdAsync(ContractDTO.EmployeeId);
-        if (employee is null)
-        {
-            return Unauthorized();
-        }
-
-        ContractDTO.EmployeeId = employee.Id;
-
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _contractService.GetContractTypesAsync();
-
-        Uri contractFileUrl = await _fileService.SaveFileAsync(ContractFile);
-
-        var contract = new Contract()
-        {
-            Employee = employee,
-            Number = ContractDTO.Number,
-            StartDate = ContractDTO.StartDate,
-            EndDate = ContractDTO.EndDate,
-            Type = ContractTypes.Single(ct => ct.Id == ContractDTO.ContractTypeId),
-            DocumentUrl = contractFileUrl.ToString()
-        };
-
-        var contractValidationResult = await _contractService.CreateContractAsync(contract);
+        ContractDTO.ContractFile = ContractFile;
+        var contractValidationResult = await _contractService.CreateContractAsync(ContractDTO);
 
         if (!contractValidationResult.IsValid)
         {
