@@ -92,7 +92,7 @@ public class EmployeeService : IEmployeeService
             Position = position,
             VacationRequests = new List<VacationRequest>(),
             VacationReviews = new List<VacationReview>(),
-            Contracts = employeeDto.Contract is not null ? new List<Contract>() { employeeDto.Contract } : new List<Contract>()
+            Contracts = new List<Contract>()
         };
 
         ValidationResult validationResult = _employeeValidator.Validate(employee);
@@ -102,16 +102,18 @@ public class EmployeeService : IEmployeeService
             return validationResult;
         }
 
-        bool isAlreadyAdmin = await _userManager.IsInRoleAsync(employee, InitialData.AdminRoleName);
+        await _userStore.SetUserNameAsync(employee, employee.Email, CancellationToken.None);
+        await _emailStore.SetEmailAsync(employee, employee.Email, CancellationToken.None);
+        await _userManager.CreateAsync(employee, password);
 
-        if (employee.Position.Id == InitialData.AdminPosition.Id && !isAlreadyAdmin)
+        if (employee.Position.Id == InitialData.AdminPosition.Id)
         {
             await _userManager.AddToRoleAsync(employee, InitialData.AdminRoleName);
         }
 
-        await _userStore.SetUserNameAsync(employee, employee.Email, CancellationToken.None);
-        await _emailStore.SetEmailAsync(employee, employee.Email, CancellationToken.None);
-        IdentityResult result = await _userManager.CreateAsync(employee, password);
+        employeeDto.Contract.Employee = employee;
+        employee.Contracts.Add(employeeDto.Contract);
+        IdentityResult result = await _userManager.UpdateAsync(employee);
 
         validationResult.Errors.AddRange(
             result.Errors

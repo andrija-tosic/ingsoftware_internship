@@ -11,8 +11,7 @@ public class ContractDTO
     [RegularExpression(@"^[0-9]+$", ErrorMessage = "Contract number must contain numbers only.")]
     [DisplayName("Contract number")]
     public required string Number { get; set; }
-    [Required]
-    public required string EmployeeId { get; set; }
+    public string EmployeeId { get; set; }
     [Required]
     public required int ContractTypeId { get; set; }
     [Required]

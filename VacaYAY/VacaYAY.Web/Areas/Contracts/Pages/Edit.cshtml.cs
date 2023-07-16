@@ -28,8 +28,7 @@ public class EditModel : PageModel
     public ContractDTO ContractDTO { get; set; } = default!;
 
     [BindProperty]
-    [Required(ErrorMessage = "Contract document is required.")]
-    public required IFormFile ContractFile { get; set; }
+    public IFormFile? ContractFile { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public Contract Contract { get; set; } = default!;
@@ -69,7 +68,10 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        ContractDTO.ContractFile = ContractFile;
+        if (ContractFile is not null)
+        {
+            ContractDTO.ContractFile = ContractFile;
+        }
 
         var contractValidationResult = await _contractService.UpdateContractAsync(ContractDTO);
 

@@ -1,4 +1,6 @@
-﻿using Hangfire;
+﻿#undef ENABLE_EMAILS
+
+using Hangfire;
 using Microsoft.AspNetCore.StaticFiles;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -17,7 +19,9 @@ public class EmailService : IEmailService
     public void EnqueueEmail(string email, string subject, string htmlMessage, byte[]? attachment,
         string? attachmentName = null)
     {
+#if ENABLE_EMAILS
         BackgroundJob.Enqueue(() => SendEmail(email, subject, htmlMessage, attachment, attachmentName));
+#endif
     }
 
     [AutomaticRetry(Attempts = int.MaxValue, OnAttemptsExceeded = AttemptsExceededAction.Fail)]

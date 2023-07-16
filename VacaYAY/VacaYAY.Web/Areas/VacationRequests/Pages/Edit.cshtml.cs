@@ -1,5 +1,4 @@
-﻿using IronPdf;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business.Services;
 using VacaYAY.Data;
@@ -24,10 +23,9 @@ public class EditModel : PageModel
 
     [BindProperty]
     public VacationRequestDTO VacationRequestDTO { get; set; } = default!;
-
     public IList<LeaveType> LeaveTypes { get; set; } = default!;
     public bool IsSameEmployeeAsLoggedInOne = false;
-    public bool IsLoggedInEmployeeAdmin = false;
+    public bool IsLoggedInEmployeeAdmin => User.IsInRole(InitialData.AdminRoleName);
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
@@ -50,7 +48,6 @@ public class EditModel : PageModel
         }
 
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequest.Employee.Id;
-        IsLoggedInEmployeeAdmin = await _employeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
 
         LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
@@ -86,7 +83,6 @@ public class EditModel : PageModel
         {
             return NotFound();
         }
-        VacationRequestDTO.Employee = vacationRequestFromDb.Employee;
 
         var loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
@@ -96,7 +92,6 @@ public class EditModel : PageModel
         }
 
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequestFromDb.Employee.Id;
-        IsLoggedInEmployeeAdmin = await _employeeService.IsInRoleAsync(loggedInEmployee, InitialData.AdminRoleName);
 
         LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 

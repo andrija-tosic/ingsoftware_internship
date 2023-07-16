@@ -39,21 +39,11 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
             VacationRequest? existingRequest = employeesVacationRequests
                 .SingleOrDefault(r => r.VacationReview is null && r.Id == newRequest.Id);
 
-            int usedDays;
+            int usedDays = newRequestDays + otherRequestsWithPendingReview.Sum(r => (r.EndDate.Date - r.StartDate.Date).Days);
 
-            if (existingRequest is not null)
-            {
-                int previousDays = (existingRequest.EndDate.Date - existingRequest.StartDate.Date).Days;
-                usedDays = newRequestDays - previousDays;
-            }
-            else
-            {
-                usedDays = newRequestDays;
-            }
+            int totalDaysOffNumber = newRequest.Employee.DaysOffNumber + newRequest.Employee.LastYearsDaysOffNumber;
 
-            usedDays += otherRequestsWithPendingReview.Sum(r => (r.EndDate.Date - r.StartDate.Date).Days);
-
-            return newRequest.Employee.DaysOffNumber - usedDays >= 0;
+            return totalDaysOffNumber - usedDays >= 0;
         }).WithMessage(v => $"Employee {v.Employee.FirstName} {v.Employee.LastName} has only {v.Employee.DaysOffNumber} days off left.");
 
         RuleFor(v => v.Employee).NotNull();

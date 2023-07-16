@@ -104,7 +104,7 @@ public class RegisterModel : PageModel
         public required DateTime EmploymentStartDate { get; set; }
         [DisplayName("Employment end date")]
         public DateTime? EmploymentEndDate { get; set; }
-        public ContractDTO ContractDTO { get; set; }
+        public required ContractDTO ContractDTO { get; set; }
 
         [Required(ErrorMessage = "Contract document is required.")]
         public required IFormFile ContractFile { get; set; }
@@ -121,14 +121,6 @@ public class RegisterModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
-        var loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
-        if (loggedInEmployee is null)
-        {
-            return Unauthorized();
-        }
-
-        Input.ContractDTO.EmployeeId = loggedInEmployee.Id;
-
         Positions = await _positionService.GetAllAsync();
         ContractTypes = await _contractService.GetContractTypesAsync();
 
@@ -136,7 +128,7 @@ public class RegisterModel : PageModel
 
         var contract = new Contract()
         {
-            Employee = loggedInEmployee,
+            Employee = null,
             Number = Input.ContractDTO.Number,
             StartDate = Input.ContractDTO.StartDate,
             EndDate = Input.ContractDTO.EndDate,
@@ -158,48 +150,47 @@ public class RegisterModel : PageModel
 
         returnUrl ??= Url.Content("~/" + nameof(Employees));
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        if (ModelState.IsValid)
+
+        var user = new EmployeeDTO
         {
-            var user = new EmployeeDTO
+            Id = string.Empty,
+            Email = Input.Email,
+            Address = Input.Address,
+            DaysOffNumber = Input.DaysOffNumber,
+            LastYearsDaysOffNumber = 0,
+            EmploymentStartDate = Input.EmploymentStartDate,
+            EmploymentEndDate = Input.EmploymentEndDate,
+            FirstName = Input.FirstName,
+            LastName = Input.LastName,
+            IdNumber = Input.IdNumber,
+            InsertDate = DateTime.Now.Date,
+            PositionId = Input.PositionId,
+            Contract = contract
+        };
+
+        var employeeValidationResult = await _employeeService.CreateAsync(user, Input.Password);
+
+        if (employeeValidationResult.IsValid)
+        {
+            _logger.LogInformation("User created a new account with password.");
+
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
             {
-                Id = string.Empty,
-                Email = Input.Email,
-                Address = Input.Address,
-                DaysOffNumber = Input.DaysOffNumber,
-                LastYearsDaysOffNumber = 0,
-                EmploymentStartDate = Input.EmploymentStartDate,
-                EmploymentEndDate = Input.EmploymentEndDate,
-                FirstName = Input.FirstName,
-                LastName = Input.LastName,
-                IdNumber = Input.IdNumber,
-                InsertDate = DateTime.Now.Date,
-                PositionId = Input.PositionId,
-                Contract = contract
-            };
-
-            var employeeValidationResult = await _employeeService.CreateAsync(user, Input.Password);
-
-            if (employeeValidationResult.IsValid)
-            {
-                _logger.LogInformation("User created a new account with password.");
-
-                if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                {
-                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                }
-                else
-                {
-                    return LocalRedirect(returnUrl);
-                }
+                return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
             }
+            else
+            {
+                return LocalRedirect(returnUrl);
+            }
+        }
+        else
+        {
             ModelState.Clear();
             foreach (var error in employeeValidationResult.Errors)
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
+            return Page();
         }
-
-        // If we got this far, something failed, redisplay form
-        return Page();
     }
 }

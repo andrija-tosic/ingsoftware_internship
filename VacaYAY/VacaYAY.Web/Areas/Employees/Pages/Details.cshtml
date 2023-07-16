@@ -55,6 +55,12 @@
             @Html.DisplayFor(model => model.Employee.DaysOffNumber)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Employee.LastYearsDaysOffNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Employee.LastYearsDaysOffNumber)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Employee.EmploymentStartDate)
         </dt>
         <dd class="col-sm-10">
@@ -128,17 +134,16 @@
                 </td>
                 <td>
                     <a class="btn btn-outline-primary"
-                    asp-controller="@(nameof(Model.Employee.Contracts))"
-                    asp-action="Edit"
-                    asp-route-id="@item.Id">Edit</a>
+                       asp-controller="@(nameof(Model.Employee.Contracts))"
+                       asp-action="Edit"
+                       asp-route-id="@item.Id">Edit</a>
                     @*TODO: Routing for these buttons*@
                     <a class="btn btn-outline-secondary"
                        href="@item.DocumentUrl">Preview</a>
                     <a class="btn btn-outline-danger"
                        asp-controller="@(nameof(Model.Employee.Contracts))"
                        asp-action="Delete"
-                       asp-route-id="@item.Id"
-                    >Delete</a>
+                       asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
         }

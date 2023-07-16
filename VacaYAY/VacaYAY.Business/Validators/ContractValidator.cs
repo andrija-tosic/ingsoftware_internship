@@ -21,25 +21,27 @@ public class ContractValidator : AbstractValidator<Contract>
             return true;
         }).WithMessage($"Contract must have end date if the contract type is not {InitialData.OpenEndedContractType.Name}.");
 
-        RuleFor(c => c.StartDate)
-            .GreaterThanOrEqualTo(c => c.Employee.EmploymentStartDate)
-            .WithMessage("Contract start date must be after employee's employment starts.");
-
-        RuleFor(c => c.EndDate)
-            .LessThanOrEqualTo(c => c.Employee.EmploymentEndDate)
-            .WithMessage("Contract end date must be before employee's employment ends.");
-
-        RuleFor(c => c.Employee).NotNull();
-        RuleFor(c => c.DocumentUrl).Must(uri =>
+        When(c => c.Employee is not null, () => // When creating employee with contract and employee has not yet been set.
         {
-            if (string.IsNullOrWhiteSpace(uri))
-            {
-                return false;
-            }
+            RuleFor(c => c.StartDate)
+                .GreaterThanOrEqualTo(c => c.Employee.EmploymentStartDate)
+                .WithMessage("Contract start date must be after employee's employment starts.");
 
-            return Uri.TryCreate(uri, UriKind.Absolute, out Uri? outUri)
+            RuleFor(c => c.EndDate)
+                    .LessThanOrEqualTo(c => c.Employee.EmploymentEndDate)
+                    .WithMessage("Contract end date must be before employee's employment ends.");
+        });
+
+        RuleFor(c => c.DocumentUrl).Must(uri =>
+            {
+                if (string.IsNullOrWhiteSpace(uri))
+                {
+                    return false;
+                }
+
+                return Uri.TryCreate(uri, UriKind.Absolute, out Uri? outUri)
                 && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps);
-        }).WithMessage("Document URI is not a valid URI.");
+            }).WithMessage("Document URI is not a valid URI.");
 
         RuleFor(c => c.Number).Length(6);
     }

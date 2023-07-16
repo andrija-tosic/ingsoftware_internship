@@ -74,6 +74,9 @@
                 @Html.DisplayNameFor(model => model.Employees[0].DaysOffNumber)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Employees[0].LastYearsDaysOffNumber)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Employees[0].EmploymentStartDate)
             </th>
             <th>
@@ -112,6 +115,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DaysOffNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastYearsDaysOffNumber)
                 </td>
                 <td>
                     @Convert.ToDateTime(item.EmploymentStartDate).ToString("dd/MMMM/yyyy")

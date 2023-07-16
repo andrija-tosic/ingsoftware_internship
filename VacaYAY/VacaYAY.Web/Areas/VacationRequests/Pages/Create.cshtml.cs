@@ -23,14 +23,16 @@ public class CreateModel : PageModel
 
     [BindProperty]
     public VacationRequest VacationRequest { get; set; } = default!;
-
     public IList<LeaveType> LeaveTypes { get; set; } = default!;
 
     [BindProperty]
     public int LeaveTypeId { get; set; } = default;
-    public int PotentialDaysOff { get; set; } = default;
+    public int TotalPotentialDaysOff => PotentialLastYearsDaysOff + PotentialNewDaysOff;
+    public required int PotentialLastYearsDaysOff { get; set; } = default!;
+    public required int PotentialNewDaysOff { get; set; } = default!;
+    public Employee LoggedInEmployee { get; set; } = default!;
 
-    public async Task<IActionResult> OnGetAsync()
+    private async Task<StatusCodeResult> Init()
     {
         LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
@@ -38,20 +40,34 @@ public class CreateModel : PageModel
 
         if (loggedInEmployee is null)
         {
+            return StatusCode(StatusCodes.Status401Unauthorized);
+        }
+        LoggedInEmployee = loggedInEmployee;
+
+        int potentiallyUsedDays = await _vacationService.GetPotentiallyUsedDaysAsync(LoggedInEmployee.Id);
+
+        int overflow = Math.Max(potentiallyUsedDays - LoggedInEmployee.LastYearsDaysOffNumber, 0);
+        PotentialLastYearsDaysOff = Math.Max(LoggedInEmployee.LastYearsDaysOffNumber - potentiallyUsedDays, 0);
+        PotentialNewDaysOff = Math.Max(LoggedInEmployee.DaysOffNumber - overflow, 0);
+
+        return StatusCode(StatusCodes.Status200OK);
+    }
+
+    public async Task<IActionResult> OnGetAsync()
+    {
+        var result = await Init();
+        if (result.StatusCode == StatusCodes.Status401Unauthorized)
+        {
             return Unauthorized();
         }
-
-        int potentiallyUsedDays = await _vacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
-
-        PotentialDaysOff = loggedInEmployee.DaysOffNumber - potentiallyUsedDays;
 
         VacationRequest = new()
         {
             Comment = string.Empty,
-            Employee = loggedInEmployee,
+            Employee = LoggedInEmployee,
             StartDate = DateTime.Now.Date.AddDays(1),
             EndDate = DateTime.Now.Date.AddDays(6),
-            LeaveType = LeaveTypes.FirstOrDefault()!
+            LeaveType = LeaveTypes.First()
         };
 
         return Page();
@@ -59,16 +75,11 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        LeaveTypes = await _vacationService.GetLeaveTypesAsync();
-
-        LeaveType? leaveType = await _vacationService.GetLeaveTypeByIdAsync(LeaveTypeId);
-
-        if (leaveType is null)
+        var result = await Init();
+        if (result.StatusCode == StatusCodes.Status401Unauthorized)
         {
-            return NotFound();
+            return Unauthorized();
         }
-
-        VacationRequest.LeaveType = leaveType;
 
         Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
@@ -77,11 +88,22 @@ public class CreateModel : PageModel
             return NotFound();
         }
 
-        int potentiallyUsedDays = await _vacationService.GetPotentiallyUsedDaysAsync(loggedInEmployee.Id);
+        VacationRequest.Employee = LoggedInEmployee;
+        VacationRequest.LeaveType = LeaveTypes.Single(lt => lt.Id == LeaveTypeId);
 
-        PotentialDaysOff = loggedInEmployee.DaysOffNumber - potentiallyUsedDays;
+        var requestValidationResult = await _vacationService.CreateVacationRequestAsync(VacationRequest, User);
 
-        await _vacationService.CreateVacationRequestAsync(VacationRequest, User);
+        ModelState.Clear();
+        if (!requestValidationResult.IsValid)
+        {
+            foreach (var error in requestValidationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+
+            await Init();
+            return Page();
+        }
 
         return RedirectToPage("./Index");
     }
