@@ -36,6 +36,11 @@ public class CreateModel : PageModel
     {
         LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
+        if (!User.IsInRole(InitialData.AdminRoleName))
+        {
+            LeaveTypes = LeaveTypes.Where(lt => lt.Id != InitialData.CollectiveVacationLeaveType.Id).ToList();
+        }
+
         Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
         if (loggedInEmployee is null)

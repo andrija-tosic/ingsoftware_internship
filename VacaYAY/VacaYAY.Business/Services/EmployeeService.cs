@@ -285,4 +285,18 @@ public class EmployeeService : IEmployeeService
             .SetProperty(e => e.LastYearsDaysOffNumber, 0)
         );
     }
+
+    public async Task SubtractDaysFromAllEmployees(int days)
+    {
+        await _context.Employees.Select(e => new { Employee = e, Diff = days - e.LastYearsDaysOffNumber })
+            .ExecuteUpdateAsync(setters => setters
+            .SetProperty(e => e.Employee.LastYearsDaysOffNumber,
+                e => e.Employee.LastYearsDaysOffNumber - days > 0
+                    ? e.Employee.LastYearsDaysOffNumber - days : 0)
+
+            .SetProperty(e => e.Employee.DaysOffNumber,
+                e => e.Diff > 0
+                    ? e.Employee.DaysOffNumber - e.Diff > 0 ? e.Employee.DaysOffNumber - e.Diff : 0
+                    : e.Employee.DaysOffNumber));
+    }
 }
