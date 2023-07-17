@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Business.Validators;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
@@ -23,7 +23,10 @@ public class RegisterModel : PageModel
     private readonly SignInManager<Employee> _signInManager;
     private readonly UserManager<Employee> _userManager;
     private readonly ILogger<RegisterModel> _logger;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmployeeService _employeeService;
+    private readonly IPositionService _positionService;
+    private readonly IContractService _contractService;
+    private readonly IFileService _fileService;
 
     public IEnumerable<Position> Positions { get; set; }
     public IList<ContractType> ContractTypes { get; set; }
@@ -32,13 +35,19 @@ public class RegisterModel : PageModel
         UserManager<Employee> userManager,
         SignInManager<Employee> signInManager,
         ILogger<RegisterModel> logger,
-        IUnitOfWork unitOfWork
+        IEmployeeService employeeService,
+        IPositionService positionService,
+        IContractService contractService,
+        IFileService fileService
         )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
-        _unitOfWork = unitOfWork;
+        _employeeService = employeeService;
+        _positionService = positionService;
+        _contractService = contractService;
+        _fileService = fileService;
     }
 
     [BindProperty]
@@ -95,7 +104,7 @@ public class RegisterModel : PageModel
         public required DateTime EmploymentStartDate { get; set; }
         [DisplayName("Employment end date")]
         public DateTime? EmploymentEndDate { get; set; }
-        public ContractDTO ContractDTO { get; set; }
+        public required ContractDTO ContractDTO { get; set; }
 
         [Required(ErrorMessage = "Contract document is required.")]
         public required IFormFile ContractFile { get; set; }
@@ -106,28 +115,20 @@ public class RegisterModel : PageModel
         ReturnUrl = returnUrl;
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
+        Positions = await _positionService.GetAllAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
-        var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
-        if (loggedInEmployee is null)
-        {
-            return Unauthorized();
-        }
+        Positions = await _positionService.GetAllAsync();
+        ContractTypes = await _contractService.GetContractTypesAsync();
 
-        Input.ContractDTO.EmployeeId = loggedInEmployee.Id;
-
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
-        ContractTypes = await _unitOfWork.ContractService.GetContractTypesAsync();
-
-        Uri contractFileUrl = await _unitOfWork.FileService.SaveFile(Input.ContractFile);
+        Uri contractFileUrl = await _fileService.SaveFileAsync(Input.ContractFile);
 
         var contract = new Contract()
         {
-            Employee = loggedInEmployee,
+            Employee = null,
             Number = Input.ContractDTO.Number,
             StartDate = Input.ContractDTO.StartDate,
             EndDate = Input.ContractDTO.EndDate,
@@ -149,50 +150,47 @@ public class RegisterModel : PageModel
 
         returnUrl ??= Url.Content("~/" + nameof(Employees));
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        if (ModelState.IsValid)
+
+        var user = new EmployeeDTO
         {
-            var user = new Employee
+            Id = string.Empty,
+            Email = Input.Email,
+            Address = Input.Address,
+            DaysOffNumber = Input.DaysOffNumber,
+            LastYearsDaysOffNumber = 0,
+            EmploymentStartDate = Input.EmploymentStartDate,
+            EmploymentEndDate = Input.EmploymentEndDate,
+            FirstName = Input.FirstName,
+            LastName = Input.LastName,
+            IdNumber = Input.IdNumber,
+            InsertDate = DateTime.Now.Date,
+            PositionId = Input.PositionId,
+            Contract = contract
+        };
+
+        var employeeValidationResult = await _employeeService.CreateAsync(user, Input.Password);
+
+        if (employeeValidationResult.IsValid)
+        {
+            _logger.LogInformation("User created a new account with password.");
+
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
             {
-                Email = Input.Email,
-                Address = Input.Address,
-                DaysOffNumber = Input.DaysOffNumber,
-                LastYearsDaysOffNumber = 0,
-                EmploymentStartDate = Input.EmploymentStartDate,
-                EmploymentEndDate = Input.EmploymentEndDate,
-                FirstName = Input.FirstName,
-                LastName = Input.LastName,
-                IdNumber = Input.IdNumber,
-                InsertDate = DateTime.Now.Date,
-                Position = await _unitOfWork.PositionService.GetByIdAsync(Input.PositionId),
-                VacationRequests = new List<VacationRequest>(),
-                VacationReviews = new List<VacationReview>(),
-                Contracts = new List<Contract>() { contract }
-            };
-
-            var employeeValidationResult = await _unitOfWork.EmployeeService.CreateAsync(user, Input.Password);
-
-            if (employeeValidationResult.IsValid)
-            {
-                await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("User created a new account with password.");
-
-                if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                {
-                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                }
-                else
-                {
-                    return LocalRedirect(returnUrl);
-                }
+                return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
             }
+            else
+            {
+                return LocalRedirect(returnUrl);
+            }
+        }
+        else
+        {
             ModelState.Clear();
             foreach (var error in employeeValidationResult.Errors)
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
+            return Page();
         }
-
-        // If we got this far, something failed, redisplay form
-        return Page();
     }
 }

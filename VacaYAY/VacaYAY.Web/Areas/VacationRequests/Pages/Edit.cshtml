@@ -12,13 +12,13 @@
     <div class="col-md-4">
         <h4>Vacation request for @(Model.VacationRequestDTO.Employee.FirstName + " " + Model.VacationRequestDTO.Employee.LastName)</h4>
         <form method="post">
+            @Html.HiddenFor(m => m.VacationRequestDTO.Id)
             <div class="form-floating mb-3">
                 @Html.DropDownListFor(m => m.VacationRequestDTO.LeaveType.Id, new SelectList(@Model.LeaveTypes, nameof(LeaveType.Id), nameof(LeaveType.Name)),
                 new {@class="form-control dropdown-toggle"})
                 <label for="LeaveTypeId">Leave type</label>
             </div>
 
-            @Html.HiddenFor(m => m.VacationRequestDTO.Id)
             <div class="form-floating mb-3">
                 <textarea asp-for="VacationRequestDTO.Comment"
                           class="form-control"

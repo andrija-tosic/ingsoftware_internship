@@ -31,13 +31,17 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options =>
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
-})
-    .AddEntityFrameworkStores<VacayayDbContext>();
+}).AddEntityFrameworkStores<VacayayDbContext>();
 
 builder.Services.AddScoped<SignInManager<Employee>, SignInManager<Employee>>();
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IVacationService, VacationService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddSingleton<IHttpService, HttpService>();
 builder.Services.AddSingleton<IJsonParserService, JsonParserService>();

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Data.DTOs;
@@ -18,11 +19,14 @@ public class EmployeeDTO
     public required string IdNumber { get; set; }
     [Required]
     public required int DaysOffNumber { get; set; }
+    public required int LastYearsDaysOffNumber { get; set; }
     public required int PositionId { get; set; }
     public required DateTime EmploymentStartDate { get; set; }
     public DateTime? EmploymentEndDate { get; set; }
     public required DateTime InsertDate { get; set; }
     public DateTime? DeleteDate { get; set; }
+
+    public Contract Contract { get; set; } = default!;
 
     public static implicit operator EmployeeDTO(Employee v)
     {
@@ -33,6 +37,7 @@ public class EmployeeDTO
             LastName = v.LastName,
             Address = v.Address,
             DaysOffNumber = v.DaysOffNumber,
+            LastYearsDaysOffNumber = v.LastYearsDaysOffNumber,
             Email = v.Email,
             EmploymentStartDate = v.EmploymentStartDate,
             EmploymentEndDate = v.EmploymentEndDate,

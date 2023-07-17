@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.Employees.Pages
 {
     public class DetailsModel : PageModel
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public DetailsModel(IUnitOfWork unitOfWork)
+        private readonly IEmployeeService _employeeService;
+        public DetailsModel(IEmployeeService employeeService)
         {
-            _unitOfWork = unitOfWork;
+            _employeeService = employeeService;
         }
 
       public required Employee Employee { get; set; } = default!; 
@@ -22,7 +22,7 @@ namespace VacaYAY.Web.Areas.Employees.Pages
                 return NotFound();
             }
 
-            var employee = await _unitOfWork.EmployeeService.GetByIdAsync(id);
+            var employee = await _employeeService.GetByIdAsync(id);
             if (employee is null)
             {
                 return NotFound();

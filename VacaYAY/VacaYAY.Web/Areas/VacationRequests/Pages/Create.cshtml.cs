@@ -1,7 +1,7 @@
-﻿using Grpc.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -9,11 +9,16 @@ namespace VacaYAY.Web.Areas.VacationRequests;
 
 public class CreateModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVacationService _vacationService;
+    private readonly IEmployeeService _employeeService;
 
-    public CreateModel(IUnitOfWork unitOfWork)
+    public CreateModel(
+        IVacationService vacationService,
+        IEmployeeService employeeService
+        )
     {
-        _unitOfWork = unitOfWork;
+        _vacationService = vacationService;
+        _employeeService = employeeService;
     }
 
     [BindProperty]
@@ -29,18 +34,17 @@ public class CreateModel : PageModel
 
     private async Task<StatusCodeResult> Init()
     {
-        LeaveTypes = await _unitOfWork.VacationService.GetLeaveTypesAsync();
+        LeaveTypes = await _vacationService.GetLeaveTypesAsync();
 
-        Employee? loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
+        Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
 
         if (loggedInEmployee is null)
         {
             return StatusCode(StatusCodes.Status401Unauthorized);
         }
-
         LoggedInEmployee = loggedInEmployee;
 
-        int potentiallyUsedDays = await _unitOfWork.VacationService.GetPotentiallyUsedDaysAsync(LoggedInEmployee.Id);
+        int potentiallyUsedDays = await _vacationService.GetPotentiallyUsedDaysAsync(LoggedInEmployee.Id);
 
         int overflow = Math.Max(potentiallyUsedDays - LoggedInEmployee.LastYearsDaysOffNumber, 0);
         PotentialLastYearsDaysOff = Math.Max(LoggedInEmployee.LastYearsDaysOffNumber - potentiallyUsedDays, 0);
@@ -77,11 +81,17 @@ public class CreateModel : PageModel
             return Unauthorized();
         }
 
-        int potentiallyUsedDays = await _unitOfWork.VacationService.GetPotentiallyUsedDaysAsync(LoggedInEmployee.Id);
+        Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(User);
+
+        if (loggedInEmployee is null)
+        {
+            return NotFound();
+        }
 
         VacationRequest.Employee = LoggedInEmployee;
         VacationRequest.LeaveType = LeaveTypes.Single(lt => lt.Id == LeaveTypeId);
-        var requestValidationResult = await _unitOfWork.VacationService.CreateVacationRequestAsync(VacationRequest);
+
+        var requestValidationResult = await _vacationService.CreateVacationRequestAsync(VacationRequest, User);
 
         ModelState.Clear();
         if (!requestValidationResult.IsValid)
@@ -94,26 +104,6 @@ public class CreateModel : PageModel
             await Init();
             return Page();
         }
-
-        await _unitOfWork.SaveChangesAsync();
-
-        var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
-
-        string emailSubject = $"Vacation requested by {VacationRequest.Employee.FirstName} {VacationRequest.Employee.LastName}";
-        string emailBody = VacationRequest.ToString();
-        emailBody += $@"
-
-<a href=""https://localhost:7085/{nameof(VacationRequests)}/Details?id={VacationRequest.Id}"">
-Go to details page
-</a>
-";
-
-        foreach (var e in hrEmployees)
-        {
-            _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
-        }
-
-        _unitOfWork.EmailService.EnqueueEmail(LoggedInEmployee.Email!, emailSubject, emailBody);
 
         return RedirectToPage("./Index");
     }

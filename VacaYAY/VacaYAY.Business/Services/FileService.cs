@@ -8,12 +8,12 @@ public class FileService : IFileService
 {
     private readonly BlobServiceClient _blobServiceClient;
 
-    public FileService(string connectionString)
+    public FileService()
     {
-        _blobServiceClient = new BlobServiceClient(connectionString);
+        _blobServiceClient = new BlobServiceClient("UseDevelopmentStorage=true");
     }
 
-    public async Task<Uri> SaveFile(IFormFile file)
+    public async Task<Uri> SaveFileAsync(IFormFile file)
     {
         string newFileName = Guid.NewGuid().ToString()
             + "-"

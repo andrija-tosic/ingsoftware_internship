@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.Models;
 
@@ -10,11 +11,11 @@ namespace VacaYAY.Web.Areas.Employees.Pages
     [Authorize(Roles = InitialData.AdminRoleName)]
     public class DeleteModel : PageModel
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmployeeService _employeeService;
 
-        public DeleteModel(IUnitOfWork unitOfWork)
+        public DeleteModel(IEmployeeService employeeService)
         {
-            _unitOfWork = unitOfWork;
+            _employeeService = employeeService;
         }
 
         [BindProperty]
@@ -27,9 +28,9 @@ namespace VacaYAY.Web.Areas.Employees.Pages
                 return NotFound();
             }
 
-            var employee = await _unitOfWork.EmployeeService.GetByIdAsync(id);
+            var employee = await _employeeService.GetByIdAsync(id);
 
-            if (employee == null)
+            if (employee is null)
             {
                 return NotFound();
             }
@@ -46,14 +47,13 @@ namespace VacaYAY.Web.Areas.Employees.Pages
             {
                 return NotFound();
             }
-            var employee = await _unitOfWork.EmployeeService.GetByIdAsync(id);
+            var employee = await _employeeService.GetByIdAsync(id);
 
-            if (employee != null)
+            if (employee is not null)
             {
                 Employee = employee;
                 
-                await _unitOfWork.EmployeeService.SoftDeleteAsync(employee);
-                await _unitOfWork.SaveChangesAsync();
+                await _employeeService.SoftDeleteAsync(employee);
             }
 
             return RedirectToPage("./Index");

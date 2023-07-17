@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
+using VacaYAY.Business.Services;
 using VacaYAY.Data;
 using VacaYAY.Data.DTOs;
 using VacaYAY.Data.Models;
@@ -11,11 +11,15 @@ namespace VacaYAY.Web.Areas.Employees.Pages;
 [Authorize(Roles = InitialData.AdminRoleName)]
 public class IndexModel : PageModel
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmployeeService _employeeService;
+    private readonly IPositionService _positionService;
 
-    public IndexModel(IUnitOfWork unitOfWork)
+    public IndexModel(
+        IEmployeeService employeeService,
+        IPositionService positionService)
     {
-        _unitOfWork = unitOfWork;
+        _employeeService = employeeService;
+        _positionService = positionService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -29,25 +33,24 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        Employees = await _employeeService.SearchAsync(Input);
+        Positions = await _positionService.GetAllAsync();
     }
 
     public async Task<IActionResult> OnPostSearchAsync()
     {
-        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        Employees = await _employeeService.SearchAsync(Input);
+        Positions = await _positionService.GetAllAsync();
 
         return Page();
     }
 
     public async Task<IActionResult> OnPostGenerateFakeEmployeesAsync()
     {
-        await _unitOfWork.EmployeeService.CreateFakesAsync(NumberOfFakeEmployeesToGenerate);
-        await _unitOfWork.SaveChangesAsync();
+        await _employeeService.CreateFakesAsync(NumberOfFakeEmployeesToGenerate);
 
-        Employees = await _unitOfWork.EmployeeService.SearchAsync(Input);
-        Positions = await _unitOfWork.PositionService.GetAllAsync();
+        Employees = await _employeeService.SearchAsync(Input);
+        Positions = await _positionService.GetAllAsync();
 
         return Page();
     }

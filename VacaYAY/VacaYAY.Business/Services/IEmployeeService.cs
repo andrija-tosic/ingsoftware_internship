@@ -10,8 +10,8 @@ public interface IEmployeeService
 {
     Task<Employee?> GetByIdAsync(string id);
     Task<Employee?> GetLoggedInAsync(ClaimsPrincipal claims);
-    Task<ValidationResult> CreateAsync(Employee employee, string password);
-    Task<ValidationResult> UpdateAsync(Employee employee);
+    Task<ValidationResult> CreateAsync(EmployeeDTO employeeDto, string password);
+    Task<ValidationResult> UpdateAsync(EmployeeDTO employeeDto);
     Task<IdentityResult> SoftDeleteAsync(Employee employee);
     Task<IList<Employee>> GetAllAsync();
     Task<IList<Employee>> SearchAsync(EmployeeSearchFilters searchFilters);

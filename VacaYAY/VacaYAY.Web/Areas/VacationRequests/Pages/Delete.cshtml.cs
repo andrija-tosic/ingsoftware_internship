@@ -1,18 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VacaYAY.Business;
-using VacaYAY.Data;
+using VacaYAY.Business.Services;
 using VacaYAY.Data.Models;
 
 namespace VacaYAY.Web.Areas.VacationRequests
 {
     public class DeleteModel : PageModel
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IVacationService _vacationService;
 
-        public DeleteModel(IUnitOfWork unitOfWork)
+        public DeleteModel(IVacationService vacationService)
         {
-            _unitOfWork = unitOfWork;
+            _vacationService = vacationService;
         }
 
         [BindProperty]
@@ -25,7 +24,7 @@ namespace VacaYAY.Web.Areas.VacationRequests
                 return NotFound();
             }
 
-            var vacationrequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
+            var vacationrequest = await _vacationService.GetVacationRequestByIdAsync((int)id);
 
             if (vacationrequest is null)
             {
@@ -45,47 +44,7 @@ namespace VacaYAY.Web.Areas.VacationRequests
                 return NotFound();
             }
 
-            var loggedInEmployee = await _unitOfWork.EmployeeService.GetLoggedInAsync(User);
-
-            if (loggedInEmployee is null)
-            {
-                return Unauthorized();
-            }
-
-            var vacationrequest = await _unitOfWork.VacationService.GetVacationRequestByIdAsync((int)id);
-
-            if (vacationrequest is null)
-            {
-                return NotFound();
-            }
-
-            VacationRequest = vacationrequest;
-
-            if (VacationRequest.VacationReview is not null
-                && VacationRequest.VacationReview.Approved)
-            {
-                int days = (VacationRequest.EndDate - VacationRequest.StartDate).Days;
-                VacationRequest.Employee.LastYearsDaysOffNumber += VacationRequest.VacationReview.LastYearsDaysTakenOffNumber;
-                VacationRequest.Employee.DaysOffNumber += days - VacationRequest.VacationReview.LastYearsDaysTakenOffNumber;
-            }
-
-            await _unitOfWork.VacationService.DeleteVacationRequestAsync(VacationRequest.Id);
-
-            await _unitOfWork.EmployeeService.UpdateAsync(VacationRequest.Employee);
-
-            await _unitOfWork.SaveChangesAsync();
-
-            var hrEmployees = await _unitOfWork.EmployeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
-
-            string emailSubject = $"Vacation request from {VacationRequest.Employee.FirstName} {VacationRequest.Employee.LastName} deleted";
-            string emailBody = VacationRequest.ToString();
-
-            foreach (var e in hrEmployees)
-            {
-                _unitOfWork.EmailService.EnqueueEmail(e.Email!, emailSubject, emailBody);
-            }
-
-            _unitOfWork.EmailService.EnqueueEmail(loggedInEmployee.Email!, emailSubject, emailBody);
+            await _vacationService.DeleteVacationRequestAsync((int)id, User);
 
             return RedirectToPage("./Index");
         }
