@@ -60,10 +60,17 @@ namespace VacaYAY.Web.Areas.VacationRequests
             }
 
             VacationRequest = vacationrequest;
+
+            if (VacationRequest.VacationReview is not null
+                && VacationRequest.VacationReview.Approved)
+            {
+                int days = (VacationRequest.EndDate - VacationRequest.StartDate).Days;
+                VacationRequest.Employee.LastYearsDaysOffNumber += VacationRequest.VacationReview.LastYearsDaysTakenOffNumber;
+                VacationRequest.Employee.DaysOffNumber += days - VacationRequest.VacationReview.LastYearsDaysTakenOffNumber;
+            }
+
             await _unitOfWork.VacationService.DeleteVacationRequestAsync(VacationRequest.Id);
 
-            int days = (VacationRequest.EndDate - VacationRequest.StartDate).Days;
-            VacationRequest.Employee.DaysOffNumber += days;
             await _unitOfWork.EmployeeService.UpdateAsync(VacationRequest.Employee);
 
             await _unitOfWork.SaveChangesAsync();

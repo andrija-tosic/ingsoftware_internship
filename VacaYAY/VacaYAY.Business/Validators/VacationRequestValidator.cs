@@ -52,7 +52,9 @@ public class VacationRequestValidator : AbstractValidator<VacationRequest>
 
             usedDays += otherRequestsWithPendingReview.Sum(r => (r.EndDate.Date - r.StartDate.Date).Days);
 
-            return newRequest.Employee.DaysOffNumber - usedDays >= 0;
+            int totalDaysOffNumber = newRequest.Employee.DaysOffNumber + newRequest.Employee.LastYearsDaysOffNumber;
+
+            return totalDaysOffNumber - usedDays >= 0;
         }).WithMessage(v => $"Employee {v.Employee.FirstName} {v.Employee.LastName} has only {v.Employee.DaysOffNumber} days off left.");
 
         RuleFor(v => v.Employee).NotNull();
