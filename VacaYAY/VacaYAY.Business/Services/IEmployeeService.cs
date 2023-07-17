@@ -21,4 +21,5 @@ public interface IEmployeeService
     Task<(IList<Employee>, IList<Employee>)> GetEmployeesWithRemainingVacationDaysAndAdmins();
     Task AddDaysToAllEmployees(int days);
     Task RemoveLastYearsDaysOffFromAllEmployees();
+    Task SubtractDaysFromAllEmployees(int days);
 }

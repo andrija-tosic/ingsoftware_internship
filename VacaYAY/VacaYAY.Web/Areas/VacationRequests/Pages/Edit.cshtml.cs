@@ -50,6 +50,10 @@ public class EditModel : PageModel
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequest.Employee.Id;
 
         LeaveTypes = await _vacationService.GetLeaveTypesAsync();
+        if (!User.IsInRole(InitialData.AdminRoleName))
+        {
+            LeaveTypes = LeaveTypes.Where(lt => lt.Id != InitialData.CollectiveVacationLeaveType.Id).ToList();
+        }
 
         VacationRequestDTO = new()
         {
@@ -94,6 +98,10 @@ public class EditModel : PageModel
         IsSameEmployeeAsLoggedInOne = loggedInEmployee.Id == vacationRequestFromDb.Employee.Id;
 
         LeaveTypes = await _vacationService.GetLeaveTypesAsync();
+        if (!User.IsInRole(InitialData.AdminRoleName))
+        {
+            LeaveTypes = LeaveTypes.Where(lt => lt.Id != InitialData.CollectiveVacationLeaveType.Id).ToList();
+        }
 
         var validationResult = await _vacationService.UpdateVacationRequestAsync(VacationRequestDTO, User);
 

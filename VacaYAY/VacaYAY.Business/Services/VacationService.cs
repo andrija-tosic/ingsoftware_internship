@@ -44,6 +44,8 @@ public class VacationService : IVacationService
 
     public async Task<ValidationResult> CreateVacationRequestAsync(VacationRequest vacationRequest, ClaimsPrincipal AuthenticatedUser)
     {
+        int days = (vacationRequest.EndDate - vacationRequest.StartDate).Days;
+
         Employee? loggedInEmployee = await _employeeService.GetLoggedInAsync(AuthenticatedUser);
 
         //TODO
@@ -64,9 +66,31 @@ public class VacationService : IVacationService
         _context.VacationRequests.Add(vacationRequest);
         await _context.SaveChangesAsync();
 
-        int days = (vacationRequest.EndDate - vacationRequest.StartDate).Days;
+        if (vacationRequest.LeaveType.Id == InitialData.CollectiveVacationLeaveType.Id
+                && AuthenticatedUser.IsInRole(InitialData.AdminRoleName))
+        {
+            await _employeeService.SubtractDaysFromAllEmployees(days);
 
-        var hrEmployees = await _employeeService.GetByPositions(new[] { InitialData.AdminPosition.Id });
+            var employees = await _employeeService.GetAllAsync();
+
+            foreach (var employee in employees)
+            {
+                string subject = $"Collective vacation requested by {vacationRequest.Employee.FirstName} {vacationRequest.Employee.LastName}";
+                string body = vacationRequest.ToString();
+                body += $@"
+Your remaining number of days off: {employee.DaysOffNumber}
+Your remaining number of old days off: {employee.LastYearsDaysOffNumber}
+
+<a href=""https://localhost:7085/{nameof(VacationRequest) + "s"}/Details?id={vacationRequest.Id}"">
+Go to details page
+</a>
+";
+
+                _emailService.EnqueueEmail(employee.Email!, subject, body);
+            }
+
+            return validationResult;
+        }
 
         string emailSubject = $"Vacation requested by {vacationRequest.Employee.FirstName} {vacationRequest.Employee.LastName}";
         string emailBody = vacationRequest.ToString();
@@ -76,6 +100,7 @@ public class VacationService : IVacationService
 Go to details page
 </a>
 ";
+        await GenerateAndSendEmailsToHrEmployeesAsync(loggedInEmployee, emailSubject, emailBody);
 
         return validationResult;
     }
@@ -315,9 +340,9 @@ Go to details page
         //}
 
         int days = (vacationRequestFromDb.EndDate.Date - vacationRequestFromDb.StartDate.Date).Days;
-        
+
         vacationReview.LastYearsDaysTakenOffNumber = Math.Min(vacationRequestFromDb.Employee.LastYearsDaysOffNumber, days);
-        
+
         vacationReview.VacationRequest = vacationRequestFromDb;
         vacationReview.VacationRequestRefId = vacationRequestFromDb.Id;
 
@@ -413,7 +438,7 @@ Go to details page
 
         _context.VacationReviews.Update(vacationReviewFromDb);
         await _employeeService.UpdateAsync(vacationRequestFromDb.Employee);
-        
+
         string emailSubject = $"Vacation review updated for vacation request from {vacationRequestFromDb.Employee.FirstName} {vacationRequestFromDb.Employee.LastName}";
         string emailBody = $@"
 {vacationRequestFromDb}

@@ -267,6 +267,12 @@ public static class InitialData
     };
 
     public static IdentityRole[] IdentityRoles { get; } = new IdentityRole[] { AdminIdentityRole, DefaultIdentityRole };
+    public static LeaveType CollectiveVacationLeaveType { get; } = new LeaveType
+    {
+        Id = 5,
+        Name = "Collective vacation",
+        VacationRequests = new List<VacationRequest>()
+    };
 
     public static LeaveType[] LeaveTypes { get; } = new LeaveType[]
     {
@@ -293,7 +299,8 @@ public static class InitialData
             Id = 4,
             Name = "Unpaid leave",
             VacationRequests = new List<VacationRequest>()
-        }
+        },
+        CollectiveVacationLeaveType,
     };
 
     public static ContractType OpenEndedContractType = new ContractType
